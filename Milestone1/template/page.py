@@ -7,6 +7,7 @@ class Page:
         self.num_records = 0
         self.data = bytearray(4096)
 
+
     def has_capacity(self):
         pass
 
