@@ -13,7 +13,7 @@ class Index:
 
     """
     # returns the location of all records with the given value
-    """
+    """ 
 
     def locate(self, value):
         pass
