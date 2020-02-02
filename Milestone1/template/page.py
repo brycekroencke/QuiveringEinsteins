@@ -27,15 +27,16 @@ class Page:
         data[i + 7] = bytevalue[7]
 
     def read(self, index):
+        rindex = index * 8
         bytevalue = bytearray(8)
 
-        bytevalue[0] = data[index + 0]
-        bytevalue[1] = data[index + 1]
-        bytevalue[2] = data[index + 2]
-        bytevalue[3] = data[index + 3]
-        bytevalue[4] = data[index + 4]
-        bytevalue[5] = data[index + 5]
-        bytevalue[6] = data[index + 6]
-        bytevalue[7] = data[index + 7]
+        bytevalue[0] = data[rindex + 0]
+        bytevalue[1] = data[rindex + 1]
+        bytevalue[2] = data[rindex + 2]
+        bytevalue[3] = data[rindex + 3]
+        bytevalue[4] = data[rindex + 4]
+        bytevalue[5] = data[rindex + 5]
+        bytevalue[6] = data[rindex + 6]
+        bytevalue[7] = data[rindex + 7]
 
         return int.from_bytes(bytevalue, byteorder='big')
