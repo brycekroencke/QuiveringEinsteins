@@ -11,7 +11,7 @@ class Book:
     def __init__(self, num_of_pages):
         self.id = CURRENT_BOOK_ID
         CURRENT_BOOK_ID += 1
-
+        self.space_remaining = 512
         self.content = [Page(), Page(), Page()]
         for i in range(num_of_pages):
             self.content.append(Page())
