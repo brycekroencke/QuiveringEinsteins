@@ -16,6 +16,7 @@ class Book:
         for i in range(num_of_pages):
             self.content.append(Page())
         print(len(self.content))
+
     #def indirection(self):
 
 

@@ -6,7 +6,6 @@ INDIRECTION_COLUMN = 0
 #TIMESTAMP_COLUMN = 2
 SCHEMA_ENCODING_COLUMN = 3
 
-
 class Record:
     def __init__(self, rid, key, columns):
         self.rid = rid
@@ -21,10 +20,14 @@ class Table:
     """
     def __init__(self, name, num_columns, key):
         self.name = name
+        self.tail_list = []
+        self.base_list = []
         self.key = key
         self.num_columns = num_columns
         self.page_directory = {}
         pass
+
+
 
     def __merge(self):
         pass
