@@ -31,16 +31,18 @@ class Query:
             self.table.base_list.append(Book(len(columns)))
             self.table.base_list[-1].book_insert(columns)
 
+        #Check if self.table.base_list newest book is full-> add new book
+        elif self.table.base_list[-1].is_full():
+            self.table.base_list.append(Book(len(columns)))
+            self.table.base_list[-1].book_insert(columns)
+
         #Check if self.table.base_list newest book has room -> add to end of book
-        elif self.table.base_list[-1].space_remaining != 0:
+        else:
             # Add data to end of newest book
             self.table.base_list[-1].book_insert(columns)
 
 
-        #Check if self.table.base_list newest book is full-> add new book
-        else:
-            self.table.base_list.append(Book(len(columns)))
-            self.table.base_list[-1].book_insert(columns)
+
 
 
 

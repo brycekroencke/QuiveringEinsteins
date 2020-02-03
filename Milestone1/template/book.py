@@ -11,28 +11,30 @@ class Book:
     def __init__(self, num_of_pages):
         self.id = 0 #CURRENT_BOOK_ID
         #CURRENT_BOOK_ID += 1
-        self.space_remaining = 512
         self.content = [Page(), Page(), Page()]
         for i in range(num_of_pages):
             self.content.append(Page())
-        print(len(self.content))
 
     def book_insert(self, *columns):
-        self.space_remaining -= 1
+        if(len(columns) > len(self.content) - 3):
+            print("ERROR: Trying to insert too many columns")
+            return
 
-        #columns was a tuple of tuples ((c1, c2, c3, c4, c5),)
-        #convert columns to one list of ints and iterate through them
         columns = list(columns[0])
         for idx, i in enumerate(columns):
-            continue
-            #Convert each element i of to bytes and insert into byte array
+            self.content[idx + 3].write(i)
 
+    #returns value at page and index.
+    def read(self, column, index):
+        return self.content[column + 3].read(index)
 
+    #returns true if book is full.
+    def is_full(self):
+        if self.space_left() == 0:
+            return True
+        else:
+            return False
 
-
-            # bytes = i.to_bytes(length=8, byteorder='big')
-            # for idx2, b in enumerate(bytes):
-            #     #print(b.to_bytes(length=1, byteorder='big'))
-            #     self.content[idx+3].data[idx2] = b
-
-        #print(self.content[idx+3].data)
+    #returns how many rows available in pages.
+    def space_left(self):
+        return 512 - self.content[3].num_records
