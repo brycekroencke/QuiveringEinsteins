@@ -9,7 +9,6 @@ class Book:
 
     def book_insert(self, *columns):
         columns = columns[0]
-        print(columns)
         if(len(columns) > len(self.content)):
             print("ERROR: Trying to insert too many columns")
             return
@@ -17,8 +16,10 @@ class Book:
         for idx, i in enumerate(columns):
             self.content[idx].write(i)
 
+        return [self.bookindex, self.content[0].num_records - 1]
+
     #returns value at page and index.
-    def read(self, column, index):
+    def read(self, index, column):
         return self.content[column + 3].read(index)
 
     #returns true if book is full.
