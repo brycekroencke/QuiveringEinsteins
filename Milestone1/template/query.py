@@ -2,6 +2,10 @@ from table import Table, Record
 from index import Index
 from book import *
 
+RID_COLUMN = 0
+INDIRECTION_COLUMN = 1
+TIMESTAMP_COLUMN = 2
+SCHEMA_ENCODING_COLUMN = 3
 
 class Query:
     """
@@ -28,12 +32,12 @@ class Query:
         #ONLY EDIT BASE PAGES (base_list)
         #Check if self.table.base_list is empty -> add new book
         if len(self.table.base_list) == 0:
-            self.table.base_list.append(Book(len(columns)))
+            self.table.base_list.append(Book(len(columns), 0))
             self.table.base_list[-1].book_insert(columns)
 
         #Check if self.table.base_list newest book is full-> add new book
         elif self.table.base_list[-1].is_full():
-            self.table.base_list.append(Book(len(columns)))
+            self.table.base_list.append(Book(len(columns), bookindex))
             self.table.base_list[-1].book_insert(columns)
 
         #Check if self.table.base_list newest book has room -> add to end of book
@@ -42,16 +46,12 @@ class Query:
             self.table.base_list[-1].book_insert(columns)
 
 
-
-
-
-
     """
     # Read a record with specified key
     """
 
     def select(self, key, query_columns):
-        pass
+        return [Record(0, 0, [0,0,0,0,0])]
 
     """
     # Update a record with specified key and columns
