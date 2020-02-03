@@ -29,10 +29,13 @@ class Query:
     """
 
     def insert(self, *columns):
+        #putting metta data into a list and adding user
+        #data to the list
         data = list(columns)
         self.table.ridcounter = self.table.ridcounter + 1
         mettaData = [0,self.table.ridcounter,0,0]
         mettaData_and_data = mettaData + data
+
         #ONLY EDIT BASE PAGES (base_list)
         #Check if self.table.base_list is empty -> add new book
         if len(self.table.base_list) == 0:
