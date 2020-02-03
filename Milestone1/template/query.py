@@ -2,8 +2,8 @@ from table import Table, Record
 from index import Index
 from book import *
 
-RID_COLUMN = 0
-INDIRECTION_COLUMN = 1
+INDIRECTION_COLUMN = 0
+RID_COLUMN = 1
 TIMESTAMP_COLUMN = 2
 SCHEMA_ENCODING_COLUMN = 3
 
