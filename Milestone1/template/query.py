@@ -35,20 +35,25 @@ class Query:
         mettaData_and_data = mettaData + data
         #ONLY EDIT BASE PAGES (base_list)
         #Check if self.table.base_list is empty -> add new book
+        location = []
         if len(self.table.base_list) == 0:
             self.table.base_list.append(Book(len(columns)+4, 0))
-            self.table.base_list[-1].book_insert(mettaData_and_data)
+            location = self.table.base_list[-1].book_insert(mettaData_and_data)
 
         #Check if self.table.base_list newest book is full-> add new book
         elif self.table.base_list[-1].is_full():
             bookindex = self.table.base_list[-1].bookindex + 1
             self.table.base_list.append(Book(len(columns), bookindex))
-            self.table.base_list[-1].book_insert(mettaData_and_data)
+            location = self.table.base_list[-1].book_insert(mettaData_and_data)
 
         #Check if self.table.base_list newest book has room -> add to end of book
         else:
             # Add data to end of newest book
-            self.table.base_list[-1].book_insert(mettaData_and_data)
+            location = self.table.base_list[-1].book_insert(mettaData_and_data)
+
+        #Setting RID key to book location value.
+        self.table.page_directory[self.table.ridcounter] = location
+        self.table.index.create_index(data[self.table.key], mettadata[1])
 
 
     """
@@ -56,7 +61,13 @@ class Query:
     """
 
     def select(self, key, query_columns):
-        return [Record(0, 0, [0,0,0,0,0])]
+        RID_list = self.table.index.locate(key)
+        records = []
+        
+        #Taking RIDS->location and extracting records into record list.
+        for i in RID_list:
+            location = self.table.page_directory[i]
+
 
     """
     # Update a record with specified key and columns
