@@ -1,33 +1,42 @@
 from table import Table
 
-"""
-# optional: Indexes the specified column of the specified table to speed up select queries
-# This data structure is usually a B-Tree
-"""
-
 
 class Index:
 
-    def __init__(self, table):
-        pass
+    def __init__(self):
+        self.index = {}
 
-    """
+
     # returns the location of all records with the given value
-    """ 
 
-    def locate(self, value):
-        pass
+    def locate(self, sid):
+        if sid in self.index:
+            return self.index[sid]
+        else:
+            print("The student ID doesn't exist.")
 
-    """
-    # optional: Create index on specific column
-    """
+        # given a valid sid, return the rid so we
+        # find the data associated with the sid.
 
-    def create_index(self, table, column_number):
-        pass
 
-    """
-    # optional: Drop index of specific column
-    """
+    # optional: Create index on SID and RID.
 
-    def drop_index(self, table, column_number):
-        pass
+    def create_index(self, sid, rid):
+        if not sid in self.index:
+            self.index[sid] = rid
+        else:
+            print("The student ID already exist.")
+
+        # make a dictionary that maps sid as key to rid as value.
+        # rid is passed as a tuple of book ID and row_index.
+
+
+    # optional: Drop index of specific SID.
+
+    def drop_index(self, sid):
+        if sid in self.index:
+            del self.index[sid]
+        else:
+            print("The student ID doesn't exist.")
+
+        # del function deletes the key-value pair in a dictionary.
