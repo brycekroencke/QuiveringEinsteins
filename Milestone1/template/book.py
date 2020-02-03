@@ -3,16 +3,17 @@ from page import *
 class Book:
     def __init__(self, num_of_pages, bookindex):
         self.bookindex = bookindex
-        self.content = [Page(), Page(), Page()]
+        self.content = [Page(), Page(), Page(), Page()]
         for i in range(num_of_pages):
             self.content.append(Page())
 
     def book_insert(self, *columns):
-        if(len(columns) > len(self.content) - 3):
+        columns = columns[0]
+        print(columns)
+        if(len(columns) > len(self.content)):
             print("ERROR: Trying to insert too many columns")
             return
 
-        columns = list(columns[0])
         for idx, i in enumerate(columns):
             self.content[idx].write(i)
 
