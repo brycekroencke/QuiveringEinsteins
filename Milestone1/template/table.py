@@ -25,6 +25,7 @@ class Table:
         self.key = key
         self.num_columns = num_columns
         self.page_directory = {}
+        self.ridcounter = 0
         pass
 
 
