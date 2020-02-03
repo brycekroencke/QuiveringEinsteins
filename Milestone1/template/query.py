@@ -1,4 +1,4 @@
-from table import Table, Record
+from table import *
 from index import Index
 from book import *
 
@@ -29,21 +29,25 @@ class Query:
     """
 
     def insert(self, *columns):
+        self.table.ridcounter = self.table.ridcounter + 1
+        mettaData = [0,self.table.ridcounter,0,0]
+        mettaData_and_data = mettaData + columns
         #ONLY EDIT BASE PAGES (base_list)
         #Check if self.table.base_list is empty -> add new book
         if len(self.table.base_list) == 0:
-            self.table.base_list.append(Book(len(columns), 0))
-            self.table.base_list[-1].book_insert(columns)
+            self.table.base_list.append(Book(len(columns)+4, 0))
+            self.table.base_list[-1].book_insert(mettaData_and_data)
 
         #Check if self.table.base_list newest book is full-> add new book
         elif self.table.base_list[-1].is_full():
+            bookindex = self.table.base_list[-1].bookindex + 1
             self.table.base_list.append(Book(len(columns), bookindex))
-            self.table.base_list[-1].book_insert(columns)
+            self.table.base_list[-1].book_insert(mettaData_and_data)
 
         #Check if self.table.base_list newest book has room -> add to end of book
         else:
             # Add data to end of newest book
-            self.table.base_list[-1].book_insert(columns)
+            self.table.base_list[-1].book_insert(mettaData_and_data)
 
 
     """
