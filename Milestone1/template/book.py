@@ -22,9 +22,18 @@ class Book:
     def rid_to_zero(self, index):
         self.content[1].delete(index)
 
+    def get_indirection(self, index):
+        return self.content[0].read(index)
+
     #returns value at page and index.
     def read(self, index, column):
         return self.content[column].read(index)
+
+    def get_full_record(self, index):
+        columns = []
+        for i in range(len(self.content)):
+            columns.append(self.read(index, i))
+        return columns
 
     def record(self, index, keyindex): #returns latest record (even if in tail)
         record = Record(self.read(index, 1), self.read(index, 4 + keyindex), [])
