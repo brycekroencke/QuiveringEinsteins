@@ -19,11 +19,14 @@ class Book:
 
         return [self.bookindex, self.content[-1].num_records - 1]
 
+    def rid_to_zero(self, index):
+        self.content[1].delete(index)
+
     #returns value at page and index.
     def read(self, index, column):
         return self.content[column].read(index)
 
-    def record(self, index, keyindex):
+    def record(self, index, keyindex): #returns latest record (even if in tail)
         record = Record(self.read(index, 1), self.read(index, 4 + keyindex), [])
         columns = []
         for i in range(len(self.content)):

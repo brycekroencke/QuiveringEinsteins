@@ -32,8 +32,8 @@ class Page:
     def read(self, index):
         #print("HERE: Index: " + str(index) + " self.num_records: " + str(self.num_records))
         if(index >= self.num_records):
-            print("ERROR: Index Uninitialized.")
-            exit()
+            print("ERROR: Index out of range.")
+            return
 
         rindex = index * 8
         bytevalue = bytearray(8)
@@ -48,6 +48,23 @@ class Page:
         bytevalue[7] = self.data[rindex + 7]
 
         return int.from_bytes(bytevalue, byteorder='big')
+
+    def delete(self, index):
+        if(index >= self.num_records):
+            print("ERROR: Index out of range.")
+            return
+
+        bytevalue = (0).to_bytes(8, byteorder='big')
+        rindex = index * 8
+
+        self.data[rindex + 0] = bytevalue[0]
+        self.data[rindex + 1] = bytevalue[1]
+        self.data[rindex + 2] = bytevalue[2]
+        self.data[rindex + 3] = bytevalue[3]
+        self.data[rindex + 4] = bytevalue[4]
+        self.data[rindex + 5] = bytevalue[5]
+        self.data[rindex + 6] = bytevalue[6]
+        self.data[rindex + 7] = bytevalue[7]
 
     def has_space(self):
         if self.num_records < 512:
