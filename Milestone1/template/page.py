@@ -1,6 +1,5 @@
 from config import *
 
-
 class Page:
 
     def __init__(self):
@@ -31,9 +30,10 @@ class Page:
         self.num_records += 1
 
     def read(self, index):
+        #print("HERE: Index: " + str(index) + " self.num_records: " + str(self.num_records))
         if(index >= self.num_records):
             print("ERROR: Index Uninitialized.")
-            return -1
+            exit()
 
         rindex = index * 8
         bytevalue = bytearray(8)

@@ -1,4 +1,4 @@
-from table import Table
+#from table import Table
 
 
 class Index:
@@ -21,7 +21,7 @@ class Index:
     def create_index(self, sid, rid):
         if not sid in self.index:
             self.index[sid] = [rid]
-        else
+        else:
             self.index[sid].append(rid)
 
         # make a dictionary that maps sid as key to rid as value.

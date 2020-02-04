@@ -1,5 +1,6 @@
 from page import *
 from time import time
+from index import *
 
 INDIRECTION_COLUMN = 0
 RID_COLUMN = 1
@@ -27,9 +28,6 @@ class Table:
         self.page_directory = {}
         self.index = Index()
         self.ridcounter = 0
-        pass
-
-
 
     def __merge(self):
         pass
