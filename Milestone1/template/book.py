@@ -1,4 +1,5 @@
 from page import *
+from table import Record
 
 class Book:
     def __init__(self, num_of_pages, bookindex):
@@ -11,16 +12,28 @@ class Book:
         columns = columns[0]
         if(len(columns) > len(self.content)):
             print("ERROR: Trying to insert too many columns")
-            return
+            exit()
 
         for idx, i in enumerate(columns):
             self.content[idx].write(i)
 
-        return [self.bookindex, self.content[0].num_records - 1]
+        return [self.bookindex, self.content[-1].num_records - 1]
 
     #returns value at page and index.
     def read(self, index, column):
-        return self.content[column + 3].read(index)
+        return self.content[column].read(index)
+
+    def record(self, index, keyindex):
+        record = Record(self.read(index, 1), self.read(index, 4 + keyindex), [])
+        columns = []
+        for i in range(len(self.content)):
+            if i < 4:
+                continue
+            else:
+                columns.append(self.read(index, i))
+
+        record.columns = columns
+        return record
 
     #returns true if book is full.
     def is_full(self):

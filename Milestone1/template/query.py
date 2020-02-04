@@ -40,7 +40,7 @@ class Query:
         #Check if self.table.base_list is empty -> add new book
         location = []
         if len(self.table.base_list) == 0:
-            self.table.base_list.append(Book(len(columns)+4, 0))
+            self.table.base_list.append(Book(len(columns), 0))
             location = self.table.base_list[-1].book_insert(mettaData_and_data)
 
         #Check if self.table.base_list newest book is full-> add new book
@@ -56,7 +56,7 @@ class Query:
 
         #Setting RID key to book location value.
         self.table.page_directory[self.table.ridcounter] = location
-        self.table.index.create_index(data[self.table.key], mettadata[1])
+        self.table.index.create_index(data[self.table.key], mettaData[1])
 
 
     """
@@ -66,10 +66,13 @@ class Query:
     def select(self, key, query_columns):
         RID_list = self.table.index.locate(key)
         records = []
-        
         #Taking RIDS->location and extracting records into record list.
         for i in RID_list:
+            #location[0] = book#, location[1] = row#
             location = self.table.page_directory[i]
+            records.append(self.table.base_list[location[0]].record(location[1], self.table.key))
+
+        return records
 
 
     """
