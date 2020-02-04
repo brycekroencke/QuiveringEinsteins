@@ -26,6 +26,13 @@ class Book:
     def read(self, index, column):
         return self.content[column].read(index)
 
+    def get_full_record(self, index):
+        columns = []
+        for i in range(len(self.content)):
+            columns.append(self.read(index, i))
+        return columns
+
+
     def record(self, index, keyindex):
         record = Record(self.read(index, 1), self.read(index, 4 + keyindex), [])
         columns = []
