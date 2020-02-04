@@ -19,6 +19,9 @@ class Book:
 
         return [self.bookindex, self.content[-1].num_records - 1]
 
+    def get_indirection(self, index):
+        return self.content[0].read(index)
+
     #returns value at page and index.
     def read(self, index, column):
         return self.content[column].read(index)
