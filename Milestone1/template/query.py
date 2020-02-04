@@ -80,6 +80,7 @@ class Query:
     """
 
     def update(self, key, *columns):
+        #columns will be stored in weird tuples need to fix
         #UPDATE needs to change read in books to handle inderection
         #ONLY EDIT TAIL PAGES (tail_list)
         pass
