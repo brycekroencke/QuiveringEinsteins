@@ -75,7 +75,15 @@ class Query:
         for i in RID_list:
             #location[0] = book#, location[1] = row#
             location = self.table.page_directory[i]
-            records.append(self.table.base_list[location[0]].record(location[1], self.table.key))
+            check_indirection =  self.table.base_list[location[0]].get_indirection(location[1])
+            if self.table.base_list[location[0]].read(location[1], 1) != 0: #checking to see if there is a delete
+                if check_indirection == 0: #no indirection
+                    records.append(self.table.base_list[location[0]].record(location[1], self.table.key))
+                else: #there is an indirection
+                    print(check_indirection)
+                    print(self.table.page_directory)
+                    temp = self.table.page_directory[check_indirection]
+                    records.append(self.table.tail_list[temp[0]].record(temp[1], self.table.key))
 
         return records
 
