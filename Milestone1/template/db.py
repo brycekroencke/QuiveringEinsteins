@@ -12,7 +12,7 @@ class Database():
     def close(self):
         pass
 
-    """ 
+    """
     # Creates a new table
     :param name: string         #Table name
     :param num_columns: int     #Number of Columns: all columns are integer
