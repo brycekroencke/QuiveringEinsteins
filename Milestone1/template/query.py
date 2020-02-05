@@ -86,7 +86,7 @@ class Query:
         for idx in enumerate(query_columns):
             if query_columns[idx[0]] == 0:
                 for i in records:
-                    i[idx[0]] = None
+                    i.columns[idx[0]] = None
 
         return records
 
@@ -177,4 +177,29 @@ class Query:
     """
 
     def sum(self, start_range, end_range, aggregate_column_index):
-        pass
+        sum = 0
+
+        # force start_range < end_range
+        temp = start_range
+        start_range = min(start_range, end_range)
+        end_range = max(temp, end_range)
+
+        current_key = start_range
+
+        while current_key <= end_range:      # doing traversal from the start key_value to the end key_value
+            if self.table.index.contains_key(current_key):
+                query_column = []
+
+                # initialize the column list with all 0 and mark the target column to 1
+                for i in range(self.table.num_columns):
+                    if i == aggregate_column_index:
+                        query_column.append(1)
+                    else:
+                        query_column.append(0)
+
+                # apply select function to find the corresponding value of given SID and column#, adding all found value to sum
+                sum += self.select(current_key, query_column)[0].columns[aggregate_column_index]
+
+            current_key += 1
+
+        return sum

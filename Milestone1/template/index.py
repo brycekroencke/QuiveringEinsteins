@@ -6,6 +6,9 @@ class Index:
     def __init__(self):
         self.index = {}
 
+    def contains_key(self, sid):
+        return sid in self.index
+
     # returns the location of all records with the given value
     def locate(self, sid):
         if sid in self.index:
