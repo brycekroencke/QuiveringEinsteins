@@ -91,7 +91,7 @@ class Query:
         print(columns) #this gives me (none,#,none,none,none)
         RID = self.table.index.locate(key)
         location = self.table.page_directory[RID] # returns [book num, row]
-        inderection_location = location
+        indirection_location = location
         check_indirection =  self.table.base_list[location[0]].get_indirection(location[1])
         data = list(columns)
         self.table.ridcounter = self.table.ridcounter + 1
@@ -155,6 +155,7 @@ class Query:
                 location = self.table.tail_list[-1].book_insert(tail_data)
 
         #update base_book inderection with new RID
+        self.table.base_list[indirection_location[0].content[0].update(self.table.ridcounter, location[1])]
 
 
     """
