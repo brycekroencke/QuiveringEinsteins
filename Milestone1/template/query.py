@@ -1,6 +1,7 @@
 from table import *
 from index import Index
 from book import *
+from table import *
 
 INDIRECTION_COLUMN = 0
 RID_COLUMN = 1
@@ -20,6 +21,8 @@ class Query:
     # internal Method
     # Read a record with specified RID
     """
+
+    ##Using student id
 
     def delete(self, key):
         pass
@@ -83,7 +86,20 @@ class Query:
         #columns will be stored in weird tuples need to fix
         #UPDATE needs to change read in books to handle inderection
         #ONLY EDIT TAIL PAGES (tail_list)
-        pass
+        #Check if self.table.base_list is empty -> add new book
+        if len(self.table.tail_list) == 0:
+            self.table.tail_list.append(Book(len(columns)))
+            self.table.tail_list[-1].book_insert(columns)
+
+        #Check if self.table.base_list newest book is full-> add new book
+        elif self.table.tail_list[-1].is_full():
+            self.table.tail_list.append(Book(len(columns)))
+            self.table.tail_list[-1].book_insert(columns)
+
+        #Check if self.table.base_list newest book has room -> add to end of book
+        else:
+            # Add data to end of newest book
+            self.table.tail_list[-1].book_insert(columns)
 
     """
     :param start_range: int         # Start of the key range to aggregate
@@ -92,4 +108,18 @@ class Query:
     """
 
     def sum(self, start_range, end_range, aggregate_column_index):
-        pass
+        if start_range == end_range:      # range = 0 ,no record in it
+            return 0
+
+        sum = 0    #initialize the summation to 0
+
+        temp = start_range
+        start_range = min(start_range,end_range)    #doing value swap to force  start value < end value
+        end_range = max(temp,end_range)
+
+        for i in range(start_range, end_range):
+            RID = self.table.index.locate(keys[i])    # get the RID which give the book# and row#
+            location = self.table.page_directory[RID]     #search for Book# and row# for given RID
+            sum += self.table.base_list[location[0]].read(location[1], aggregate_column_index)    # I'm assuming page directory return to me the correct row#
+
+        return sum

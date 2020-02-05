@@ -29,6 +29,23 @@ class Page:
 
         self.num_records += 1
 
+    def update(self, value, index):
+        if index > 512 - page.num_records:
+            print("ERROR: Index too large.")
+            return
+        bytevalue = (value).to_bytes(8, byteorder='big')
+        i = index * 8
+
+        self.data[i + 0] = bytevalue[0]
+        self.data[i + 1] = bytevalue[1]
+        self.data[i + 2] = bytevalue[2]
+        self.data[i + 3] = bytevalue[3]
+        self.data[i + 4] = bytevalue[4]
+        self.data[i + 5] = bytevalue[5]
+        self.data[i + 6] = bytevalue[6]
+        self.data[i + 7] = bytevalue[7]
+
+
     def read(self, index):
         #print("HERE: Index: " + str(index) + " self.num_records: " + str(self.num_records))
         if(index >= self.num_records):
