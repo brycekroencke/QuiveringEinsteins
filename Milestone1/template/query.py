@@ -87,7 +87,7 @@ class Query:
             if query_columns[idx[0]] == 0:
                 for i in records:
                     i[idx[0]] = None
-                    
+
         return records
 
 
@@ -139,8 +139,7 @@ class Query:
         else:
             location = self.table.page_directory[check_indirection]
 
-            tail_data = self.table.base_list[location[0]].get_full_record(location[1])
-
+            tail_data = self.table.tail_list[location[0]].get_full_record(location[1])
             #mettaData = [0,self.table.ridcounter,0,0]
             #mettaData_and_data = mettaData + data
 
@@ -168,7 +167,7 @@ class Query:
 
         self.table.page_directory[self.table.ridcounter] = location
         #update base_book inderection with new RID
-        self.table.base_list[indirection_location[0]].content[0].update(self.table.ridcounter, location[1])
+        self.table.base_list[indirection_location[0]].content[0].update(self.table.ridcounter, indirection_location[1])
 
 
     """
