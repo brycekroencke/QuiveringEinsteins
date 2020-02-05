@@ -30,17 +30,11 @@ for key in records:
     updated_columns = [None, None, None, None, None]
     for i in range(1, grades_table.num_columns):
         value = randint(0, 20)
-        print(1)
         updated_columns[i] = value
-        print(2)
         records[key][i] = value
-        print(3)
         record = query.select(key, [1, 1, 1, 1, 1])[0]
-        print(4)
         query.update(key, *updated_columns)
-        print(5)
         record = query.select(key, [1, 1, 1, 1, 1])[0]
-        print(6)
         for j, column in enumerate(record.columns):
             if column != records[key][j]:
                 print(Fore.RED + 'Update error for key', key)

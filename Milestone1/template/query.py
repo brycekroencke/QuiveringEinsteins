@@ -80,8 +80,6 @@ class Query:
                 if check_indirection == 0: #no indirection
                     records.append(self.table.base_list[location[0]].record(location[1], self.table.key))
                 else: #there is an indirection
-                    print(check_indirection)
-                    print(self.table.page_directory)
                     temp = self.table.page_directory[check_indirection]
                     records.append(self.table.tail_list[temp[0]].record(temp[1], self.table.key))
 
@@ -96,7 +94,7 @@ class Query:
         #columns will be stored in weird tuples need to fix
         #UPDATE needs to change read in books to handle inderection
         #ONLY EDIT TAIL PAGES (tail_list)
-        print(columns) #this gives me (none,#,none,none,none)
+        #print(columns) #this gives me (none,#,none,none,none)
         RID = self.table.index.locate(key)
         location = self.table.page_directory[RID[0]] # returns [book num, row]
         indirection_location = location
@@ -162,6 +160,8 @@ class Query:
                 # Add data to end of newest book
                 location = self.table.tail_list[-1].book_insert(tail_data)
 
+
+        self.table.page_directory[self.table.ridcounter] = location
         #update base_book inderection with new RID
         self.table.base_list[indirection_location[0]].content[0].update(self.table.ridcounter, location[1])
 
