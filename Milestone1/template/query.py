@@ -22,7 +22,12 @@ class Query:
     """
 
     def delete(self, key):
-        pass
+        rid = self.table.index.locate(key)
+        location = self.table.page_directory[rid[0]]
+
+        book = self.table.base_list[location[0]]
+        book.rid_to_zero(location[1])
+
 
     """
     # Insert a record with specified columns
