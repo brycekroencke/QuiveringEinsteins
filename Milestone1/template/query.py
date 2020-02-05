@@ -1,7 +1,6 @@
 from table import *
 from index import Index
 from book import *
-from table import *
 
 INDIRECTION_COLUMN = 0
 RID_COLUMN = 1
@@ -22,14 +21,8 @@ class Query:
     # Read a record with specified RID
     """
 
-    ##Using student id
-
     def delete(self, key):
-        rid = self.table.index.locate(key)
-        location = self.table.page_directory[rid[0]]
-
-        book = self.table.base_list[location[0]]
-        book.rid_to_zero(location[1])
+        pass
 
     """
     # Insert a record with specified columns
@@ -90,25 +83,74 @@ class Query:
         #columns will be stored in weird tuples need to fix
         #UPDATE needs to change read in books to handle inderection
         #ONLY EDIT TAIL PAGES (tail_list)
-<<<<<<< HEAD
-        print(columns)
-        pass
-=======
-        #Check if self.table.base_list is empty -> add new book
-        if len(self.table.tail_list) == 0:
-            self.table.tail_list.append(Book(len(columns)))
-            self.table.tail_list[-1].book_insert(columns)
+        print(columns) #this gives me (none,#,none,none,none)
+        RID = self.table.index.locate(key)
+        location = self.table.page_directory[RID] # returns [book num, row]
+        inderection_location = location
+        check_indirection =  self.table.base_list[location[0]].get_indirection(location[1])
+        data = list(columns)
+        self.table.ridcounter = self.table.ridcounter + 1
 
-        #Check if self.table.base_list newest book is full-> add new book
-        elif self.table.tail_list[-1].is_full():
-            self.table.tail_list.append(Book(len(columns)))
-            self.table.tail_list[-1].book_insert(columns)
+        #if no inderection
+        if  check_indirection == 0:
+            base_data = self.table.base_list[location[0]].get_full_record(location[1])
 
-        #Check if self.table.base_list newest book has room -> add to end of book
+            #mettaData = [0,self.table.ridcounter,0,0]
+            #mettaData_and_data = mettaData + data
+
+            for idx, i in enumerate(data):
+                if i != None:
+                    base_data[idx + 4] = i
+
+            base_data[1] = self.table.ridcounter
+
+            if len(self.table.tail_list) == 0:
+                self.table.tail_list.append(Book(len(columns), 0))
+                location = self.table.tail_list[-1].book_insert(base_data)
+
+            #Check if self.table.base_list newest book is full-> add new book
+            elif self.table.tail_list[-1].is_full():
+                bookindex = self.table.tail_list[-1].bookindex + 1
+                self.table.tail_list.append(Book(len(columns), bookindex))
+                location = self.table.tail_list[-1].book_insert(base_data)
+
+            #Check if self.table.base_list newest book has room -> add to end of book
+            else:
+                # Add data to end of newest book
+                location = self.table.tail_list[-1].book_insert(base_data)
+
+        #if there is an inderection
         else:
-            # Add data to end of newest book
-            self.table.tail_list[-1].book_insert(columns)
->>>>>>> c1258919452339053fb03450271dbe521b757cd0
+            location = self.table.page_directory[check_indirection]
+
+            tail_data = self.table.base_list[location[0]].get_full_record(location[1])
+
+            #mettaData = [0,self.table.ridcounter,0,0]
+            #mettaData_and_data = mettaData + data
+
+            for idx, i in enumerate(data):
+                if i != None:
+                    tail_data[idx + 4] = i
+
+            tail_data[1] = self.table.ridcounter
+
+            if len(self.table.tail_list) == 0:
+                self.table.tail_list.append(Book(len(columns), 0))
+                location = self.table.tail_list[-1].book_insert(tail_data)
+
+            #Check if self.table.base_list newest book is full-> add new book
+            elif self.table.tail_list[-1].is_full():
+                bookindex = self.table.tail_list[-1].bookindex + 1
+                self.table.tail_list.append(Book(len(columns), bookindex))
+                location = self.table.tail_list[-1].book_insert(tail_data)
+
+            #Check if self.table.base_list newest book has room -> add to end of book
+            else:
+                # Add data to end of newest book
+                location = self.table.tail_list[-1].book_insert(tail_data)
+
+        #update base_book inderection with new RID
+
 
     """
     :param start_range: int         # Start of the key range to aggregate
@@ -117,18 +159,4 @@ class Query:
     """
 
     def sum(self, start_range, end_range, aggregate_column_index):
-        if start_range == end_range:      # range = 0 ,no record in it
-            return 0
-
-        sum = 0    #initialize the summation to 0
-
-        temp = start_range
-        start_range = min(start_range,end_range)    #doing value swap to force  start value < end value
-        end_range = max(temp,end_range)
-
-        for i in range(start_range, end_range):
-            RID = self.table.index.locate(keys[i])    # get the RID which give the book# and row#
-            location = self.table.page_directory[RID]     #search for Book# and row# for given RID
-            sum += self.table.base_list[location[0]].read(location[1], aggregate_column_index)    # I'm assuming page directory return to me the correct row#
-
-        return sum
+        pass
