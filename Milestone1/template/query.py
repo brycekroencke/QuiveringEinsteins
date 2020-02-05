@@ -83,6 +83,11 @@ class Query:
                     temp = self.table.page_directory[check_indirection]
                     records.append(self.table.tail_list[temp[0]].record(temp[1], self.table.key))
 
+        for idx in enumerate(query_columns):
+            if query_columns[idx[0]] == 0:
+                for i in records:
+                    i[idx[0]] = None
+                    
         return records
 
 
