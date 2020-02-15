@@ -1,3 +1,5 @@
+#https://openproceedings.org/2018/conf/edbt/paper-215.pdf
+
 """
 Input :Queue of unmerged committed tail pages (mergeQ)
 Output :Queue of outdated and consolidated base pages to be deallocated
@@ -63,6 +65,3 @@ while True:
         batchBasePage = batchTailPage.getBasePageRef()
         PageDirect.swap(batchBasePage, batchConsPage)
         deallocateQ.append(batchBasePage)
-
-
-        d[:][]
