@@ -22,8 +22,6 @@ class Table:
     """
     def __init__(self, name, num_columns, key):
         self.name = name
-        #self.tail_list = []
-        #self.base_list = []
         self.buffer_pool = Buffer()
         self.key = key
         self.num_columns = num_columns

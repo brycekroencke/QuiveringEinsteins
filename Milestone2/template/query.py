@@ -84,7 +84,7 @@ class Query:
                     records.append(self.table.buffer_pool.base_book_list[location[0]].record(location[1], self.table.key))
                 else: #there is an indirection
                     temp = self.table.page_directory[check_indirection]
-                    ####NEEED TOO FIGURE OUT TAIL
+
                     tail_slot = int(location[0]/1)
                     records.append(self.table.buffer_pool.tail_book_list[tail_slot][temp[0]].record(temp[1], self.table.key))
 
@@ -111,7 +111,6 @@ class Query:
         check_indirection =  self.table.buffer_pool.base_book_list[location[0]].get_indirection(location[1])
         data = list(columns)
         self.table.ridcounter = self.table.ridcounter + 1
-        #self.table.TIDcounter = self.table.TIDcounter + 1
         tail_slot = int(location[0]/1)
 
         #if no inderection
