@@ -1,6 +1,7 @@
 from page import *
 from time import time
 from index import *
+from buffer import *
 
 INDIRECTION_COLUMN = 0
 RID_COLUMN = 1
@@ -21,13 +22,15 @@ class Table:
     """
     def __init__(self, name, num_columns, key):
         self.name = name
-        self.tail_list = []
-        self.base_list = []
+        #self.tail_list = []
+        #self.base_list = []
+        self.buffer_pool = Buffer()
         self.key = key
         self.num_columns = num_columns
         self.page_directory = {}
         self.index = Index()
         self.ridcounter = 0
+        self.TIDcounter = 0
 
     def __merge(self):
         pass

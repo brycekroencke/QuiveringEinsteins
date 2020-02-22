@@ -44,6 +44,7 @@ for key in records:
         updated_columns[i] = None
 print(Fore.GREEN + 'Passed UPDATE test.')
 
+
 keys = sorted(list(records.keys()))
 for c in range(0, grades_table.num_columns):
     for i in range(0, 20):
