@@ -4,7 +4,7 @@ from page import *
 from time import time
 from index import *
 from buffer import *
-form book import Book
+from book import Book
 
 INDIRECTION_COLUMN = 0
 RID_COLUMN = 1
@@ -62,13 +62,14 @@ class Table:
         with open("data_file.json", "r") as read_file:
             data = json.load(read_file)
             if(book_number in range(0, len(data['book']))):
+                print("book id found in file, updating book in file")
                 data['book'][book_number]['page'] = []
                 for idj, j in enumerate(self.base_list[book_number].content):
                     data['book'][book_number]['page'].append( str(j.data))
                 with open("data_file.json", "w") as write_file:
                     json.dump(data, write_file, indent=2)
             else:
-                print("does not exist")
+                print("book not yet in file, adding new book to file")
                 page_data = {'page': []}
                 for idj, j in enumerate(self.base_list[book_number].content):
                     page_data['page'].append( str(j.data))
