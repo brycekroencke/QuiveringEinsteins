@@ -1,5 +1,5 @@
 from page import *
-from table import Record
+from record import Record
 
 class Book:
     def __init__(self, num_of_pages, bookindex):
