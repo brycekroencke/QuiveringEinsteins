@@ -44,20 +44,21 @@ class Query:
         #ONLY EDIT BASE PAGES (base_list)
         #Check if self.table.base_list is empty -> add new book
         location = []
-        if len(self.table.base_list) == 0:
-            self.table.base_list.append(Book(len(columns), 0))
-            location = self.table.base_list[-1].book_insert(mettaData_and_data)
+        if self.table.ridcounter == 1 or self.table.ridcounter == 513:
+            if self.table.ridcounter == 1:
+                self.table.buffer_pool.base_book_list[0] = Book(len(columns),0)
+                location = self.table.buffer_pool.base_book_list[0].book_insert(mettaData_and_data)
+            else:
+                self.table.buffer_pool.base_book_list[1] = Book(len(columns),1)
+                location = self.table.buffer_pool.base_book_list[1].book_insert(mettaData_and_data)
 
-        #Check if self.table.base_list newest book is full-> add new book
-        elif self.table.base_list[-1].is_full():
-            bookindex = self.table.base_list[-1].bookindex + 1
-            self.table.base_list.append(Book(len(columns), bookindex))
-            location = self.table.base_list[-1].book_insert(mettaData_and_data)
-
-        #Check if self.table.base_list newest book has room -> add to end of book
         else:
             # Add data to end of newest book
-            location = self.table.base_list[-1].book_insert(mettaData_and_data)
+            if self.table.ridcounter < 513:
+                location = self.table.buffer_pool.base_book_list[0].book_insert(mettaData_and_data)
+            else:
+                location = self.table.buffer_pool.base_book_list[1].book_insert(mettaData_and_data)
+
 
         #Setting RID key to book location value.
         self.table.page_directory[self.table.ridcounter] = location
@@ -75,13 +76,17 @@ class Query:
         for i in RID_list:
             #location[0] = book#, location[1] = row#
             location = self.table.page_directory[i]
-            check_indirection =  self.table.base_list[location[0]].get_indirection(location[1])
-            if self.table.base_list[location[0]].read(location[1], 1) != 0: #checking to see if there is a delete
+            #check_indirection =  self.table.base_list[location[0]].get_indirection(location[1])
+            check_indirection =  self.table.buffer_pool.base_book_list[location[0]].get_indirection(location[1])
+
+            if self.table.buffer_pool.base_book_list[location[0]].read(location[1], 1) != 0: #checking to see if there is a delete
                 if check_indirection == 0: #no indirection
-                    records.append(self.table.base_list[location[0]].record(location[1], self.table.key))
+                    records.append(self.table.buffer_pool.base_book_list[location[0]].record(location[1], self.table.key))
                 else: #there is an indirection
                     temp = self.table.page_directory[check_indirection]
-                    records.append(self.table.tail_list[temp[0]].record(temp[1], self.table.key))
+
+                    tail_slot = int(location[0]/1)
+                    records.append(self.table.buffer_pool.tail_book_list[tail_slot][temp[0]].record(temp[1], self.table.key))
 
         for idx in enumerate(query_columns):
             if query_columns[idx[0]] == 0:
@@ -103,13 +108,14 @@ class Query:
         RID = self.table.index.locate(key)
         location = self.table.page_directory[RID[0]] # returns [book num, row]
         indirection_location = location
-        check_indirection =  self.table.base_list[location[0]].get_indirection(location[1])
+        check_indirection =  self.table.buffer_pool.base_book_list[location[0]].get_indirection(location[1])
         data = list(columns)
         self.table.ridcounter = self.table.ridcounter + 1
+        tail_slot = int(location[0]/1)
 
         #if no inderection
         if  check_indirection == 0:
-            base_data = self.table.base_list[location[0]].get_full_record(location[1])
+            base_data = self.table.buffer_pool.base_book_list[location[0]].get_full_record(location[1])
 
             #mettaData = [0,self.table.ridcounter,0,0]
             #mettaData_and_data = mettaData + data
@@ -120,26 +126,27 @@ class Query:
 
             base_data[1] = self.table.ridcounter
 
-            if len(self.table.tail_list) == 0:
-                self.table.tail_list.append(Book(len(columns), 0))
-                location = self.table.tail_list[-1].book_insert(base_data)
+
+            if len(self.table.buffer_pool.tail_book_list[tail_slot]) == 0:
+                self.table.buffer_pool.tail_book_list[tail_slot].append(Book(len(columns), 0))
+                location = self.table.buffer_pool.tail_book_list[tail_slot][-1].book_insert(base_data)
 
             #Check if self.table.base_list newest book is full-> add new book
-            elif self.table.tail_list[-1].is_full():
-                bookindex = self.table.tail_list[-1].bookindex + 1
-                self.table.tail_list.append(Book(len(columns), bookindex))
-                location = self.table.tail_list[-1].book_insert(base_data)
+            elif self.table.buffer_pool.tail_book_list[tail_slot][-1].is_full():
+                bookindex = self.table.buffer_pool.tail_book_list[tail_slot][-1].bookindex + 1
+                self.table.buffer_pool.tail_book_list[tail_slot].append(Book(len(columns), bookindex))
+                location = self.table.buffer_pool.tail_book_list[tail_slot][-1].book_insert(base_data)
 
             #Check if self.table.base_list newest book has room -> add to end of book
             else:
                 # Add data to end of newest book
-                location = self.table.tail_list[-1].book_insert(base_data)
+                location = self.table.buffer_pool.tail_book_list[tail_slot][-1].book_insert(base_data)
 
         #if there is an inderection
         else:
             location = self.table.page_directory[check_indirection]
 
-            tail_data = self.table.tail_list[location[0]].get_full_record(location[1])
+            tail_data = self.table.buffer_pool.tail_book_list[tail_slot][location[0]].get_full_record(location[1])
             #mettaData = [0,self.table.ridcounter,0,0]
             #mettaData_and_data = mettaData + data
 
@@ -149,25 +156,25 @@ class Query:
 
             tail_data[1] = self.table.ridcounter
 
-            if len(self.table.tail_list) == 0:
-                self.table.tail_list.append(Book(len(columns), 0))
-                location = self.table.tail_list[-1].book_insert(tail_data)
+            #if len(self.table.tail_list) == 0:
+            #    self.table.tail_list.append(Book(len(columns), 0))
+            #    location = self.table.tail_list[-1].book_insert(tail_data)
 
             #Check if self.table.base_list newest book is full-> add new book
-            elif self.table.tail_list[-1].is_full():
-                bookindex = self.table.tail_list[-1].bookindex + 1
-                self.table.tail_list.append(Book(len(columns), bookindex))
-                location = self.table.tail_list[-1].book_insert(tail_data)
+            if self.table.buffer_pool.tail_book_list[tail_slot][-1].is_full():
+                bookindex = self.table.buffer_pool.tail_book_list[tail_slot][-1].bookindex + 1
+                self.table.buffer_pool.tail_book_list[tail_slot].append(Book(len(columns), bookindex))
+                location = self.table.buffer_pool.tail_book_list[tail_slot][-1].book_insert(tail_data)
 
             #Check if self.table.base_list newest book has room -> add to end of book
             else:
                 # Add data to end of newest book
-                location = self.table.tail_list[-1].book_insert(tail_data)
+                location = self.table.buffer_pool.tail_book_list[tail_slot][-1].book_insert(tail_data)
 
 
         self.table.page_directory[self.table.ridcounter] = location
         #update base_book inderection with new RID
-        self.table.base_list[indirection_location[0]].content[0].update(self.table.ridcounter, indirection_location[1])
+        self.table.buffer_pool.base_book_list[indirection_location[0]].content[0].update(self.table.ridcounter, indirection_location[1])
 
 
     """
