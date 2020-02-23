@@ -29,9 +29,9 @@ class Table:
         self.key = key
         self.num_columns = num_columns
         self.page_directory = {}
-        self.index = Index()
         self.ridcounter = 0
         self.TIDcounter = 0
+        self.index = [Index()] + [None] * (num_columns-1)
 
     def __merge(self):
         pass
