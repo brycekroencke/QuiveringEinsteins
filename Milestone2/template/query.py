@@ -62,36 +62,42 @@ class Query:
 
         #Setting RID key to book location value.
         self.table.page_directory[self.table.ridcounter] = location
-        self.table.index.create_index(data[self.table.key], mettaData[1])
+        for i in range(len(self.table.index)):
+            if(self.table.index[i] != None):
+                self.table.index[i].add_to_index(data[i], mettaData[1])
 
 
     """
     # Read a record with specified key
     """
 
-    def select(self, key, query_columns):
-        RID_list = self.table.index.locate(key)
-        records = []
-        #Taking RIDS->location and extracting records into record list.
-        for i in RID_list:
-            #location[0] = book#, location[1] = row#
-            location = self.table.page_directory[i]
-            #check_indirection =  self.table.base_list[location[0]].get_indirection(location[1])
-            check_indirection =  self.table.buffer_pool.base_book_list[location[0]].get_indirection(location[1])
+    def select(self, key, col, query_columns):
+        if(self.table.index[col] == None):
+            # do scan
+            print("mc-scan")
+        else:
+            RID_list = self.table.index[col].locate(key)
+            records = []
+            #Taking RIDS->location and extracting records into record list.
+            for i in RID_list:
+                #location[0] = book#, location[1] = row#
+                location = self.table.page_directory[i]
+                #check_indirection =  self.table.base_list[location[0]].get_indirection(location[1])
+                check_indirection =  self.table.buffer_pool.base_book_list[location[0]].get_indirection(location[1])
 
-            if self.table.buffer_pool.base_book_list[location[0]].read(location[1], 1) != 0: #checking to see if there is a delete
-                if check_indirection == 0: #no indirection
-                    records.append(self.table.buffer_pool.base_book_list[location[0]].record(location[1], self.table.key))
-                else: #there is an indirection
-                    temp = self.table.page_directory[check_indirection]
+                if self.table.buffer_pool.base_book_list[location[0]].read(location[1], 1) != 0: #checking to see if there is a delete
+                    if check_indirection == 0: #no indirection
+                        records.append(self.table.buffer_pool.base_book_list[location[0]].record(location[1], self.table.key))
+                    else: #there is an indirection
+                        temp = self.table.page_directory[check_indirection]
 
-                    tail_slot = int(location[0]/1)
-                    records.append(self.table.buffer_pool.tail_book_list[tail_slot][temp[0]].record(temp[1], self.table.key))
+                        tail_slot = int(location[0]/1)
+                        records.append(self.table.buffer_pool.tail_book_list[tail_slot][temp[0]].record(temp[1], self.table.key))
 
-        for idx in enumerate(query_columns):
-            if query_columns[idx[0]] == 0:
-                for i in records:
-                    i.columns[idx[0]] = None
+            for idx in enumerate(query_columns):
+                if query_columns[idx[0]] == 0:
+                    for i in records:
+                        i.columns[idx[0]] = None
 
         return records
 
@@ -105,7 +111,7 @@ class Query:
         #UPDATE needs to change read in books to handle inderection
         #ONLY EDIT TAIL PAGES (tail_list)
         #print(columns) #this gives me (none,#,none,none,none)
-        RID = self.table.index.locate(key)
+        RID = self.table.index[self.table.key].locate(key)
         location = self.table.page_directory[RID[0]] # returns [book num, row]
         indirection_location = location
         check_indirection =  self.table.buffer_pool.base_book_list[location[0]].get_indirection(location[1])
@@ -194,7 +200,7 @@ class Query:
         current_key = start_range
 
         while current_key <= end_range:      # doing traversal from the start key_value to the end key_value
-            if self.table.index.contains_key(current_key):
+            if self.table.index[self.table.key].contains_key(current_key):
                 query_column = []
 
                 # initialize the column list with all 0 and mark the target column to 1
@@ -205,7 +211,7 @@ class Query:
                         query_column.append(0)
 
                 # apply select function to find the corresponding value of given SID and column#, adding all found value to sum
-                sum += self.select(current_key, query_column)[0].columns[aggregate_column_index]
+                sum += self.select(current_key, 0, query_column)[0].columns[aggregate_column_index]
 
             current_key += 1
 

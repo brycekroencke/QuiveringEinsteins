@@ -21,7 +21,7 @@ class Index:
 
     # optional: Create index on SID and RID.
 
-    def create_index(self, sid, rid):
+    def add_to_index(self, sid, rid):
         if not sid in self.index:
             self.index[sid] = [rid]
         else:
