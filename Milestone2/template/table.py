@@ -4,7 +4,7 @@ from page import *
 from time import time
 from index import *
 from buffer import *
-form book import Book
+from book import Book
 
 INDIRECTION_COLUMN = 0
 RID_COLUMN = 1
