@@ -10,12 +10,7 @@ INDIRECTION_COLUMN = 0
 RID_COLUMN = 1
 TIMESTAMP_COLUMN = 2
 SCHEMA_ENCODING_COLUMN = 3
-
-class Record:
-    def __init__(self, rid, key, columns):
-        self.rid = rid
-        self.key = key
-        self.columns = columns
+print((2**64)-1)
 
 class Table:
     """
@@ -30,13 +25,22 @@ class Table:
         self.num_columns = num_columns
         self.page_directory = {}
         self.ridcounter = 0
+<<<<<<< HEAD
         self.TIDcounter = 0
 
         self.index = [None]*(num_columns)
         self.index[key] = Index()
+=======
+        self.tidcounter = (2**64) - 1
+        self.index = [Index()] + [None] * (num_columns-1)
+>>>>>>> 4e37f9c78413f7d331d39761554732c9b86f5c57
 
     def __merge(self):
-        pass
+        while True:
+            merge_queue = buffer_pool.full_tail_book_list
+            while len(merge_queue) != 0:
+                curr_tail_book = merge_queue.
+
 
     #MOSTLY FOR DEBUGGING IN BEGINNING
     def pull_book_json(self, book_number):

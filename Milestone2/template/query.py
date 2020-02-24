@@ -131,7 +131,8 @@ class Query:
         indirection_location = location
         check_indirection =  self.table.buffer_pool.base_book_list[location[0]].get_indirection(location[1])
         data = list(columns)
-        self.table.ridcounter = self.table.ridcounter + 1
+        #self.table.ridcounter = self.table.ridcounter + 1
+        self.table.tidcounter = self.table.tidcounter - 1
         tail_slot = int(location[0]/1)
 
         #if no inderection
@@ -145,7 +146,7 @@ class Query:
                 if i != None:
                     base_data[idx + 4] = i
 
-            base_data[1] = self.table.ridcounter
+            base_data[1] = self.table.tidcounter
 
 
             if len(self.table.buffer_pool.tail_book_list[tail_slot]) == 0:
@@ -175,7 +176,7 @@ class Query:
                 if i != None:
                     tail_data[idx + 4] = i
 
-            tail_data[1] = self.table.ridcounter
+            tail_data[1] = self.table.tidcounter
 
             #if len(self.table.tail_list) == 0:
             #    self.table.tail_list.append(Book(len(columns), 0))
@@ -193,9 +194,9 @@ class Query:
                 location = self.table.buffer_pool.tail_book_list[tail_slot][-1].book_insert(tail_data)
 
 
-        self.table.page_directory[self.table.ridcounter] = location
-        #update base_book inderection with new RID
-        self.table.buffer_pool.base_book_list[indirection_location[0]].content[0].update(self.table.ridcounter, indirection_location[1])
+        self.table.page_directory[self.table.tidcounter] = location
+        #update base_book inderection with new TID
+        self.table.buffer_pool.base_book_list[indirection_location[0]].content[0].update(self.table.tidcounter, indirection_location[1])
 
 
     """

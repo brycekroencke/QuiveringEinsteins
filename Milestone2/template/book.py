@@ -2,13 +2,23 @@ from page import *
 from record import Record
 
 class Book:
-    def __init__(self, num_of_pages, bookindex):
+    def __init__(self, *param):
+        if(type(param[0] == int):
+            default_construtor(*param)
+        else:
+            copy_constructor(*param)
+
+    def default_construtor(self, num_of_pages, bookindex):
         self.bookindex = bookindex
         self.pin = 0
         self.dirty_bit = 0
         self.content = [Page(), Page(), Page(), Page()]
         for i in range(num_of_pages):
             self.content.append(Page())
+
+    def copy_constructor(self, old_book):
+        self.bookindex = -1
+        self.content = oldBook.content
 
     def book_insert(self, *columns):
         columns = columns[0]
