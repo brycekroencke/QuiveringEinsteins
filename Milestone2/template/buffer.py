@@ -1,3 +1,5 @@
+from table import Table
+
 class Buffer:
     #hello
     def __init__(self):
@@ -51,31 +53,24 @@ class Buffer:
 temp = Buffer()
 print(temp.LRU_tracker)
 print(temp.find_LRU())
-
 temp.touched(0)
 print(temp.LRU_tracker)
 print(temp.find_LRU())
-
 temp.touched(0)
 print(temp.LRU_tracker)
 print(temp.find_LRU())
-
 temp.touched(0)
 print(temp.LRU_tracker)
 print(temp.find_LRU())
-
 temp.touched(1)
 print(temp.LRU_tracker)
 print(temp.find_LRU())
-
 temp.touched(1)
 print(temp.LRU_tracker)
 print(temp.find_LRU())
-
 temp.touched(4)
 print(temp.LRU_tracker)
 print(temp.find_LRU())
-
 temp.touched(2)
 print(temp.LRU_tracker)
 print(temp.find_LRU())
