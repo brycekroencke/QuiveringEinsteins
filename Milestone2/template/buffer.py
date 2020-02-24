@@ -12,17 +12,6 @@ class Buffer:
 
         self.buffer = [None]*self.buffer_size
 
-    # Return a list of tail book to be merged.
-    # This list will be the merge_queue in the merge function
-    # in Table class.
-    def full_tail_book_list(self):
-        merge_tail_books = []
-        for tail_book in tail_book_list:
-            # The tail_book_list store a list of pages.
-            if len(tail_book) > 2:
-                merge_tail_books.append(tail_book)
-        return merge_tail_books
-
     def find_LRU(self):  #returns the postion of book that is the last least resently used
         for i in range(self.buffer_size):
             if self.LRU_tracker[i] == self.buffer_size:
