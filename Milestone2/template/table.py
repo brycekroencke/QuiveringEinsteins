@@ -28,7 +28,10 @@ class Table:
         self.page_directory = {}
         self.index = Index()
         self.ridcounter = 0
-        self.TIDcounter = 0
+        self.tidcounter = 0
 
     def __merge(self):
-        pass
+        while True:
+            merge_queue = buffer_pool.full_tail_book_list
+            while len(merge_queue) != 0:
+                curr_tail_book = merge_queue.
