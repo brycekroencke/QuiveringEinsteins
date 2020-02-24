@@ -1,5 +1,6 @@
 class Buffer:
     def __init__(self):
+<<<<<<< HEAD
         self.buffer_size = 2
         self.book_range = 1
         self.tail_list_length = int(self.buffer_size/self.book_range)
@@ -11,6 +12,17 @@ class Buffer:
 
         self.base_book_list = [None]*self.buffer_size
         self.tail_book_list = [[]]*self.tail_list_length
+
+    # Return a list of tail book to be merged.
+    # This list will be the merge_queue in the merge function
+    # in Table class.
+    def full_tail_book_list(self):
+        merge_tail_books = []
+        for tail_book in tail_book_list:
+            # The tail_book_list store a list of pages.
+            if len(tail_book) > 2:
+                merge_tail_books.append(tail_book)
+        return merge_tail_books
 
     def find_LRU(self):  #returns the postion of book that is the last least resently used
         for i in range(self.buffer_size):
@@ -68,3 +80,22 @@ temp.touched(2)
 print(temp.LRU_tracker)
 print(temp.find_LRU())
 """
+=======
+        buffer_size = 2
+        book_range = 1
+        tail_list_length = int(buffer_size/book_range)
+
+        self.base_book_list = [None]*buffer_size
+        self.tail_book_list = [[]]*tail_list_length
+
+    # Return a list of tail book to be merged.
+    # This list will be the merge_queue in the merge function
+    # in Table class.
+    def full_tail_book_list(self):
+        merge_tail_books = []
+        for tail_book in tail_book_list:
+            # The tail_book_list store a list of pages.
+            if len(tail_book) > 2:
+                merge_tail_books.append(tail_book)
+        return merge_tail_books
+>>>>>>> dad54bbf5060b31d3dcc59f41bf27066749443a0
