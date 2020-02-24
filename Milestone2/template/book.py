@@ -13,25 +13,8 @@ class Book:
             for i in range(param[0]):
                 self.content.append(Page())
         else:
-<<<<<<< HEAD
-            copy_constructor(*param)
-
-    def default_construtor(self, num_of_pages, bookindex):
-        self.bookindex = bookindex
-        self.pin = 0
-        self.dirty_bit = 0
-        self.content = [Page(), Page(), Page(), Page()]
-        self.where_userData_starts = len(self.content) # so we can skip past the mettaData
-        for i in range(num_of_pages):
-            self.content.append(Page())
-
-    def copy_constructor(self, old_book):
-        self.bookindex = -1
-        self.content = oldBook.content
-=======
             self.bookindex = -1
             self.content = param
->>>>>>> 38308e0f3336819da9016150ba698da34015677d
 
     def book_insert(self, *columns):
         columns = columns[0]
