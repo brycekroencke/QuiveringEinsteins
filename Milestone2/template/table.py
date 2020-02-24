@@ -29,11 +29,11 @@ class Table:
         self.index = [None] * num_columns
         self.index[key] = Index()
 
-    def __merge(self):
-        while True:
-            merge_queue = buffer_pool.full_tail_book_list
-            while len(merge_queue) != 0:
-                curr_tail_book = merge_queue.
+    # def __merge(self):
+    #     while True:
+    #         merge_queue = buffer_pool.full_tail_book_list
+    #         while len(merge_queue) != 0:
+    #             curr_tail_book = merge_queue.
 
 
     #MOSTLY FOR DEBUGGING IN BEGINNING
