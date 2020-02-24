@@ -30,20 +30,16 @@ class Table:
         self.num_columns = num_columns
         self.page_directory = {}
         self.ridcounter = 0
-<<<<<<< HEAD
         self.tidcounter = 0
+        self.TIDcounter = 0
+        self.index = [Index()] + [None] * (num_columns-1)
 
     def __merge(self):
         while True:
             merge_queue = buffer_pool.full_tail_book_list
             while len(merge_queue) != 0:
                 curr_tail_book = merge_queue.
-=======
-        self.TIDcounter = 0
-        self.index = [Index()] + [None] * (num_columns-1)
 
-    def __merge(self):
-        pass
 
     #MOSTLY FOR DEBUGGING IN BEGINNING
     def pull_book_json(self, book_number):
@@ -99,4 +95,3 @@ class Table:
     #         self.base_list = list_of_books
     #         print(self.base_list[0].content)
     #         return list_of_books
->>>>>>> e8108c6d661660bdea37c7ae8ed809ec1c180f46
