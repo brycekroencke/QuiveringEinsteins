@@ -3,17 +3,14 @@ from table import Table
 class Buffer:
     #hello
     def __init__(self):
-        self.buffer_size = 2
+        self.buffer_size = 5
         self.book_range = 1
-        self.tail_list_length = int(self.buffer_size/self.book_range)
 
         self.LRU_tracker = [None]*self.buffer_size  #least resently used makes it so we can keep track of old non used books with time stamps
-
         for i in range(self.buffer_size):
             self.LRU_tracker[i] = self.buffer_size - i  #NOTE  how old it is position
 
-        self.base_book_list = [None]*self.buffer_size
-        self.tail_book_list = [[]]*self.tail_list_length
+        self.buffer = [None]*self.buffer_size
 
     # Return a list of tail book to be merged.
     # This list will be the merge_queue in the merge function
