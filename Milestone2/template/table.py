@@ -10,6 +10,7 @@ INDIRECTION_COLUMN = 0
 RID_COLUMN = 1
 TIMESTAMP_COLUMN = 2
 SCHEMA_ENCODING_COLUMN = 3
+print((2**64)-1)
 
 class Table:
     """
@@ -24,7 +25,7 @@ class Table:
         self.num_columns = num_columns
         self.page_directory = {}
         self.ridcounter = 0
-        self.tidcounter = 0
+        self.tidcounter = (2**64) - 1
         self.index = [Index()] + [None] * (num_columns-1)
 
     def __merge(self):
