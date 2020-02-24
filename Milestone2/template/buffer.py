@@ -1,4 +1,3 @@
-from table import Table
 
 class Buffer:
     #hello
