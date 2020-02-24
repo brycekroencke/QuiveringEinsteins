@@ -6,7 +6,7 @@ class Database():
         self.tables = []
         pass
 
-    def open(self):
+    def open(self, name):
         pass
 
     def close(self):

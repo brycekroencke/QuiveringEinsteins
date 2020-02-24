@@ -1,5 +1,5 @@
 from page import *
-from table import Record
+from record import Record
 
 class Book:
     def __init__(self, *param):
@@ -10,6 +10,8 @@ class Book:
 
     def default_construtor(self, num_of_pages, bookindex):
         self.bookindex = bookindex
+        self.pin = 0
+        self.dirty_bit = 0
         self.content = [Page(), Page(), Page(), Page()]
         for i in range(num_of_pages):
             self.content.append(Page())
@@ -28,6 +30,18 @@ class Book:
             self.content[idx].write(i)
 
         return [self.bookindex, self.content[-1].num_records - 1]
+
+    def increment_pin(self):
+        self.pin = self.pin + 1
+
+    def decrement_pin(self):
+        self.pin = self.pin - 1
+
+    def set_dirty_bit(self):
+        self.dirty_bit = 1
+
+    def remove_dirty_bit(self):
+        self.dirty_bit = 0
 
     def rid_to_zero(self, index):
         self.content[1].delete(index)
