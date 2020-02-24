@@ -13,6 +13,7 @@ class Book:
         self.pin = 0
         self.dirty_bit = 0
         self.content = [Page(), Page(), Page(), Page()]
+        self.where_userData_starts = len(self.content) # so we can skip past the mettaData 
         for i in range(num_of_pages):
             self.content.append(Page())
 
