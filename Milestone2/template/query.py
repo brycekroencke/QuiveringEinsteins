@@ -56,69 +56,39 @@ class Query:
         self.table.ridcounter = self.table.ridcounter + 1
         mettaData = [0,self.table.ridcounter,0,0]
         mettaData_and_data = mettaData + data
-<<<<<<< HEAD
-
-        #ONLY EDIT BASE PAGES (base_list)
-        #Check if self.table.base_list is empty -> add new book
-        location = []
-        if self.table.ridcounter == 1 or self.table.ridcounter == 513:
-            if self.table.ridcounter == 1:
-                self.table.buffer_pool.buffer[0] = Book(len(columns),0)
-                location = self.table.buffer_pool.buffer[0].book_insert(mettaData_and_data)
-            else:
-                self.table.buffer_pool.buffer[1] = Book(len(columns),1)
-                location = self.table.buffer_pool.buffer[1].book_insert(mettaData_and_data)
-
-        else:
-            # Add data to end of newest book
-            if self.table.ridcounter < 513:
-                location = self.table.buffer_pool.buffer[0].book_insert(mettaData_and_data)
-            else:
-                location = self.table.buffer_pool.buffer[1].book_insert(mettaData_and_data)
-=======
         location = [] #will hold [book index, row num]
 
-        if (self.last_written_book[0] == None):
+        # if no books.
+        if (self.table.last_written_book[0] == None):
             idx = self.table.buffer_pool.find_LRU() #gives me index of the slot in buffer_pool that was LRU
-            self.table.buffer_pool.buffer[idx] = Book(len(columns),self.table.book_index)
-            location = self.table.buffer_pool.buffer[idx].book_insert(mettaData_and_data)
-
+            self.table.buffer_pool.buffer[idx] = Book(len(columns), self.table.book_index)
+            self.table.last_written_book = [self.table.book_index, 0, idx]
+            self.table.book_index += 1
             self.table.buffer_pool.touched(idx)  #updating the LRU_tracker
-            self.table.last_written_book[self.table.book_index,0,idx]
-            self.table.book_index = self.table.book_index + 1
 
-        elif (self.last_written_book[2] != -1):             #book not on disk
-            idx = self.table.last_written_book[1]
-            if self.table.last_written_book[1] == 0:        #book not full
-                location = self.table.buffer_pool.buffer[idx].book_insert(mettaData_and_data)
+        # book not in BP
+        if (self.table.last_written_book[2] == -1):
+            # pull in book to BP, set last_written_book data
+            print("pullin in the stuff, baby")
 
-                self.table.buffer_pool.touched(idx)  #updating the LRU_tracker
-                if self.table.buffer_pool.buffer[idx].is_full():
-                    self.table.last_written_book[self.table.book_index,1,idx] #setting book flag to full
+        # book full
+        if (self.table.last_written_book[1] == 1):
+            idx = self.table.buffer_pool.find_LRU() #gives me index of the slot in buffer_pool that was LRU
 
-            else:           #book is full
-                idx = self.table.buffer_pool.find_LRU()
-                #NOTE NEED TO HANDLE EJECTION POLOCE
-                if self.table.buffer_pool.buffer[idx] == None: #slot in buffer is empty
-                    self.table.buffer_pool.buffer[idx] = Book(len(columns),self.table.book_index)
-                    location = self.table.buffer_pool.buffer[idx].book_insert(mettaData_and_data)
+            # EITHER PUSH CURRENT BOOK TO DISK IN LRU HERE OR DISPOSE IF CLEAN.
 
-                    self.table.buffer_pool.touched(idx)  #updating the LRU_tracker
-                    self.table.last_written_book[self.table.book_index,0,idx]
-                    self.table.book_index = self.table.book_index + 1
+            self.table.buffer_pool.buffer[idx] = Book(len(columns), self.table.book_index)
+            self.table.last_written_book = [self.table.book_index, 0, idx]
+            self.table.book_index += 1
+            self.table.buffer_pool.touched(idx)  #updating the LRU_tracker
 
-                else:           #slot not empty
-                    #NEED TO PUSH TO DISK RIGHT NOW NOT CHECKING PIN FLAG
-                    #code for writing to disk
-                    self.table.buffer_pool.buffer[idx] = Book(len(columns),self.table.book_index)
-                    location = self.table.buffer_pool.buffer[idx].book_insert(mettaData_and_data)
+        idx = self.table.last_written_book[0]
+        location = self.table.buffer_pool.buffer[idx].book_insert(mettaData_and_data)
 
-                    self.table.buffer_pool.touched(idx)  #updating the LRU_tracker
-                    self.table.last_written_book[self.table.book_index,0,idx]
-                    self.table.book_index = self.table.book_index + 1
-        else: #this is for pulling a book from disk and inserting it into buffer_pool (bp)
-            pass
->>>>>>> 003f3190a1b890ac2a9129dababdd5adb799931c
+        if(self.table.buffer_pool.buffer[idx].is_full()):
+            self.table.last_written_book[1] = 1
+
+        self.table.buffer_pool.touched(idx)  #updating the LRU_tracker
 
         #Setting RID key to book location value.
         self.table.page_directory[self.table.ridcounter] = location
@@ -136,41 +106,41 @@ class Query:
         if(self.table.index[col] == None):
             # do scan
             print("mc-scan")
-        #col isn't indexed.
-        else:
-            RID_list = self.table.index[col].locate(key)
-            #Taking RIDS->location and extracting records into record list.
-            for i in RID_list:
-                location = self.table.page_directory[i]
+            return records
 
+        RID_list = self.table.index[col].locate(key)
+        #Taking RIDS->location and extracting records into record list.
+
+        for i in RID_list:
+            location = self.table.page_directory[i]
+            ind = self.table.book_in_bp(location[0])
+            if (ind == -1):
+                # pull book into BP
+                print("pullin in the stuff, baby")
                 ind = self.table.book_in_bp(location[0])
-                if (ind == -1):
-                    # pull book into BP
-                    print("pullin in the stuff, baby")
-                    ind = self.table.book_in_bp(location[0])
-                print(ind)
-                #check_indirection =  self.table.base_list[location[0]].get_indirection(location[1])
-                self.table.buffer_pool.pin(ind)
-                check_indirection = self.table.buffer_pool.buffer[location[0]].get_indirection(location[1])
 
-                if self.table.buffer_pool.buffer[location[0]].read(location[1], 1) != 0: #checking to see if there is a delete
-                    if check_indirection == 0: #no indirection
-                        records.append(self.table.buffer_pool.buffer[location[0]].record(location[1], self.table.key))
-                        self.table.buffer_pool.unpin(ind)
-                    else: #there is an indirection
-                        self.table.buffer_pool.unpin(ind)
-                        temp = self.table.page_directory[check_indirection]
+            #check_indirection =  self.table.base_list[location[0]].get_indirection(location[1])
+            self.table.buffer_pool.pin(ind)
+            check_indirection = self.table.buffer_pool.buffer[location[0]].get_indirection(location[1])
 
+            if self.table.buffer_pool.buffer[location[0]].read(location[1], 1) != 0: #checking to see if there is a delete
+                if check_indirection == 0: #no indirection
+                    records.append(self.table.buffer_pool.buffer[location[0]].record(location[1], self.table.key))
+                    self.table.buffer_pool.unpin(ind)
+                else: #there is an indirection
+                    self.table.buffer_pool.unpin(ind)
+                    temp = self.table.page_directory[check_indirection]
+
+                    tind = self.table.book_in_bp(temp[0])
+                    if (tind == -1):
+                        # pull tail-book into BP
+                        print("pullin in the stuff, baby")
                         tind = self.table.book_in_bp(temp[0])
-                        if (tind == -1):
-                            # pull tail-book into BP
-                            print("pullin in the stuff, baby")
-                            tind = self.table.book_in_bp(temp[0])
 
-                        self.table.buffer_pool.pin(tind)
+                    self.table.buffer_pool.pin(tind)
 
-                        records.append(self.table.buffer_pool.buffer[tind].record(temp[1], self.table.key))
-                        self.table.buffer_pool.unpin(tind)
+                    records.append(self.table.buffer_pool.buffer[tind].record(temp[1], self.table.key))
+                    self.table.buffer_pool.unpin(tind)
 
         for idx in enumerate(query_columns):
             if query_columns[idx[0]] == 0:

@@ -58,8 +58,8 @@ class Book:
     def record(self, index, keyindex): #returns latest record (even if in tail)
         record = Record(self.read(index, 1), self.read(index, self.where_userData_starts + keyindex), [])
         columns = []
-        for i in range(len(self.content)):
-            if i < self.where_userData_starts:
+        for i in range(len(self.content) - 1):
+            if i < self.where_userData_starts - 1:
                 continue
             else:
                 columns.append(self.read(index, i))
