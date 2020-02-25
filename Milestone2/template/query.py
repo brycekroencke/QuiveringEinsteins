@@ -61,7 +61,7 @@ class Query:
 
 
         #Setting RID key to book location value.
-        self.table.page_directory[self.table.ridcounter] = location
+        self.table.page_directory[self.table.ridcounter] = location 
         for i in range(len(self.table.index)):
             if(self.table.index[i] != None):
                 self.table.index[i].add_to_index(data[i], mettaData[1])

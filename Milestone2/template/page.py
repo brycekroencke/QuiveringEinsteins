@@ -64,6 +64,22 @@ class Page:
 
         return int.from_bytes(bytevalue, byteorder='big')
 
+    def read_no_index_check(self, index):
+        rindex = index * 8
+        bytevalue = bytearray(8)
+
+        bytevalue[0] = self.data[rindex + 0]
+        bytevalue[1] = self.data[rindex + 1]
+        bytevalue[2] = self.data[rindex + 2]
+        bytevalue[3] = self.data[rindex + 3]
+        bytevalue[4] = self.data[rindex + 4]
+        bytevalue[5] = self.data[rindex + 5]
+        bytevalue[6] = self.data[rindex + 6]
+        bytevalue[7] = self.data[rindex + 7]
+
+        return int.from_bytes(bytevalue, byteorder='big')
+
+
     def delete(self, index):
         if(index >= self.num_records):
             print("ERROR: Index out of range.")

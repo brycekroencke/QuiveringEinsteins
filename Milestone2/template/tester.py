@@ -18,6 +18,10 @@ for i in range(0, 1000):
     records[key] = [key, randint(0, 20), randint(0, 20), randint(0, 20), randint(0, 20)]
     query.insert(*records[key])
 
+query.table.dump_book_json(0)
+query.table.dump_book_json(1)
+query.table.construct_page_directory()
+
 for key in records:
     record = query.select(key, [1, 1, 1, 1, 1])[0]
     for i, column in enumerate(record.columns):
@@ -25,6 +29,7 @@ for key in records:
             print(Fore.RED + 'Select error on key', key)
             exit()
 print(Fore.GREEN + 'Passed SELECT test.')
+
 
 for key in records:
     updated_columns = [None, None, None, None, None]

@@ -6,7 +6,7 @@ from random import choice, randint, sample, seed
 
 init()
 db = Database()
-# db.open('~/ECS165')
+db.open('~/ECS165')
 # Student Id and 4 grades
 grades_table = db.create_table('Grades', 5, 0)
 query = Query(grades_table)
@@ -19,6 +19,10 @@ for i in range(0, 1000):
     query.insert(*records[key])
 keys = sorted(list(records.keys()))
 print("Insert finished")
+
+query.table.dump_book_json(0)
+query.table.dump_book_json(1)
+query.table.construct_pd_and_index()
 
 for key in keys:
     record = query.select(key, 0, [1, 1, 1, 1, 1])[0]
