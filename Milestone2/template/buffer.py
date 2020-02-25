@@ -10,13 +10,19 @@ class Buffer:
         for i in range(self.buffer_size):
             self.LRU_tracker[i] = self.buffer_size - i  #NOTE  how old it is position
 
+    def pin(self, index):
+        self.buffer[index].increment_pin()
+        self.touched(index)
 
-
+    def unpin(self, index):
+        self.buffer[index].decrement_pin()
+        self.touched(index)
 
     def find_LRU(self):  #returns the postion of book that is the last least resently used
         for i in range(self.buffer_size):
             if self.LRU_tracker[i] == self.buffer_size:
                 return i
+
     def touched(self,index):
         index_time = self.LRU_tracker[index]
 

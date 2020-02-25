@@ -25,7 +25,7 @@ class Book:
         for idx, i in enumerate(columns):
             self.content[idx].write(i)
 
-        return [self.bookindex, self.content[-1].num_records - 1]
+        return [self.bookindex, self.content[0].num_records - 1]
 
     def increment_pin(self):
         self.pin = self.pin + 1

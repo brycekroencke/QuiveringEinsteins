@@ -75,7 +75,6 @@ class Query:
             else:
                 location = self.table.buffer_pool.buffer[1].book_insert(mettaData_and_data)
 
-
         #Setting RID key to book location value.
         self.table.page_directory[self.table.ridcounter] = location
         for i in range(len(self.table.index)):
@@ -104,14 +103,17 @@ class Query:
                     # pull book into BP
                     print("pullin in the stuff, baby")
                     ind = self.table.book_in_bp(location[0])
-
+                print(ind)
                 #check_indirection =  self.table.base_list[location[0]].get_indirection(location[1])
+                self.table.buffer_pool.pin(ind)
                 check_indirection = self.table.buffer_pool.buffer[location[0]].get_indirection(location[1])
 
                 if self.table.buffer_pool.buffer[location[0]].read(location[1], 1) != 0: #checking to see if there is a delete
                     if check_indirection == 0: #no indirection
                         records.append(self.table.buffer_pool.buffer[location[0]].record(location[1], self.table.key))
+                        self.table.buffer_pool.unpin(ind)
                     else: #there is an indirection
+                        self.table.buffer_pool.unpin(ind)
                         temp = self.table.page_directory[check_indirection]
 
                         tind = self.table.book_in_bp(temp[0])
@@ -120,7 +122,10 @@ class Query:
                             print("pullin in the stuff, baby")
                             tind = self.table.book_in_bp(temp[0])
 
+                        self.table.buffer_pool.pin(tind)
+
                         records.append(self.table.buffer_pool.buffer[tind].record(temp[1], self.table.key))
+                        self.table.buffer_pool.unpin(tind)
 
         for idx in enumerate(query_columns):
             if query_columns[idx[0]] == 0:
@@ -166,7 +171,7 @@ class Query:
                 self.table.buffer_pool.tail_book_list[tail_slot].append(Book(len(columns), 0))
                 location = self.table.buffer_pool.tail_book_list[tail_slot][-1].book_insert(base_data)
 
-                self.table.buffer_pool.tail_book_list[tail_slot].tailPage_counter ++
+                self.table.buffer_pool.tail_book_list[tail_slot].tailPage_counter += 1
 
             #Check if self.table.base_list newest book is full-> add new book
             elif self.table.buffer_pool.tail_book_list[tail_slot][-1].is_full():
@@ -174,7 +179,7 @@ class Query:
                 self.table.buffer_pool.tail_book_list[tail_slot].append(Book(len(columns), bookindex))
                 location = self.table.buffer_pool.tail_book_list[tail_slot][-1].book_insert(base_data)
 
-                self.table.buffer_pool.tail_book_list[tail_slot].tailPage_counter ++
+                self.table.buffer_pool.tail_book_list[tail_slot].tailPage_counter += 1
 
             #Check if self.table.base_list newest book has room -> add to end of book
             else:
@@ -205,7 +210,7 @@ class Query:
                 self.table.buffer_pool.tail_book_list[tail_slot].append(Book(len(columns), bookindex))
                 location = self.table.buffer_pool.tail_book_list[tail_slot][-1].book_insert(tail_data)
 
-                self.table.buffer_pool.tail_book_list[tail_slot].tailPage_counter ++
+                self.table.buffer_pool.tail_book_list[tail_slot].tailPage_counter += 1
 
             #Check if self.table.base_list newest book has room -> add to end of book
             else:
