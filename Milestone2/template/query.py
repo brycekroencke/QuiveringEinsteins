@@ -50,6 +50,7 @@ class Query:
             self.table.index[col] = None
 
     def insert(self, *columns):
+        print(self.table.ridcounter)
         #putting metta data into a list and adding user
         #data to the list
         data = list(columns)
@@ -76,13 +77,17 @@ class Query:
             idx = self.table.buffer_pool.find_LRU() #gives me index of the slot in buffer_pool that was LRU
 
             # EITHER PUSH CURRENT BOOK TO DISK IN LRU HERE OR DISPOSE IF CLEAN.
+            if self.table.buffer_pool.buffer[idx] != None and self.table.buffer_pool.dirty[idx] == True:
+                print("dumped book")
+                # self.table.dump_book_json(self.table.buffer_pool.buffer[idx])
 
             self.table.buffer_pool.buffer[idx] = Book(len(columns), self.table.book_index)
             self.table.last_written_book = [self.table.book_index, 0, idx]
             self.table.book_index += 1
             self.table.buffer_pool.touched(idx)  #updating the LRU_tracker
 
-        idx = self.table.last_written_book[0]
+        idx = self.table.last_written_book[2]
+        print(idx)
         location = self.table.buffer_pool.buffer[idx].book_insert(mettaData_and_data)
 
         if(self.table.buffer_pool.buffer[idx].is_full()):

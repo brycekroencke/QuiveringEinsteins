@@ -6,7 +6,6 @@ class Book:
     def __init__(self, *param):
         if isinstance(param[0], int):
             self.bookindex = param[1]
-            self.dirty_bit = 0
             self.content = [Page(), Page(), Page(), Page(), Page()]
             self.where_userData_starts = len(self.content)# so we can skip past the mettaData
             for i in range(param[0]):
@@ -25,12 +24,6 @@ class Book:
             self.content[idx].write(i)
 
         return [self.bookindex, self.content[0].num_records - 1]
-
-    def set_dirty_bit(self):
-        self.dirty_bit = 1
-
-    def remove_dirty_bit(self):
-        self.dirty_bit = 0
 
     def rid_to_zero(self, index):
         self.content[1].delete(index)
