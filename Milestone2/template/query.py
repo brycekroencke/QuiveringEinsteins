@@ -107,7 +107,7 @@ class Query:
     """
 
     def select(self, key, col, query_columns):
-        print(key)
+
         records = []
         if(self.table.index[col] == None):
             # do scan
@@ -119,6 +119,7 @@ class Query:
 
         for i in RID_list:
             location = self.table.page_directory[i]
+            print(location)
             ind = self.table.book_in_bp(location[0])
             if (ind == -1):
                 # pull book into BP
@@ -126,13 +127,13 @@ class Query:
                 self.table.pull_book(location[0])
                 ind = self.table.book_in_bp(location[0])
 
-            #check_indirection =  self.table.base_list[location[0]].get_indirection(location[1])
             self.table.buffer_pool.pin(ind)
             check_indirection = self.table.buffer_pool.buffer[location[0]].get_indirection(location[1])
 
             if self.table.buffer_pool.buffer[location[0]].read(location[1], 1) != 0: #checking to see if there is a delete
+
                 if check_indirection == 0: #no indirection
-                    records.append(self.table.buffer_pool.buffer[location[0]].record(location[1], self.table.key))
+                    records.append(self.table.buffer_pool.get_record(ind, location[1]))
                     self.table.buffer_pool.unpin(ind)
                 else: #there is an indirection
                     self.table.buffer_pool.unpin(ind)
@@ -153,7 +154,6 @@ class Query:
             if query_columns[idx[0]] == 0:
                 for i in records:
                     i.columns[idx[0]] = None
-
         return records
 
 

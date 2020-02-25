@@ -28,8 +28,8 @@ class Table:
             print("No file name provided for table")
             self.file_name = ""
         self.name = name
-        self.buffer_pool = Buffer()
         self.key = key
+        self.buffer_pool = Buffer(self.key)
         self.num_columns = num_columns
         self.page_directory = {}
         self.ridcounter = 0
