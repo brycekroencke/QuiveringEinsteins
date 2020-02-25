@@ -84,7 +84,8 @@ class Table:
                 return idx
         return -1
 
-    def dump_book_json(self, book_number):
+    def dump_book_json(self, actualBook):
+        book_number = actualBook.bookindex
         if (path.exists(self.file_name)):
             with open(self.file_name, "r") as read_file:
                 try: #file exists and is not empty
@@ -92,7 +93,7 @@ class Table:
 
                     book_data = {str(book_number): []}
                     page_data = {'page': []}
-                    for idj, j in enumerate(self.buffer_pool.base_book_list[book_number].content):
+                    for idj, j in enumerate(actualBook.content):
                         page_data['page'].append( str(j.data))
                     data[self.name][str(book_number)] = page_data
                     with open(self.file_name, "w") as write_file:
@@ -100,7 +101,7 @@ class Table:
 
                 except ValueError:
                     book_data = {str(book_number): []}
-                    for idi, i in enumerate(self.buffer_pool.base_book_list):
+                    for idi, i in enumerate(self.buffer_pool.buffer):
                         data = {'page': []}
                         for idj, j in enumerate(i.content):
                             data['page'].append( str(j.data))

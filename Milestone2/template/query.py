@@ -67,14 +67,15 @@ class Query:
             self.table.book_index += 1
             self.table.buffer_pool.touched(idx)  #updating the LRU_tracker
 
-        # book not in BP
-        if (self.table.last_written_book[2] == -1):
-            # pull in book to BP, set last_written_book data
-            print("pullin in the stuff, baby")
-
         # book full
         if (self.table.last_written_book[1] == 1):
             idx = self.table.buffer_pool.find_LRU() #gives me index of the slot in buffer_pool that was LRU
+
+        # book not in BP
+        if (self.table.last_written_book[2] == -1):
+            # pull in book to BP, set last_written_book data
+            self.table.pull_book(self.table.last_written_book[0])
+            print("pullin in the stuff, baby")
 
             # EITHER PUSH CURRENT BOOK TO DISK IN LRU HERE OR DISPOSE IF CLEAN.
             if self.table.buffer_pool.buffer[idx] != None and self.table.buffer_pool.dirty[idx] == True:
@@ -96,7 +97,7 @@ class Query:
         self.table.buffer_pool.touched(idx)  #updating the LRU_tracker
 
         #Setting RID key to book location value.
-        self.table.page_directory[self.table.ridcounter] = location 
+        self.table.page_directory[self.table.ridcounter] = location
         for i in range(len(self.table.index)):
             if(self.table.index[i] != None):
                 self.table.index[i].add_to_index(data[i], mettaData[1])
@@ -107,6 +108,7 @@ class Query:
     """
 
     def select(self, key, col, query_columns):
+        print(key)
         records = []
         if(self.table.index[col] == None):
             # do scan
