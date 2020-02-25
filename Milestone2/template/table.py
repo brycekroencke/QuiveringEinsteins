@@ -10,7 +10,8 @@ INDIRECTION_COLUMN = 0
 RID_COLUMN = 1
 TIMESTAMP_COLUMN = 2
 SCHEMA_ENCODING_COLUMN = 3
-#print((2**64)-1)
+BASE_ID_COLUMN = 4
+
 
 class Table:
     """
@@ -28,12 +29,14 @@ class Table:
         self.tidcounter = (2**64) - 1
         self.index = [None] * num_columns
         self.index[key] = Index()
+        self.last_written_book = [None, None, None] #[book index #, 0 book is not full or 1 for book is full, -1 book is on disk (any other number book is in buffer pool)]
 
     # def __merge(self):
     #     while True:
     #         merge_queue = buffer_pool.full_tail_book_list
     #         while len(merge_queue) != 0:
     #             curr_tail_book = merge_queue.
+
 
 
     #MOSTLY FOR DEBUGGING IN BEGINNING
