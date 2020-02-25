@@ -10,7 +10,11 @@ INDIRECTION_COLUMN = 0
 RID_COLUMN = 1
 TIMESTAMP_COLUMN = 2
 SCHEMA_ENCODING_COLUMN = 3
+<<<<<<< HEAD
 BASE_ID_COLUMN = 4
+=======
+#print((2**64)-1)
+>>>>>>> f5ffe52e6c8a2a8c3ca479a44899671a7455eeef
 
 class Table:
     """
@@ -25,15 +29,24 @@ class Table:
         self.num_columns = num_columns
         self.page_directory = {}
         self.ridcounter = 0
-        self.tidcounter = 0
-        self.index = [Index()] + [None] * (num_columns-1)
+        self.tidcounter = (2**64) - 1
+        self.index = [None] * num_columns
+        self.index[key] = Index()
 
+<<<<<<< HEAD
     def __merge(self):
         while True:
             merge_queue = buffer_pool.full_tail_book_list
             while len(merge_queue) != 0:
                 curr_tail_book = merge_queue.pop(0)
 
+=======
+    # def __merge(self):
+    #     while True:
+    #         merge_queue = buffer_pool.full_tail_book_list
+    #         while len(merge_queue) != 0:
+    #             curr_tail_book = merge_queue.
+>>>>>>> f5ffe52e6c8a2a8c3ca479a44899671a7455eeef
 
 
     #MOSTLY FOR DEBUGGING IN BEGINNING

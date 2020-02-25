@@ -2,10 +2,18 @@ from page import *
 from record import Record
 
 class Book:
+
     def __init__(self, *param):
-        if(type(param[0] == int):
-            default_construtor(*param)
+        if isinstance(param[0], int):
+            self.bookindex = param[1]
+            self.pin = 0
+            self.dirty_bit = 0
+            self.content = [Page(), Page(), Page(), Page()]
+            self.where_userData_starts = len(self.content) # so we can skip past the mettaData
+            for i in range(param[0]):
+                self.content.append(Page())
         else:
+<<<<<<< HEAD
             copy_constructor(*param)
 
     def default_construtor(self, num_of_pages, bookindex):
@@ -25,6 +33,10 @@ class Book:
         self.tps = old_book.tps
         self.tailPage_counter = old_book.tailPage_counter
         self.content = oldBook.content
+=======
+            self.bookindex = -1
+            self.content = param
+>>>>>>> f5ffe52e6c8a2a8c3ca479a44899671a7455eeef
 
     def book_insert(self, *columns):
         columns = columns[0]
@@ -66,10 +78,10 @@ class Book:
         return columns
 
     def record(self, index, keyindex): #returns latest record (even if in tail)
-        record = Record(self.read(index, 1), self.read(index, 4 + keyindex), [])
+        record = Record(self.read(index, 1), self.read(index, self.where_userData_starts + keyindex), [])
         columns = []
         for i in range(len(self.content)):
-            if i < 4:
+            if i < self.where_userData_starts:
                 continue
             else:
                 columns.append(self.read(index, i))

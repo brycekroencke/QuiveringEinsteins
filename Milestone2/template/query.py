@@ -34,6 +34,21 @@ class Query:
     # Insert a record with specified columns
     """
 
+    def create_index(self, col):
+        if (col >= self.table.num_columns):
+            print("No can do, pal. Column outta range.")
+        elif (self.table.index[col] != None):
+            print("No can do, pal. Index already created.")
+        else:
+            self.table.index[col] = Index()
+            #Now scan database here and fill in index
+
+    def drop_index(self, col):
+        if (col >= self.table.num_columns):
+            print("No can do, pal. Column outta range.")
+        elif (self.table.index[col] != None):
+            self.table.index[col] = None
+
     def insert(self, *columns):
         #putting metta data into a list and adding user
         #data to the list
@@ -117,7 +132,8 @@ class Query:
         indirection_location = location
         check_indirection =  self.table.buffer_pool.base_book_list[location[0]].get_indirection(location[1])
         data = list(columns)
-        self.table.ridcounter = self.table.ridcounter + 1
+        #self.table.ridcounter = self.table.ridcounter + 1
+        self.table.tidcounter = self.table.tidcounter - 1
         tail_slot = int(location[0]/1)
 
         #if no inderection
@@ -131,7 +147,7 @@ class Query:
                 if i != None:
                     base_data[idx + 5] = i
 
-            base_data[1] = self.table.ridcounter
+            base_data[1] = self.table.tidcounter
 
 
             if len(self.table.buffer_pool.tail_book_list[tail_slot]) == 0:
@@ -165,7 +181,7 @@ class Query:
                 if i != None:
                     tail_data[idx + 5] = i
 
-            tail_data[1] = self.table.ridcounter
+            tail_data[1] = self.table.tidcounter
 
             #if len(self.table.tail_list) == 0:
             #    self.table.tail_list.append(Book(len(columns), 0))
@@ -185,9 +201,9 @@ class Query:
                 location = self.table.buffer_pool.tail_book_list[tail_slot][-1].book_insert(tail_data)
 
 
-        self.table.page_directory[self.table.ridcounter] = location
-        #update base_book inderection with new RID
-        self.table.buffer_pool.base_book_list[indirection_location[0]].content[0].update(self.table.ridcounter, indirection_location[1])
+        self.table.page_directory[self.table.tidcounter] = location
+        #update base_book inderection with new TID
+        self.table.buffer_pool.base_book_list[indirection_location[0]].content[0].update(self.table.tidcounter, indirection_location[1])
 
 
     """
