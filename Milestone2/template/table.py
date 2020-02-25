@@ -12,12 +12,8 @@ INDIRECTION_COLUMN = 0
 RID_COLUMN = 1
 TIMESTAMP_COLUMN = 2
 SCHEMA_ENCODING_COLUMN = 3
+BASE_ID_COLUMN = 4
 
-class Record:
-    def __init__(self, rid, key, columns):
-        self.rid = rid
-        self.key = key
-        self.columns = columns
 
 class Table:
     """
@@ -37,11 +33,40 @@ class Table:
         self.num_columns = num_columns
         self.page_directory = {}
         self.ridcounter = 0
-        self.TIDcounter = 0
-        self.index = [Index()] + [None] * (num_columns-1)
+        self.tidcounter = (2**64) - 1
+        self.index = [None] * num_columns
+        self.index[key] = Index()
+        self.last_written_book = [None, None, None] #[book index #, 0 book is not full or 1 for book is full, -1 book is on disk (any other number book is in buffer pool)]
+        self.book_index = 0
 
-    def __merge(self):
-        pass
+    # def __merge(self):
+    #     while True:
+    #         merge_queue = buffer_pool.full_tail_book_list
+    #         while len(merge_queue) != 0:
+    #             curr_tail_book = merge_queue.
+
+
+
+    def pull_book(self, bookindex):
+        # Check if any empty slots
+        slot = -1
+        for idx, i in enumerate(self.buffer_pool.buffer):
+            if i == None:
+                slot = idx
+
+        # if no empty slots
+        if slot == -1:
+            # replacement time
+            slot = self.buffer_pool.find_LRU()
+
+            # if the book is dirty
+            if self.buffer_pool.dirty[slot]:
+                # push that book first
+                print("PUSHIN THE DIRTY BOOK FIRST")
+                self.dump_book_json(self.buffer_pool.buffer[slot])
+
+        # Now slot is ready to be pulled to
+        self.buffer_pool.buffer[slot] = self.pull_book_json(bookindex)
 
     #MOSTLY FOR DEBUGGING IN BEGINNING
     def pull_book_json(self, book_number):
@@ -52,6 +77,12 @@ class Table:
             for idi, i in enumerate(data['page']):
                 loaded_book.content[idi].data = eval(i)
             return loaded_book
+
+    def book_in_bp(self, bookid):
+        for idx, i in enumerate(self.buffer_pool.buffer):
+            if (i.bookindex == bookid):
+                return idx
+        return -1
 
     # #MOSTLY FOR DEBUGGING IN BEGINNING
     # def dump_all_json(self):
@@ -150,6 +181,24 @@ class Table:
                         print("index: sid %d rid %d" % (sid, rid))
                         print(sid, rid, book_number, page_index)
 
+    def dump_book_json(self, actualbook):
+        book_number = actualbook.bookindex
+        with open("data_file.json", "r") as read_file:
+            data = json.load(read_file)
+            if(book_number in range(0, len(data['book']))):
+                data['book'][book_number]['page'] = []
+                for idj, j in enumerate(actualbook.content):
+                    data['book'][book_number]['page'].append( str(j.data))
+                with open("data_file.json", "w") as write_file:
+                    json.dump(data, write_file, indent=2)
+            else:
+                print("does not exist")
+                page_data = {'page': []}
+                for idj, j in enumerate(actualbook.content):
+                    page_data['page'].append( str(j.data))
+                data['book'].append(page_data)
+                with open("data_file.json", "w") as write_file:
+                    json.dump(data, write_file, indent=2)
 
 
     # def pull_all_json(self):

@@ -2,11 +2,17 @@ from page import *
 from record import Record
 
 class Book:
-    def __init__(self, num_of_pages, bookindex):
-        self.bookindex = bookindex
-        self.content = [Page(), Page(), Page(), Page()]
-        for i in range(num_of_pages):
-            self.content.append(Page())
+
+    def __init__(self, *param):
+        if isinstance(param[0], int):
+            self.bookindex = param[1]
+            self.content = [Page(), Page(), Page(), Page(), Page()]
+            self.where_userData_starts = len(self.content)# so we can skip past the mettaData
+            for i in range(param[0]):
+                self.content.append(Page())
+        else:
+            self.bookindex = -1
+            self.content = param
 
     def book_insert(self, *columns):
         columns = columns[0]
@@ -17,7 +23,7 @@ class Book:
         for idx, i in enumerate(columns):
             self.content[idx].write(i)
 
-        return [self.bookindex, self.content[-1].num_records - 1]
+        return [self.bookindex, self.content[0].num_records - 1]
 
     def rid_to_zero(self, index):
         self.content[1].delete(index)
@@ -36,10 +42,10 @@ class Book:
         return columns
 
     def record(self, index, keyindex): #returns latest record (even if in tail)
-        record = Record(self.read(index, 1), self.read(index, 4 + keyindex), [])
+        record = Record(self.read(index, 1), self.read(index, self.where_userData_starts + keyindex), [])
         columns = []
-        for i in range(len(self.content)):
-            if i < 4:
+        for i in range(len(self.content) - 1):
+            if i < self.where_userData_starts - 1:
                 continue
             else:
                 columns.append(self.read(index, i))
