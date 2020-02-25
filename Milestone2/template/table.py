@@ -67,12 +67,19 @@ class Table:
 
         # Now slot is ready to be pulled to
         self.buffer_pool.buffer[slot] = self.pull_book_json(bookindex)
+        return slot
+
+
+    def pull_base_and_tail(self, base_index):
+        base_buff_indx = pull_book(base_index)
+        #self.buffer_pool.buffer[slot].
+
 
 
     def pull_book_json(self, book_number):
         with open(self.file_name, "r") as read_file:
             data = json.load(read_file)
-            data = data[self.name][0]['book'][book_number]
+            data = data[self.name][str(book_number)]
             loaded_book = Book(len(data['page']), book_number)
             for idi, i in enumerate(data['page']):
                 loaded_book.content[idi].data = eval(i)
@@ -107,7 +114,7 @@ class Table:
                             data['page'].append( str(j.data))
                         book_data[str(book_number)].append(data)
                     table_data = {self.name: book_data}
-                    print(table_data)
+                    #print(table_data)
                     with open(self.file_name, "w") as write_file:
                         json.dump(table_data, write_file, indent=2)
 

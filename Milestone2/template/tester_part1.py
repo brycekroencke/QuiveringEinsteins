@@ -13,16 +13,13 @@ query = Query(grades_table)
 
 records = {}
 seed(3562901)
-for i in range(0, 1000):
+for i in range(0, 10000):
     key = 92106429 + i
     records[key] = [key, randint(0, 20), randint(0, 20), randint(0, 20), randint(0, 20)]
     query.insert(*records[key])
 keys = sorted(list(records.keys()))
 print("Insert finished")
 
-query.table.dump_book_json(0)
-query.table.dump_book_json(1)
-query.table.construct_pd_and_index()
 
 for key in keys:
     record = query.select(key, 0, [1, 1, 1, 1, 1])[0]

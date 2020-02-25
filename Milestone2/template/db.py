@@ -32,6 +32,7 @@ class Database():
 
 
     def close(self):
+        #for pages in buffer pool, merge then and then write them to file
         # for i buffer_pool:
         #     self.tables[0].merge(i)
         #     self.tables[0].push_book_json(i)
