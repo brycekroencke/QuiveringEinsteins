@@ -33,7 +33,7 @@ class Buffer:
                 self.LRU_tracker[i] = self.LRU_tracker[i] + 1
 
 
-"""
+
 # TESTING LRU_tracker
 temp = Buffer()
 print(temp.LRU_tracker)
@@ -58,5 +58,3 @@ print(temp.LRU_tracker)
 print(temp.find_LRU())
 temp.touched(2)
 print(temp.LRU_tracker)
-print(temp.find_LRU())
-"""
