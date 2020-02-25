@@ -111,32 +111,44 @@ class Query:
     """
 
     def select(self, key, col, query_columns):
+        records = []
         if(self.table.index[col] == None):
             # do scan
             print("mc-scan")
+        #col isn't indexed.
         else:
             RID_list = self.table.index[col].locate(key)
-            records = []
             #Taking RIDS->location and extracting records into record list.
             for i in RID_list:
-                #location[0] = book#, location[1] = row#
                 location = self.table.page_directory[i]
-                #check_indirection =  self.table.base_list[location[0]].get_indirection(location[1])
-                check_indirection =  self.table.buffer_pool.base_book_list[location[0]].get_indirection(location[1])
 
-                if self.table.buffer_pool.base_book_list[location[0]].read(location[1], 1) != 0: #checking to see if there is a delete
+                ind = self.table.book_in_bp(location[0])
+                if (ind == -1):
+                    # pull book into BP
+                    print("pullin in the stuff, baby")
+                    ind = self.table.book_in_bp(location[0])
+
+                #check_indirection =  self.table.base_list[location[0]].get_indirection(location[1])
+                check_indirection = self.table.buffer_pool.buffer[location[0]].get_indirection(location[1])
+
+                if self.table.buffer_pool.buffer[location[0]].read(location[1], 1) != 0: #checking to see if there is a delete
                     if check_indirection == 0: #no indirection
-                        records.append(self.table.buffer_pool.base_book_list[location[0]].record(location[1], self.table.key))
+                        records.append(self.table.buffer_pool.buffer[location[0]].record(location[1], self.table.key))
                     else: #there is an indirection
                         temp = self.table.page_directory[check_indirection]
 
-                        tail_slot = int(location[0]/1)
-                        records.append(self.table.buffer_pool.tail_book_list[tail_slot][temp[0]].record(temp[1], self.table.key))
+                        tind = self.table.book_in_bp(temp[0])
+                        if (tind == -1):
+                            # pull tail-book into BP
+                            print("pullin in the stuff, baby")
+                            tind = self.table.book_in_bp(temp[0])
 
-            for idx in enumerate(query_columns):
-                if query_columns[idx[0]] == 0:
-                    for i in records:
-                        i.columns[idx[0]] = None
+                        records.append(self.table.buffer_pool.buffer[tind].record(temp[1], self.table.key))
+
+        for idx in enumerate(query_columns):
+            if query_columns[idx[0]] == 0:
+                for i in records:
+                    i.columns[idx[0]] = None
 
         return records
 
@@ -153,7 +165,7 @@ class Query:
         RID = self.table.index[self.table.key].locate(key)
         location = self.table.page_directory[RID[0]] # returns [book num, row]
         indirection_location = location
-        check_indirection =  self.table.buffer_pool.base_book_list[location[0]].get_indirection(location[1])
+        check_indirection =  self.table.buffer_pool.buffer[location[0]].get_indirection(location[1])
         data = list(columns)
         #self.table.ridcounter = self.table.ridcounter + 1
         self.table.tidcounter = self.table.tidcounter - 1
@@ -161,7 +173,7 @@ class Query:
 
         #if no inderection
         if  check_indirection == 0:
-            base_data = self.table.buffer_pool.base_book_list[location[0]].get_full_record(location[1])
+            base_data = self.table.buffer_pool.buffer[location[0]].get_full_record(location[1])
 
             #mettaData = [0,self.table.ridcounter,0,0]
             #mettaData_and_data = mettaData + data
@@ -226,7 +238,7 @@ class Query:
 
         self.table.page_directory[self.table.tidcounter] = location
         #update base_book inderection with new TID
-        self.table.buffer_pool.base_book_list[indirection_location[0]].content[0].update(self.table.tidcounter, indirection_location[1])
+        self.table.buffer_pool.buffer[indirection_location[0]].content[0].update(self.table.tidcounter, indirection_location[1])
 
 
     """

@@ -50,6 +50,12 @@ class Table:
                 loaded_book.content[idi].data = eval(i)
             return loaded_book
 
+    def book_in_bp(self, bookid):
+        for idx, i in enumerate(self.buffer_pool.buffer):
+            if (i.bookindex == bookid):
+                return idx
+        return -1
+
     # #MOSTLY FOR DEBUGGING IN BEGINNING
     # def dump_all_json(self):
     #     with open("data_file.json", "w+") as write_file:
