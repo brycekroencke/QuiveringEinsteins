@@ -1,12 +1,15 @@
 #https://openproceedings.org/2018/conf/edbt/paper-215.pdf
 
-"""
+#"""
 Input :Queue of unmerged committed tail pages (mergeQ)
 Output :Queue of outdated and consolidated base pages to be deallocated
 (deallocateQ)
-while true do // Step 1
+while true do
+  // Step 1
   // wait until the the concurrent merge queue is not empty
-  if mergeQ is not empty then // Step 2
+  if mergeQ is not empty then
+
+  // Step 2
     // fetch references to a set of committed tail pages
     batchTailPage <-- mergeQ.dequeue()
     // create a copy of corresponding base pages
@@ -15,9 +18,11 @@ while true do // Step 1
     // track if it has seen the latest update of every record
     HashMap seenUpdatesH
     // reading a set of tail pages in reverse order
-    // Step 3
-    for i = 0; i < batchTailPage.size; i ← i + 1 do tailPage ← batchTailPages[i]
-      forj=k−1;j ≥ tailPage.size;j←j−1 do
+
+  // Step 3
+    for i = 0; i < batchTailPage.size; i ← i + 1 do
+    tailPage ← batchTailPages[i]
+      for j = k − 1; j ≥ tailPage.size; j ← j − 1 do
         record[j] ← j t h record in the tailPage
         RID ← record[j].RID
         if seenUpdatesH does not contain RID then
@@ -31,12 +36,14 @@ while true do // Step 1
         end
       end
     end
-    // Step 4
+
+  // Step 4
     // fetch references to the corresponding base pages
     batchBasePage <-- batchTailPage.getBasePageRef()
     // update page directory to point to the consolidated base pages
     PageDirect.swap(batchBasePage, batchConsPage)
-    // Step 5
+
+  // Step 5
     // queue outdated pages for deallocation once readers prior merge are drained deallocateQ.enqueue(batchBasePage)
   end
 end

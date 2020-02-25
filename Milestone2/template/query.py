@@ -6,6 +6,7 @@ INDIRECTION_COLUMN = 0
 RID_COLUMN = 1
 TIMESTAMP_COLUMN = 2
 SCHEMA_ENCODING_COLUMN = 3
+BASE_ID_COLUMN = 4
 
 class Query:
     """
@@ -144,7 +145,7 @@ class Query:
 
             for idx, i in enumerate(data):
                 if i != None:
-                    base_data[idx + 4] = i
+                    base_data[idx + 5] = i
 
             base_data[1] = self.table.tidcounter
 
@@ -153,11 +154,15 @@ class Query:
                 self.table.buffer_pool.tail_book_list[tail_slot].append(Book(len(columns), 0))
                 location = self.table.buffer_pool.tail_book_list[tail_slot][-1].book_insert(base_data)
 
+                self.table.buffer_pool.tail_book_list[tail_slot].tailPage_counter ++
+
             #Check if self.table.base_list newest book is full-> add new book
             elif self.table.buffer_pool.tail_book_list[tail_slot][-1].is_full():
                 bookindex = self.table.buffer_pool.tail_book_list[tail_slot][-1].bookindex + 1
                 self.table.buffer_pool.tail_book_list[tail_slot].append(Book(len(columns), bookindex))
                 location = self.table.buffer_pool.tail_book_list[tail_slot][-1].book_insert(base_data)
+
+                self.table.buffer_pool.tail_book_list[tail_slot].tailPage_counter ++
 
             #Check if self.table.base_list newest book has room -> add to end of book
             else:
@@ -174,7 +179,7 @@ class Query:
 
             for idx, i in enumerate(data):
                 if i != None:
-                    tail_data[idx + 4] = i
+                    tail_data[idx + 5] = i
 
             tail_data[1] = self.table.tidcounter
 
@@ -187,6 +192,8 @@ class Query:
                 bookindex = self.table.buffer_pool.tail_book_list[tail_slot][-1].bookindex + 1
                 self.table.buffer_pool.tail_book_list[tail_slot].append(Book(len(columns), bookindex))
                 location = self.table.buffer_pool.tail_book_list[tail_slot][-1].book_insert(tail_data)
+
+                self.table.buffer_pool.tail_book_list[tail_slot].tailPage_counter ++
 
             #Check if self.table.base_list newest book has room -> add to end of book
             else:
