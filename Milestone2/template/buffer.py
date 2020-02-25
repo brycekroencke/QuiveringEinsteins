@@ -1,8 +1,9 @@
 from table import Table
 
 class Buffer:
-    #hello
-    def __init__(self):
+    # Need a table object.
+    def __init__(self, table):
+        self.table = table
         self.buffer_size = 2
         self.book_range = 1
         self.tail_list_length = int(self.buffer_size/self.book_range)
@@ -21,9 +22,18 @@ class Buffer:
     def full_tail_book_list(self):
         merge_tail_books = []
         for tail_book in tail_book_list:
-            # The tail_book_list store a list of pages.
-            if len(tail_book) > 2:
-                merge_tail_books.append(tail_book)
+            # tail_book has not been merged.
+            if tail_book.tps == 0:
+                if len(tail_book) > 2:
+                    merge_tail_books.append(tail_book)
+
+            # tail_book.tps != 0, has been merged.
+            # There're more than 2 tail pages updating records after last merge process
+            else:
+                if tail_book.tailPage_counter > 2
+                    merge_tail_books.append(tail_book)
+
+
         return merge_tail_books
 
     def find_LRU(self):  #returns the postion of book that is the last least resently used

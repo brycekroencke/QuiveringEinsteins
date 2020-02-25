@@ -10,6 +10,7 @@ INDIRECTION_COLUMN = 0
 RID_COLUMN = 1
 TIMESTAMP_COLUMN = 2
 SCHEMA_ENCODING_COLUMN = 3
+BASE_ID_COLUMN = 4
 
 class Table:
     """
@@ -31,7 +32,8 @@ class Table:
         while True:
             merge_queue = buffer_pool.full_tail_book_list
             while len(merge_queue) != 0:
-                curr_tail_book = merge_queue.
+                curr_tail_book = merge_queue.pop(0)
+
 
 
     #MOSTLY FOR DEBUGGING IN BEGINNING
