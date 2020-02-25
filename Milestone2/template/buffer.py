@@ -6,23 +6,32 @@ class Buffer:
         self.book_range = 1
         self.buffer = [None]*self.buffer_size
         self.LRU_tracker = [None]*self.buffer_size  #least resently used makes it so we can keep track of old non used books with time stamps
+        self.pins = [0]*self.buffer_size
 
         for i in range(self.buffer_size):
             self.LRU_tracker[i] = self.buffer_size - i  #NOTE  how old it is position
 
     def pin(self, index):
-        self.buffer[index].increment_pin()
+        self.pins[index] += 1
         self.touched(index)
 
     def unpin(self, index):
-        self.buffer[index].decrement_pin()
+        self.pins[index] -= 1
         self.touched(index)
 
     def find_LRU(self):  #returns the postion of book that is the last least resently used
-        for i in range(self.buffer_size):
-            if self.LRU_tracker[i] == self.buffer_size:
-                return i
+        result = -1
 
+        for i in range(self.buffer_size):
+            if self.LRU_tracker[i] == self.buffer_size and self.pins[i] == 0:
+                result = i
+
+        if result == -1:
+            print("ALL PINS TAKEN --BUG")
+            exit()
+
+        return result
+        
     def touched(self,index):
         index_time = self.LRU_tracker[index]
 

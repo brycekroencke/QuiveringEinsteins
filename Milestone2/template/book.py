@@ -6,10 +6,9 @@ class Book:
     def __init__(self, *param):
         if isinstance(param[0], int):
             self.bookindex = param[1]
-            self.pin = 0
             self.dirty_bit = 0
             self.content = [Page(), Page(), Page(), Page(), Page()]
-            self.where_userData_starts = len(self.content) # so we can skip past the mettaData
+            self.where_userData_starts = len(self.content)# so we can skip past the mettaData
             for i in range(param[0]):
                 self.content.append(Page())
         else:
@@ -26,12 +25,6 @@ class Book:
             self.content[idx].write(i)
 
         return [self.bookindex, self.content[0].num_records - 1]
-
-    def increment_pin(self):
-        self.pin = self.pin + 1
-
-    def decrement_pin(self):
-        self.pin = self.pin - 1
 
     def set_dirty_bit(self):
         self.dirty_bit = 1
