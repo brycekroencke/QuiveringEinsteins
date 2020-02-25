@@ -40,6 +40,27 @@ class Table:
 
 
 
+    def pull_book(self, bookindex):
+        # Check if any empty slots
+        slot = -1
+        for idx, i in enumerate(self.buffer_pool.buffer):
+            if i == None:
+                slot = idx
+
+        # if no empty slots
+        if slot == -1:
+            # replacement time
+            slot = self.buffer_pool.find_LRU()
+
+            # if the book is dirty
+            if self.buffer_pool.dirty[slot]:
+                # push that book first
+                print("PUSHIN THE DIRTY BOOK FIRST")
+                self.dump_book_json(self.buffer_pool.buffer[slot])
+
+        # Now slot is ready to be pulled to
+        self.buffer_pool.buffer[slot] = self.pull_book_json(bookindex)
+
     #MOSTLY FOR DEBUGGING IN BEGINNING
     def pull_book_json(self, book_number):
         with open("data_file.json", "r") as read_file:
@@ -68,19 +89,20 @@ class Table:
     #         json.dump(book_data, write_file, indent=2)
 
 
-    def dump_book_json(self, book_number):
+    def dump_book_json(self, actualbook):
+        book_number = actualbook.bookindex
         with open("data_file.json", "r") as read_file:
             data = json.load(read_file)
             if(book_number in range(0, len(data['book']))):
                 data['book'][book_number]['page'] = []
-                for idj, j in enumerate(self.base_list[book_number].content):
+                for idj, j in enumerate(actualbook.content):
                     data['book'][book_number]['page'].append( str(j.data))
                 with open("data_file.json", "w") as write_file:
                     json.dump(data, write_file, indent=2)
             else:
                 print("does not exist")
                 page_data = {'page': []}
-                for idj, j in enumerate(self.base_list[book_number].content):
+                for idj, j in enumerate(actualbook.content):
                     page_data['page'].append( str(j.data))
                 data['book'].append(page_data)
                 with open("data_file.json", "w") as write_file:
