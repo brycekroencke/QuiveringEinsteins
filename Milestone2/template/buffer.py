@@ -4,12 +4,13 @@ class Buffer:
     def __init__(self):
         self.buffer_size = 5
         self.book_range = 1
-
+        self.buffer = [None]*self.buffer_size
         self.LRU_tracker = [None]*self.buffer_size  #least resently used makes it so we can keep track of old non used books with time stamps
+
         for i in range(self.buffer_size):
             self.LRU_tracker[i] = self.buffer_size - i  #NOTE  how old it is position
 
-        self.buffer = [None]*self.buffer_size
+
 
 
     def find_LRU(self):  #returns the postion of book that is the last least resently used
