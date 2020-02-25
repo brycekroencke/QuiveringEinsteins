@@ -56,25 +56,48 @@ class Query:
         self.table.ridcounter = self.table.ridcounter + 1
         mettaData = [0,self.table.ridcounter,0,0]
         mettaData_and_data = mettaData + data
+        location = [] #will hold [book index, row num]
 
-        #ONLY EDIT BASE PAGES (base_list)
-        #Check if self.table.base_list is empty -> add new book
-        location = []
-        if self.table.ridcounter == 1 or self.table.ridcounter == 513:
-            if self.table.ridcounter == 1:
-                self.table.buffer_pool.base_book_list[0] = Book(len(columns),0)
-                location = self.table.buffer_pool.base_book_list[0].book_insert(mettaData_and_data)
-            else:
-                self.table.buffer_pool.base_book_list[1] = Book(len(columns),1)
-                location = self.table.buffer_pool.base_book_list[1].book_insert(mettaData_and_data)
+        if (self.last_written_book[0] == None):
+            idx = self.table.buffer_pool.find_LRU() #gives me index of the slot in buffer_pool that was LRU
+            self.table.buffer_pool.buffer[idx] = Book(len(columns),self.table.book_index)
+            location = self.table.buffer_pool.buffer[idx].book_insert(mettaData_and_data)
 
-        else:
-            # Add data to end of newest book
-            if self.table.ridcounter < 513:
-                location = self.table.buffer_pool.base_book_list[0].book_insert(mettaData_and_data)
-            else:
-                location = self.table.buffer_pool.base_book_list[1].book_insert(mettaData_and_data)
+            self.table.buffer_pool.touched(idx)  #updating the LRU_tracker
+            self.table.last_written_book[self.table.book_index,0,idx]
+            self.table.book_index = self.table.book_index + 1
 
+        elif (self.last_written_book[2] != -1):             #book not on disk
+            idx = self.table.last_written_book[1]
+            if self.table.last_written_book[1] == 0:        #book not full
+                location = self.table.buffer_pool.buffer[idx].book_insert(mettaData_and_data)
+
+                self.table.buffer_pool.touched(idx)  #updating the LRU_tracker
+                if self.table.buffer_pool.buffer[idx].is_full():
+                    self.table.last_written_book[self.table.book_index,1,idx] #setting book flag to full
+
+            else:           #book is full
+                idx = self.table.buffer_pool.find_LRU()
+                #NOTE NEED TO HANDLE EJECTION POLOCE
+                if self.table.buffer_pool.buffer[idx] == None: #slot in buffer is empty
+                    self.table.buffer_pool.buffer[idx] = Book(len(columns),self.table.book_index)
+                    location = self.table.buffer_pool.buffer[idx].book_insert(mettaData_and_data)
+
+                    self.table.buffer_pool.touched(idx)  #updating the LRU_tracker
+                    self.table.last_written_book[self.table.book_index,0,idx]
+                    self.table.book_index = self.table.book_index + 1
+
+                else:           #slot not empty
+                    #NEED TO PUSH TO DISK RIGHT NOW NOT CHECKING PIN FLAG
+                    #code for writing to disk
+                    self.table.buffer_pool.buffer[idx] = Book(len(columns),self.table.book_index)
+                    location = self.table.buffer_pool.buffer[idx].book_insert(mettaData_and_data)
+
+                    self.table.buffer_pool.touched(idx)  #updating the LRU_tracker
+                    self.table.last_written_book[self.table.book_index,0,idx]
+                    self.table.book_index = self.table.book_index + 1
+        else: #this is for pulling a book from disk and inserting it into buffer_pool (bp)
+            pass
 
         #Setting RID key to book location value.
         self.table.page_directory[self.table.ridcounter] = location

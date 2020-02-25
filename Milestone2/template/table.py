@@ -30,6 +30,7 @@ class Table:
         self.index = [None] * num_columns
         self.index[key] = Index()
         self.last_written_book = [None, None, None] #[book index #, 0 book is not full or 1 for book is full, -1 book is on disk (any other number book is in buffer pool)]
+        self.book_index = 0
 
     # def __merge(self):
     #     while True:
