@@ -1,6 +1,7 @@
 import json
 import os.path
 from os import path
+import sys
 
 from page import *
 from time import time
@@ -69,12 +70,9 @@ class Table:
         self.buffer_pool.buffer[slot] = self.pull_book_json(bookindex)
         return slot
 
-
     def pull_base_and_tail(self, base_index):
         base_buff_indx = pull_book(base_index)
         #self.buffer_pool.buffer[slot].
-
-
 
     def pull_book_json(self, book_number):
         with open(self.file_name, "r") as read_file:
@@ -152,8 +150,10 @@ class Table:
                     if (rid != 0):
                         print("index: sid %d rid %d" % (sid, rid))
                         print(sid, rid, book_number, page_index)
-
-
+                        self.page_directory[rid] = [book_number, page_index]
+                        self.index[self.key].index[rid] = [sid]
+        print(self.page_directory)
+        print(self.index[self.key].index)
 
     # def pull_all_json(self):
     #     with open("data_file.json", "r") as read_file:

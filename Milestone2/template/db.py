@@ -2,6 +2,7 @@ from table import Table
 import os.path
 from os import path
 import json
+import sys
 
 class Database():
 
@@ -14,15 +15,15 @@ class Database():
         file_name = file_name [2:] + ".json"
         self.file_name = file_name
         if (path.exists(self.file_name)):
-            with open(self.file_name, "r") as read_file:
-                data = json.load(read_file)
-                for idi, i in enumerate(data):
-                    print(i)#, len(i['book']))
-                    #self.tables.append(Table(i, len(i['book'])-4, 0, file_name = file_name))
+            # with open(self.file_name, "r") as read_file:
+            #     data = json.load(read_file)
+            #     for idi, i in enumerate(data):
+            #         keys = list(data[i].keys())
+            #         self.tables.append(Table(i, len(data[i][str(keys[0])]['page'])-5, 0, file_name = file_name))
+            #         self.tables[idi].construct_pd_and_index()
 
 
 
-            #self.tables[0].construct_pd_and_index(self.tables[0].file_name)
             return
 
         else:
@@ -51,12 +52,20 @@ class Database():
             try:
                 data = json.load(read_file)
                 if(data[str(name)]):
+                    print("Table exists in file, reconstructing meta data...")
                     ## GET TABLE OBJECT AND RETURN IT
-                    table = Table(name, num_columns, key, self.file_name) ## CHANGE TO BE THE PROPER TABLE FROM FILE
+                    #table = Table(name, num_columns, key, self.file_name) ## CHANGE TO BE THE PROPER TABLE FROM FILE
+                    #with open(self.file_name, "r") as read_file:
+                    #data = json.load(read_file)
+                    self.tables.append(Table(name, num_columns, key, self.file_name))
+                    self.tables[-1].construct_pd_and_index()
                 else:
+                    print("Table does not exist in data file")
                     table = Table(name, num_columns, key, self.file_name)
             except ValueError:
+                print("Creating database file for first time")
                 table = Table(name, num_columns, key, self.file_name)
+
 
 
             return table
