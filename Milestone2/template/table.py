@@ -141,15 +141,21 @@ class Table:
 
                 except ValueError:
                     book_data = {str(book_number): []}
-                    for idi, i in enumerate(self.buffer_pool.buffer):
-                        data = {'page': []}
-                        for idj, j in enumerate(i.content):
-                            data['page'].append( str(j.data))
-                        book_data[str(book_number)].append(data)
-                    table_data = {self.name: book_data}
-                    #print(table_data)
+                    data = {self.name: {str(book_number) :{'page': []}}}
+                    for idj, j in enumerate(actualBook.content):
+                        data[self.name][str(book_number)]['page'].append(str(j.data))
+#data[self.name][str(book_number)] = data
+#book_data[str(book_number)].append(data)
+#table_data = {self.name: book_data}
+                    # for idi, i in enumerate(self.buffer_pool.buffer):
+                    #     data = {'page': []}
+                    #     for idj, j in enumerate(i.content):
+                    #         data['page'].append( str(j.data))
+                    #     book_data[str(book_number)].append(data)
+                    # table_data = {self.name: book_data}
+                    # #print(table_data)
                     with open(self.file_name, "w") as write_file:
-                        json.dump(table_data, write_file, indent=2)
+                         json.dump(data, write_file, indent=2)
 
         else:
             with open(self.file_name, "w+") as write_file:
