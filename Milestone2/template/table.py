@@ -59,7 +59,34 @@ class Table:
                 self.dump_book_json(self.buffer_pool.buffer[slot])
 
         # Now slot is ready to be pulled to
+        self.buffer_pool.pin(slot)
+        self.buffer_pool.touched(slot)
         self.buffer_pool.buffer[slot] = self.pull_book_json(bookindex)
+        return slot
+
+    #Makes room for a new book to be inserted into bp
+    def make_room(self):
+        # Check if any empty slots
+        slot = -1
+        for idx, i in enumerate(self.buffer_pool.buffer):
+            if i == None:
+                slot = idx
+
+        # if no empty slots
+        if slot == -1:
+            # replacement time
+            slot = self.buffer_pool.find_LRU()
+
+            # if the book is dirty
+            if self.buffer_pool.dirty[slot]:
+                # push that book first
+                print("PUSHIN THE DIRTY BOOK FIRST")
+                self.dump_book_json(self.buffer_pool.buffer[slot])
+
+        # Now slot is ready to be pulled to
+        self.buffer_pool.pin(slot)
+        self.buffer_pool.touched(slot)
+        return slot
 
     #MOSTLY FOR DEBUGGING IN BEGINNING
     def pull_book_json(self, book_number):
