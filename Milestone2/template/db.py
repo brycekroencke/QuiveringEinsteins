@@ -47,27 +47,31 @@ class Database():
     :param key: int             #Index of table key in columns
     """
     def create_table(self, name, num_columns, key):
-        ## CHECK IF TABLE EXISTS INSIDE THE DB FILE
-        # with open(self.file_name, "r") as read_file:
-        #     try:
-        #         data = json.load(read_file)
-        #         if(data[str(name)]):
-        #             print("Table exists in file, reconstructing meta data...")
-        #             ## GET TABLE OBJECT AND RETURN IT
-        #             #table = Table(name, num_columns, key, self.file_name) ## CHANGE TO BE THE PROPER TABLE FROM FILE
-        #             #with open(self.file_name, "r") as read_file:
-        #             #data = json.load(read_file)
-        #             self.tables.append(Table(name, num_columns, key, self.file_name))
-        #             self.tables[-1].construct_pd_and_index()
-        #         else:
-        #             print("Table does not exist in data file")
-        #             table = Table(name, num_columns, key, self.file_name)
-        #     except ValueError:
-        #         print("Creating database file for first time")
-        #         table = Table(name, num_columns, key, self.file_name)
-        #     return table
-        table = Table(name, num_columns, key, self.file_name)
-        return table
+        # CHECK IF TABLE EXISTS INSIDE THE DB FILE
+        with open(self.file_name, "r") as read_file:
+            try:
+                data = json.load(read_file)
+                if(data[str(name)]):
+                    print("Table exists in file, reconstructing meta data...")
+                    ## GET TABLE OBJECT AND RETURN IT
+                    #table = Table(name, num_columns, key, self.file_name) ## CHANGE TO BE THE PROPER TABLE FROM FILE
+                    #with open(self.file_name, "r") as read_file:
+                    #data = json.load(read_file)
+                    self.tables.append(Table(name, num_columns, key, self.file_name))
+                    self.tables[-1].construct_pd_and_index()
+                    return self.tables[-1]
+                else:
+                    print("Table does not exist in data file")
+                    self.tables.append(Table(name, num_columns, key, self.file_name))
+                    return self.tables[-1]
+            except ValueError:
+                print("Creating database file for first time")
+                #table = Table(name, num_columns, key, self.file_name)
+                self.tables.append(Table(name, num_columns, key, self.file_name))
+                return self.tables[-1]
+            return table
+        # table = Table(name, num_columns, key, self.file_name)
+        # return table
 
 
 
