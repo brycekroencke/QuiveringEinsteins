@@ -28,7 +28,7 @@ class Buffer:
         result = -1
 
         for i in range(self.buffer_size):
-            if self.LRU_tracker[i] == self.buffer_size and self.pins[i] == 0:
+            if self.LRU_tracker[i] == self.buffer_size:
                 result = i
 
         if result == -1:

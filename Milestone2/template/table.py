@@ -66,23 +66,55 @@ class Table:
                 self.dump_book_json(self.buffer_pool.buffer[slot])
 
         # Now slot is ready to be pulled to
+        self.buffer_pool.pin(slot)
+        self.buffer_pool.touched(slot)
         self.buffer_pool.buffer[slot] = self.pull_book_json(bookindex)
         return slot
 
+    #Makes room for a new book to be inserted into bp
+    def make_room(self):
+        # Check if any empty slots
+        slot = -1
+        for idx, i in enumerate(self.buffer_pool.buffer):
+            if i == None:
+                slot = idx
+
+        # if no empty slots
+        if slot == -1:
+            # replacement time
+            slot = self.buffer_pool.find_LRU()
+
+            # if the book is dirty
+            if self.buffer_pool.dirty[slot]:
+                # push that book first
+                print("PUSHIN THE DIRTY BOOK FIRST")
+                self.dump_book_json(self.buffer_pool.buffer[slot])
+
+        # Now slot is ready to be pulled to
+        self.buffer_pool.pin(slot)
+        self.buffer_pool.touched(slot)
+        return slot
 
     def pull_base_and_tail(self, base_index):
         base_buff_indx = pull_book(base_index)
         #self.buffer_pool.buffer[slot].
 
-
-
     def pull_book_json(self, book_number):
         with open(self.file_name, "r") as read_file:
             data = json.load(read_file)
             data = data[self.name][str(book_number)]
-            loaded_book = Book(len(data['page']), book_number)
+            loaded_book = Book(len(data['page']) - 5, book_number)
             for idi, i in enumerate(data['page']):
                 loaded_book.content[idi].data = eval(i)
+
+            size = 0
+            for i in range(512):
+                if loaded_book.content[1] != 0:
+                    size += 1
+
+            for i in loaded_book.content:
+                i.num_records = size
+
             return loaded_book
 
     def book_in_bp(self, bookid):
