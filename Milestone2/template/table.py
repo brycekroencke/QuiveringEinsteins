@@ -105,7 +105,6 @@ class Table:
         with open(self.file_name, "r") as read_file:
             data = json.load(read_file)
             data = data[self.name][str(book_number)]
-            print(data)
             loaded_book = Book(len(data['page']) - 5, book_number)
             for idi, i in enumerate(data['page']):
                 loaded_book.content[idi].data = eval(i)
@@ -185,12 +184,9 @@ class Table:
                     rid = rid_page.read_no_index_check(page_index)
                     sid = sid_page.read_no_index_check(page_index)
                     if (rid != 0):
-                        print("index: sid %d rid %d" % (sid, rid))
-                        print(sid, rid, book_number, page_index)
                         self.page_directory[rid] = [book_number, page_index]
                         self.index[self.key].index[rid] = [sid]
-        print(self.page_directory)
-        print(self.index[self.key].index)
+
 
     # def pull_all_json(self):
     #     with open("data_file.json", "r") as read_file:
