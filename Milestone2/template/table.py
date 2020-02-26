@@ -21,8 +21,8 @@ class Table:
     """
     def __init__(self, name, num_columns, key):
         self.name = name
-        self.buffer_pool = Buffer()
         self.key = key
+        self.buffer_pool = Buffer(self.key)
         self.num_columns = num_columns
         self.page_directory = {}
         self.ridcounter = 0
