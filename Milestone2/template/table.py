@@ -72,7 +72,6 @@ class Table:
         self.buffer_pool.buffer[slot] = self.pull_book_json(bookindex)
         return slot
 
-
     #Makes room for a new book to be inserted into bp
     def make_room(self):
         # Check if any empty slots
@@ -108,6 +107,7 @@ class Table:
             loaded_book = Book(len(data['page']) - 5, book_number)
             for idi, i in enumerate(data['page']):
                 loaded_book.content[idi].data = eval(i)
+
             size = 0
             for i in range(512):
                 if loaded_book.content[1] != 0:
@@ -141,16 +141,15 @@ class Table:
 
                 except ValueError:
                     book_data = {str(book_number): []}
-                    #for idi, i in enumerate(self.buffer_pool.buffer):
-                    data = {self.name: {str(book_number) :{'page': []}}}
-                    for idj, j in enumerate(actualBook.content):
-                        data[self.name][str(book_number)]['page'].append(str(j.data))
-                    #data[self.name][str(book_number)] = data
-                    #book_data[str(book_number)].append(data)
-                    #table_data = {self.name: book_data}
+                    for idi, i in enumerate(self.buffer_pool.buffer):
+                        data = {'page': []}
+                        for idj, j in enumerate(i.content):
+                            data['page'].append( str(j.data))
+                        book_data[str(book_number)].append(data)
+                    table_data = {self.name: book_data}
                     #print(table_data)
                     with open(self.file_name, "w") as write_file:
-                        json.dump(data, write_file, indent=2)
+                        json.dump(table_data, write_file, indent=2)
 
         else:
             with open(self.file_name, "w+") as write_file:
@@ -186,7 +185,6 @@ class Table:
                     if (rid != 0):
                         self.page_directory[rid] = [book_number, page_index]
                         self.index[self.key].index[rid] = [sid]
-
 
     # def pull_all_json(self):
     #     with open("data_file.json", "r") as read_file:
