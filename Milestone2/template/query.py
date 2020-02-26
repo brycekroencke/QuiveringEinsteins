@@ -124,11 +124,9 @@ class Query:
 
             if (ind == -1):
                 # pull book into BP
-<<<<<<< HEAD
+
                 print("pullin in the stuff, baby")
-                print(location[0])
-=======
->>>>>>> 977cee93325bfdf1e8cc3fdcb38b0e6f344e8ca9
+
                 self.table.pull_book(location[0])
                 ind = self.table.book_in_bp(location[0])
 
