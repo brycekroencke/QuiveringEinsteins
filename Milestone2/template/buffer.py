@@ -1,16 +1,20 @@
 
 class Buffer:
     #hello
-    def __init__(self):
+    def __init__(self, key):
         self.buffer_size = 5
         self.book_range = 1
         self.buffer = [None]*self.buffer_size
         self.LRU_tracker = [None]*self.buffer_size  #least resently used makes it so we can keep track of old non used books with time stamps
         self.pins = [0]*self.buffer_size
         self.dirty = [True]*self.buffer_size
+        self.key = key
 
         for i in range(self.buffer_size):
             self.LRU_tracker[i] = self.buffer_size - i  #NOTE  how old it is position
+
+    def get_record(self, slot, row):
+        return self.buffer[slot].record(row, self.key)
 
     def pin(self, index):
         self.pins[index] += 1
@@ -24,7 +28,7 @@ class Buffer:
         result = -1
 
         for i in range(self.buffer_size):
-            if self.LRU_tracker[i] == self.buffer_size and self.pins[i] == 0:
+            if self.LRU_tracker[i] == self.buffer_size:
                 result = i
 
         if result == -1:
@@ -32,7 +36,7 @@ class Buffer:
             exit()
 
         return result
-        
+
     def touched(self,index):
         index_time = self.LRU_tracker[index]
 
