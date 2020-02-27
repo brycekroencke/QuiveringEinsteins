@@ -158,6 +158,41 @@ class Table:
                     table_data[self.name].append(book_data)
                     json.dump(table_data, write_file, indent=2)
 
+    """
+    set book uses book_in_bp and pull book an conbinds them together and returns
+    the location of were the book is stored in the bp
+    """
+    def set_book(self,bookid):
+        check = self.book_in_bp(bookid)
+        if check != -1: #book is in dp just return its location in dp
+            self.buffer_pool.pin(check)
+            self.buffer_pool.touched(check)
+            return check
+
+        else: #book not in bp put it into bp
+            return self.pull_book(bookid) #book is now in dp return its location in dp
+
+    """
+    reads all data in file and uses rid and key to reconstruct entire page page_directory
+    and reconstructs primary index
+    """
+    def construct_pd_and_index(self):
+        with open(self.file_name, "r") as read_file:
+            data = json.load(read_file)
+            data = data[self.name]
+
+            for idx, x in enumerate(data):
+                book_number = idx
+                rid_page = Page()
+                sid_page = Page()
+                rid_page.data = eval(data[str(x)]['page'][1])
+                sid_page.data = eval(data[str(x)]['page'][self.key + 4])
+                for page_index in range(512):
+                    rid = rid_page.read_no_index_check(page_index)
+                    sid = sid_page.read_no_index_check(page_index)
+                    if (rid != 0):
+                        self.page_directory[rid] = [book_number, page_index]
+                        self.index[self.key].index[rid] = [sid]
 
 
     """
