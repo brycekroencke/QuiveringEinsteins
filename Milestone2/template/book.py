@@ -15,6 +15,7 @@ class Book:
             self.bookindex = -1
             self.content = param
         self.dirty_bit = False
+        self.tps = 0
 
     def book_insert(self, *columns):
         self.dirty_bit = True
@@ -34,8 +35,6 @@ class Book:
 
     def get_indirection(self, index):
         return self.content[0].read(index)
-
-    #returns value at page and index.
 
     # Returns value at page and index.
     # This read is book read calling the page read.
