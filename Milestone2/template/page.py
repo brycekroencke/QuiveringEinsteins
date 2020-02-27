@@ -13,7 +13,7 @@ class Page:
     def write(self, value):
         if self.has_space is False:
             print("ERROR: Page full.")
-            return
+            exit()
 
         bytevalue = (value).to_bytes(8, byteorder='big')
         i = self.num_records * 8
