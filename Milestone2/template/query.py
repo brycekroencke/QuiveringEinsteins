@@ -55,7 +55,7 @@ class Query:
         #data to the list
         data = list(columns)
         self.table.ridcounter = self.table.ridcounter + 1
-        mettaData = [0,self.table.ridcounter,0,0]
+        mettaData = [0,self.table.ridcounter,0,0,self.table.ridcounter]
         mettaData_and_data = mettaData + data
         location = [] #will hold [book index, row num]
 
