@@ -3,7 +3,6 @@ import os.path
 from os import path
 import sys
 import copy
-import lock
 from page import *
 from time import time
 from index import *

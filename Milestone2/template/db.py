@@ -10,7 +10,7 @@ class Database():
         self.tables = []
 
     def __del__(self):
-        print ("Closing data base, saving %d table(s) to disk..."% len(self.tables))
+        print ("Closing database, saving %d table(s) to disk..."% len(self.tables))
 
     def open(self, file_name):
         file_name = file_name [2:] + ".json"
@@ -43,7 +43,6 @@ class Database():
         with open(self.file_name, "r") as read_file:
             try:
                 data = json.load(read_file)
-                #if(data[str(name)]):
                 if name in list(data.keys()):
                     print("Table exists in file, reconstructing meta data...")
                     self.tables.append(Table(name, num_columns, key, self.file_name))
