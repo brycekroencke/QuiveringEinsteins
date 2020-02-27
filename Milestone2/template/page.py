@@ -17,7 +17,7 @@ class Page:
 
         bytevalue = (value).to_bytes(8, byteorder='big')
         i = self.num_records * 8
-
+        #print("checking i: " + str(i))
         self.data[i + 0] = bytevalue[0]
         self.data[i + 1] = bytevalue[1]
         self.data[i + 2] = bytevalue[2]
