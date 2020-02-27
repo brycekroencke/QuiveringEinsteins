@@ -50,14 +50,13 @@ class Query:
             self.table.index[col] = None
 
     def insert(self, *columns):
-        # print(self.table.ridcounter)
         #putting metta data into a list and adding user
         #data to the list
         data = list(columns)
         self.table.ridcounter = self.table.ridcounter + 1
         mettaData = [0,self.table.ridcounter,0,0,self.table.ridcounter]
         mettaData_and_data = mettaData + data
-        location = [] #will hold [book index, row num]
+        location = []
         lastw = self.table.last_written_book
 
         # if no books.

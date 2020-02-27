@@ -49,26 +49,12 @@ class Table:
     def __del__(self):
         print ("%s: has been writen to file and deleted from buffer"%self.name)
 
+    def push_book(self, ind):
+        if self.buffer_pool.buffer[ind] != None and self.buffer_pool.dirty[ind] == True:
+            self.dump_book_json(self.buffer_pool.buffer[ind])
+
     def pull_book(self, bookindex):
-        # Check if any empty slots
-        slot = -1
-        for idx, i in enumerate(self.buffer_pool.buffer):
-            if i == None:
-                slot = idx
-
-        # if no empty slots
-        if slot == -1:
-            # replacement time
-            slot = self.buffer_pool.find_LRU()
-
-            # if the book is dirty
-            if self.buffer_pool.dirty[slot]:
-                # push that book first
-                print("PUSHIN THE DIRTY BOOK FIRST")
-                self.dump_book_json(self.buffer_pool.buffer[slot])
-
-        # Now slot is ready to be pulled to
-        self.buffer_pool.pin(slot)
+        slot = self.make_room()
         self.buffer_pool.buffer[slot] = self.pull_book_json(bookindex)
         return slot
 
@@ -86,10 +72,7 @@ class Table:
             slot = self.buffer_pool.find_LRU()
 
             # if the book is dirty
-            if self.buffer_pool.dirty[slot]:
-                # push that book first
-                print("PUSHIN THE DIRTY BOOK FIRST")
-                self.dump_book_json(self.buffer_pool.buffer[slot])
+            self.push_book(slot)
 
         # Now slot is ready to be pulled to
         self.buffer_pool.pin(slot)
@@ -168,6 +151,7 @@ class Table:
 
         else: #book not in bp put it into bp
             return self.pull_book(bookid) #book is now in dp return its location in dp
+
 
     """
     reads all data in file and uses rid and key to reconstruct entire page page_directory
