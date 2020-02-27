@@ -65,6 +65,8 @@ class Table:
         for idx, i in enumerate(self.buffer_pool.buffer):
             if i == None:
                 slot = idx
+                self.buffer_pool.pin(slot)
+                return slot
 
         # if no empty slots
         if slot == -1:
@@ -75,7 +77,7 @@ class Table:
             self.push_book(slot)
 
         # Now slot is ready to be pulled to
-        self.buffer_pool.pin(slot)
+            self.buffer_pool.pin(slot)
         return slot
 
     def pull_base_and_tail(self, base_index):
@@ -101,6 +103,8 @@ class Table:
 
     def book_in_bp(self, bookid):
         for idx, i in enumerate(self.buffer_pool.buffer):
+            if i == None:
+                return -1
             if (i.bookindex == bookid):
                 return idx
         return -1

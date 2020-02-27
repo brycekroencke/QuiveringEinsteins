@@ -200,23 +200,51 @@ class Query:
             location = self.table.buffer_pool.buffer[new_slot].book_insert(new_record)#add record to book
 
             self.table.buffer_pool.buffer[base_book_bp].book_indirection_flag = self.table.book_index#set indirection flag in base book
+            if self.table.buffer_pool.buffer[new_slot].bookindex == 9:
+                print("==================================================")
+                spaceleft= self.table.buffer_pool.buffer[new_slot].space_left()
+                print(spaceleft)
+                print(self.table.buffer_pool.buffer[new_slot].get_full_record(511-spaceleft))
+                print("==================================================")
             self.table.book_index += 1
             pin_idx_list.append(new_slot)
 
         else: #there is an availbe book to write to
-            if indir_flag == tail_location[0]: #the most recent record is stored on the most recent book
+            if tail_location[0]== indir_flag: #the most recent record is stored on the most recent book
                 location = self.table.buffer_pool.buffer[tail_book_R_bp].book_insert(new_record)
+                if self.table.buffer_pool.buffer[tail_book_R_bp].bookindex == 9:
+                    print("==================================================")
+                    spaceleft= self.table.buffer_pool.buffer[tail_book_R_bp].space_left()
+                    print(spaceleft)
+                    print(self.table.buffer_pool.buffer[tail_book_R_bp].get_full_record(511-spaceleft))
+                    print("==================================================")
 
                 if self.table.buffer_pool.buffer[tail_book_R_bp].is_full(): # tail book is full set flag to -1
                     self.table.buffer_pool.buffer[base_book_bp].book_indirection_flag = -1
                     #DOOOOOO Merge
             else: #most recent record is on a differnt book than the most
                 slot = self.table.set_book(indir_flag) #bring tail book onto the bp
-
+                if self.table.buffer_pool.buffer[slot].is_full():
+                    print("ERROR??????????????????????????????????????????????????????????????????????")
+                    # for i in range(512):
+                    #     print(self.table.buffer_pool.buffer[slot].get_full_record(i))
+                    #     print(self.table.buffer_pool.buffer[slot].space_left())
+                    #     print(self.table.buffer_pool.buffer[slot].bookindex)
+                    # print("ERROR??????????????????????????????????????????????????????????????????????")
+                if self.table.buffer_pool.buffer[slot].bookindex == 9 and self.table.buffer_pool.buffer[slot].is_full():
+                    print("------------------------------------------")
+                    print(new_record)
+                    print("------------------------------------------")
                 location = self.table.buffer_pool.buffer[slot].book_insert(new_record) #add record to book
+                if self.table.buffer_pool.buffer[slot].bookindex == 9:
+                    print("//////////////////////////////////////////////////")
+                    spaceleft= self.table.buffer_pool.buffer[slot].space_left()
+                    print(spaceleft)
+                    print(self.table.buffer_pool.buffer[slot].get_full_record(511-spaceleft))
+                    print("////////////////////////////////////////////////////")
 
                 pin_idx_list.append(slot)
-                if self.table.buffer_pool.buffer[tail_book_R_bp].is_full(): # tail book is full set flag to -1
+                if self.table.buffer_pool.buffer[slot].is_full(): # tail book is full set flag to -1
                     self.table.buffer_pool.buffer[base_book_bp].book_indirection_flag = -1
                     #DOOOOO MERGE
 
