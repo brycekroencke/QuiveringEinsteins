@@ -91,13 +91,12 @@ class Table:
             for idi, i in enumerate(data['page']):
                 loaded_book.content[idi].data = eval(i)
             loaded_book.book_indirection_flag = data['i_flag']
-            size = 0
-            for i in range(512):
-                if loaded_book.content[1] != 0:
-                    size += 1
 
-            for i in loaded_book.content:
-                i.num_records = size
+
+            for i in range(512):
+                if loaded_book.content[1].read_no_index_check(i) != 0:
+                    for page in loaded_book.content:
+                        page.num_records += 1
 
             return loaded_book
 

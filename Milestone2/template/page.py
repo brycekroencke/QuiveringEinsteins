@@ -46,12 +46,11 @@ class Page:
 
 
     def read(self, index):
-        #print("HERE: Index: " + str(index) + " self.num_records: " + str(self.num_records))
-        # if(index >= self.num_records):
-        #     print(index)
-        #     print(self.num_records)
-        #     print("ERROR: Index out of range.")
-        #     return
+        if(index >= self.num_records):
+            print(index)
+            print(self.num_records)
+            print("ERROR: Index out of range. READ")
+            exit()
 
         rindex = index * 8
         bytevalue = bytearray(8)

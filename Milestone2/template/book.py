@@ -16,15 +16,6 @@ class Book:
             self.content = param
 
     def book_insert(self, *columns):
-        if(self.content[1].num_records == 512):
-            if(self.content[1].read(511) == 0):
-                print("MAYDAY MAYDAY~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-                rec = 512
-                for i in range(512):
-                    if self.content[1].read(i) == 0:
-                        rec -= 1
-                for i in range(len(self.content)):
-                    self.content[i].num_records = rec
         columns = columns[0]
         if(len(columns) > len(self.content)):
             print("ERROR: Trying to insert too many columns")
@@ -65,10 +56,10 @@ class Book:
 
     #returns true if book is full.
     def is_full(self):
-        if self.content[1].read(511) != 0:
-            return True
-        else:
+        if self.content[1].num_records < 512:
             return False
+        else:
+            return True
 
     #returns how many rows available in pages.
     def space_left(self):
