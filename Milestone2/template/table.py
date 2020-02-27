@@ -1,4 +1,7 @@
 import json
+import os.path
+from os import path
+import sys
 
 from page import *
 from time import time
@@ -19,7 +22,12 @@ class Table:
     :param num_columns: int     #Number of Columns: all columns are integer
     :param key: int             #Index of table key in columns
     """
-    def __init__(self, name, num_columns, key):
+    def __init__(self, name, num_columns, key, file_name = None):
+        if (file_name):
+            self.file_name = file_name
+        else:
+            print("No file name provided for table")
+            self.file_name = ""
         self.name = name
         self.key = key
         self.buffer_pool = Buffer(self.key)
@@ -88,14 +96,26 @@ class Table:
         self.buffer_pool.touched(slot)
         return slot
 
-    #MOSTLY FOR DEBUGGING IN BEGINNING
+    def pull_base_and_tail(self, base_index):
+        base_buff_indx = pull_book(base_index)
+        #self.buffer_pool.buffer[slot].
+
     def pull_book_json(self, book_number):
-        with open("data_file.json", "r") as read_file:
+        with open(self.file_name, "r") as read_file:
             data = json.load(read_file)
-            book_to_load = data['book'][book_number]
-            loaded_book = Book(len(book_to_load['page']), book_number)
-            for idi, i in enumerate(book_to_load['page']):
+            data = data[self.name][str(book_number)]
+            loaded_book = Book(len(data['page']) - 5, book_number)
+            for idi, i in enumerate(data['page']):
                 loaded_book.content[idi].data = eval(i)
+
+            size = 0
+            for i in range(512):
+                if loaded_book.content[1] != 0:
+                    size += 1
+
+            for i in loaded_book.content:
+                i.num_records = size
+
             return loaded_book
 
     def book_in_bp(self, bookid):
@@ -104,37 +124,85 @@ class Table:
                 return idx
         return -1
 
-    # #MOSTLY FOR DEBUGGING IN BEGINNING
-    # def dump_all_json(self):
-    #     with open("data_file.json", "w+") as write_file:
-    #         book_data = {'book': []}
-    #         for idi, i in enumerate(self.base_list):
-    #             data = {'page': []}
-    #             for idj, j in enumerate(i.content):
-    #                 data['page'].append( str(j.data))
-    #             book_data['book'].append(data)
-    #         json.dump(book_data, write_file, indent=2)
+    def dump_book_json(self, actualBook):
+        book_number = actualBook.bookindex
+        if (path.exists(self.file_name)):
+            with open(self.file_name, "r") as read_file:
+                try: #file exists and is not empty
+                    data = json.load(read_file)
 
+                    book_data = {str(book_number): []}
+                    page_data = {'page': []}
+                    for idj, j in enumerate(actualBook.content):
+                        page_data['page'].append( str(j.data))
+                    data[self.name][str(book_number)] = page_data
+                    with open(self.file_name, "w") as write_file:
+                        json.dump(data, write_file, indent=2)
 
-    def dump_book_json(self, actualbook):
-        book_number = actualbook.bookindex
-        with open("data_file.json", "r") as read_file:
+                except ValueError:
+                    book_data = {str(book_number): []}
+                    data = {self.name: {str(book_number) :{'page': []}}}
+                    for idj, j in enumerate(actualBook.content):
+                        data[self.name][str(book_number)]['page'].append(str(j.data))
+#data[self.name][str(book_number)] = data
+#book_data[str(book_number)].append(data)
+#table_data = {self.name: book_data}
+                    # for idi, i in enumerate(self.buffer_pool.buffer):
+                    #     data = {'page': []}
+                    #     for idj, j in enumerate(i.content):
+                    #         data['page'].append( str(j.data))
+                    #     book_data[str(book_number)].append(data)
+                    # table_data = {self.name: book_data}
+                    # #print(table_data)
+                    with open(self.file_name, "w") as write_file:
+                         json.dump(data, write_file, indent=2)
+
+        else:
+            with open(self.file_name, "w+") as write_file:
+                    book_data = {str(book_number): []}
+                    for idi, i in enumerate(self.buffer_pool.base_book_list):
+                        data = {'page': []}
+                        for idj, j in enumerate(i.content):
+                            data['page'].append( str(j.data))
+                        book_data[str(book_number)].append(data)
+                    table_data[self.name].append(book_data)
+                    json.dump(table_data, write_file, indent=2)
+
+    """
+    set book uses book_in_bp and pull book an conbinds them together and returns
+    the location of were the book is stored in the bp
+    """
+    def set_book(self,bookid):
+        check = self.book_in_bp(bookid)
+        if check != -1: #book is in dp just return its location in dp
+            self.buffer_pool.pin(check)
+            self.buffer_pool.touched(check)
+            return check
+
+        else: #book not in bp put it into bp
+            return self.pull_book(bookid) #book is now in dp return its location in dp
+
+    """
+    reads all data in file and uses rid and key to reconstruct entire page page_directory
+    and reconstructs primary index
+    """
+    def construct_pd_and_index(self):
+        with open(self.file_name, "r") as read_file:
             data = json.load(read_file)
-            if(book_number in range(0, len(data['book']))):
-                data['book'][book_number]['page'] = []
-                for idj, j in enumerate(actualbook.content):
-                    data['book'][book_number]['page'].append( str(j.data))
-                with open("data_file.json", "w") as write_file:
-                    json.dump(data, write_file, indent=2)
-            else:
-                print("does not exist")
-                page_data = {'page': []}
-                for idj, j in enumerate(actualbook.content):
-                    page_data['page'].append( str(j.data))
-                data['book'].append(page_data)
-                with open("data_file.json", "w") as write_file:
-                    json.dump(data, write_file, indent=2)
+            data = data[self.name]
 
+            for idx, x in enumerate(data):
+                book_number = idx
+                rid_page = Page()
+                sid_page = Page()
+                rid_page.data = eval(data[str(x)]['page'][1])
+                sid_page.data = eval(data[str(x)]['page'][self.key + 4])
+                for page_index in range(512):
+                    rid = rid_page.read_no_index_check(page_index)
+                    sid = sid_page.read_no_index_check(page_index)
+                    if (rid != 0):
+                        self.page_directory[rid] = [book_number, page_index]
+                        self.index[self.key].index[rid] = [sid]
 
     # def pull_all_json(self):
     #     with open("data_file.json", "r") as read_file:
