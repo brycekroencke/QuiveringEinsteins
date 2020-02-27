@@ -65,6 +65,8 @@ class Table:
         for idx, i in enumerate(self.buffer_pool.buffer):
             if i == None:
                 slot = idx
+                self.buffer_pool.pin(slot)
+                return slot
 
         # if no empty slots
         if slot == -1:
@@ -101,7 +103,9 @@ class Table:
 
     def book_in_bp(self, bookid):
         for idx, i in enumerate(self.buffer_pool.buffer):
-            if (i.bookindex == bookid):
+            if i == None:
+                continue
+            elif (i.bookindex == bookid):
                 return idx
         return -1
 
