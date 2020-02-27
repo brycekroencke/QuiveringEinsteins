@@ -7,7 +7,6 @@ class Buffer:
         self.buffer = [None]*self.buffer_size
         self.LRU_tracker = [None]*self.buffer_size  #least resently used makes it so we can keep track of old non used books with time stamps
         self.pins = [0]*self.buffer_size
-        self.dirty = [True]*self.buffer_size
         self.key = key
 
         for i in range(self.buffer_size):

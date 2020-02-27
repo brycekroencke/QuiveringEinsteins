@@ -50,7 +50,7 @@ class Table:
         print ("%s: has been writen to file and deleted from buffer"%self.name)
 
     def push_book(self, ind):
-        if self.buffer_pool.buffer[ind] != None and self.buffer_pool.dirty[ind] == True:
+        if self.buffer_pool.buffer[ind] != None and self.buffer_pool.buffer[ind].dirty_bit == True:
             self.dump_book_json(self.buffer_pool.buffer[ind])
 
     def pull_book(self, bookindex):
