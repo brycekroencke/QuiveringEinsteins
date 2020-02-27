@@ -167,8 +167,6 @@ class Table:
                         book_data[str(book_number)].append(data)
                     table_data[self.name].append(book_data)
                     json.dump(table_data, write_file, indent=2)
-<<<<<<< HEAD
-=======
 
     """
     set book uses book_in_bp and pull book an conbinds them together and returns
@@ -183,7 +181,6 @@ class Table:
 
         else: #book not in bp put it into bp
             return self.pull_book(bookid) #book is now in dp return its location in dp
->>>>>>> b0b67e407e0859081e5a644a8919f97ef713764b
 
     """
     reads all data in file and uses rid and key to reconstruct entire page page_directory
