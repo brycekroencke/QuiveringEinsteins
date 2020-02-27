@@ -7,6 +7,7 @@ class Book:
         if isinstance(param[0], int):
             self.bookindex = param[1]
             self.content = [Page(), Page(), Page(), Page(), Page()]
+            self.book_indirection_flag = -1
             self.where_userData_starts = len(self.content)# so we can skip past the mettaData
             for i in range(param[0]):
                 self.content.append(Page())

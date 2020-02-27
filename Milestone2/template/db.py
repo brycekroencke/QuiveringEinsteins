@@ -8,22 +8,14 @@ class Database():
 
     def __init__(self):
         self.tables = []
-        pass
+
+    def __del__(self):
+        print ("Closing data base, saving %d table(s) to disk..."% len(self.tables))
 
     def open(self, file_name):
-
         file_name = file_name [2:] + ".json"
         self.file_name = file_name
         if (path.exists(self.file_name)):
-            # with open(self.file_name, "r") as read_file:
-            #     data = json.load(read_file)
-            #     for idi, i in enumerate(data):
-            #         keys = list(data[i].keys())
-            #         self.tables.append(Table(i, len(data[i][str(keys[0])]['page'])-5, 0, file_name = file_name))
-            #         self.tables[idi].construct_pd_and_index()
-
-
-
             return
 
         else:
@@ -33,11 +25,11 @@ class Database():
 
 
     def close(self):
-        #for pages in buffer pool, merge then and then write them to file
-        # for i buffer_pool:
-        #     self.tables[0].merge(i)
-        #     self.tables[0].push_book_json(i)
-        pass
+        for idi, i in enumerate(self.tables):
+            for idj, j in enumerate(i.buffer_pool.buffer):
+                print(j.bookindex)
+                self.tables[idi].dump_book_json(j)
+        del self #Rip database
 
 
     """
@@ -53,10 +45,6 @@ class Database():
                 data = json.load(read_file)
                 if(data[str(name)]):
                     print("Table exists in file, reconstructing meta data...")
-                    ## GET TABLE OBJECT AND RETURN IT
-                    #table = Table(name, num_columns, key, self.file_name) ## CHANGE TO BE THE PROPER TABLE FROM FILE
-                    #with open(self.file_name, "r") as read_file:
-                    #data = json.load(read_file)
                     self.tables.append(Table(name, num_columns, key, self.file_name))
                     self.tables[-1].construct_pd_and_index()
                     return self.tables[-1]
@@ -66,12 +54,9 @@ class Database():
                     return self.tables[-1]
             except ValueError:
                 print("Creating database file for first time")
-                #table = Table(name, num_columns, key, self.file_name)
                 self.tables.append(Table(name, num_columns, key, self.file_name))
                 return self.tables[-1]
             return table
-        # table = Table(name, num_columns, key, self.file_name)
-        # return table
 
 
 
