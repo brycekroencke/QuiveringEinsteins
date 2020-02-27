@@ -44,7 +44,7 @@ class Page:
         self.data[i + 6] = bytevalue[6]
         self.data[i + 7] = bytevalue[7]
 
-
+    # index = row #
     def read(self, index):
         if(index >= self.num_records):
             print(index)
