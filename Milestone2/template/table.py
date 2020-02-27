@@ -46,7 +46,8 @@ class Table:
     #         while len(merge_queue) != 0:
     #             curr_tail_book = merge_queue.
 
-
+    def __del__(self):
+        print ("%s: has been writen to file and deleted from buffer"%self.name)
 
     def pull_book(self, bookindex):
         # Check if any empty slots
@@ -96,7 +97,6 @@ class Table:
 
     def pull_base_and_tail(self, base_index):
         base_buff_indx = pull_book(base_index)
-        #self.buffer_pool.buffer[slot].
 
     def pull_book_json(self, book_number):
         with open(self.file_name, "r") as read_file:
@@ -105,7 +105,7 @@ class Table:
             loaded_book = Book(len(data['page']) - 5, book_number)
             for idi, i in enumerate(data['page']):
                 loaded_book.content[idi].data = eval(i)
-
+            loaded_book.book_indirection_flag = data['i_flag']
             size = 0
             for i in range(512):
                 if loaded_book.content[1] != 0:
@@ -130,7 +130,7 @@ class Table:
                     data = json.load(read_file)
 
                     book_data = {str(book_number): []}
-                    page_data = {'page': []}
+                    page_data = {'page': [], 'i_flag': actualBook.book_indirection_flag}
                     for idj, j in enumerate(actualBook.content):
                         page_data['page'].append( str(j.data))
                     data[self.name][str(book_number)] = page_data
@@ -139,19 +139,9 @@ class Table:
 
                 except ValueError:
                     book_data = {str(book_number): []}
-                    data = {self.name: {str(book_number) :{'page': []}}}
-                    for idj, j in enumerate(actualBook.content):
+                    data = {self.name: {str(book_number) :{'page': [], 'i_flag': actualBook.book_indirection_flag}}}
+                    for idj, j in enumerate(os.getcwd().content):
                         data[self.name][str(book_number)]['page'].append(str(j.data))
-#data[self.name][str(book_number)] = data
-#book_data[str(book_number)].append(data)
-#table_data = {self.name: book_data}
-                    # for idi, i in enumerate(self.buffer_pool.buffer):
-                    #     data = {'page': []}
-                    #     for idj, j in enumerate(i.content):
-                    #         data['page'].append( str(j.data))
-                    #     book_data[str(book_number)].append(data)
-                    # table_data = {self.name: book_data}
-                    # #print(table_data)
                     with open(self.file_name, "w") as write_file:
                          json.dump(data, write_file, indent=2)
 
@@ -159,7 +149,7 @@ class Table:
             with open(self.file_name, "w+") as write_file:
                     book_data = {str(book_number): []}
                     for idi, i in enumerate(self.buffer_pool.base_book_list):
-                        data = {'page': []}
+                        data = {'page': [], 'i_flag': actualBook.book_indirection_flag}
                         for idj, j in enumerate(i.content):
                             data['page'].append( str(j.data))
                         book_data[str(book_number)].append(data)
