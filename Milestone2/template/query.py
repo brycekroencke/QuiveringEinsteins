@@ -125,7 +125,7 @@ class Query:
 
             if booky.read(location[1], 1) != 0: #checking to see if there is a delete
                 if check_indirection == 0: #no indirection
-                    records.append(booky.record(location[1], self.table.key))
+                    records.append(booky.record(location[1], self.table.key, query_columns))
                     self.table.buffer_pool.unpin(ind)
                 else: #there is an indirection
                     self.table.buffer_pool.unpin(ind)
@@ -133,13 +133,9 @@ class Query:
                     tind = self.table.set_book(temp[0])
                     tbooky = self.table.buffer_pool.buffer[tind]
 
-                    records.append(tbooky.record(temp[1], self.table.key))
+                    records.append(tbooky.record(temp[1], self.table.key, query_columns))
                     self.table.buffer_pool.unpin(tind)
 
-        for idx in enumerate(query_columns):
-            if query_columns[idx[0]] == 0:
-                for i in records:
-                    i.columns[idx[0]] = None
         return records
 
 

@@ -42,14 +42,13 @@ class Book:
             columns.append(self.read(index, i))
         return columns
 
-    def record(self, index, keyindex): #returns latest record (even if in tail)
+    def record(self, index, keyindex, query_columns): #returns latest record (even if in tail)
         record = Record(self.read(index, 1), self.read(index, self.where_userData_starts + keyindex), [])
-        columns = []
-        for i in range(len(self.content)):
-            if i < self.where_userData_starts:
-                continue
-            else:
-                columns.append(self.read(index, i))
+        columns = [None]*(len(self.content) - self.where_userData_starts)
+
+        for i in range(self.where_userData_starts, len(self.content)):
+            if query_columns[i - self.where_userData_starts]:
+                columns[i - self.where_userData_starts] = self.read(index, i)
 
         record.columns = columns
         return record
