@@ -43,7 +43,8 @@ class Database():
         with open(self.file_name, "r") as read_file:
             try:
                 data = json.load(read_file)
-                if(data[str(name)]):
+                #if(data[str(name)]):
+                if name in list(data.keys()):
                     print("Table exists in file, reconstructing meta data...")
                     self.tables.append(Table(name, num_columns, key, self.file_name))
                     self.tables[-1].construct_pd_and_index()
@@ -51,6 +52,11 @@ class Database():
                 else:
                     print("Table does not exist in data file")
                     self.tables.append(Table(name, num_columns, key, self.file_name))
+                    with open(self.file_name, 'w+') as write_file:
+                        data[name] = {}
+                        json.dump(data, write_file)
+
+
                     return self.tables[-1]
             except ValueError:
                 print("Creating database file for first time")
@@ -64,4 +70,21 @@ class Database():
     # Deletes the specified table
     """
     def drop_table(self, name):
-        pass
+        #remove table from disk
+        with open(self.file_name, 'r') as read_file:
+            data = json.load(read_file)
+
+        if name in data:
+            print("name found in data, deleting table from disk")
+            del data[name]
+            if (len(data) != 0):
+                with open(self.file_name, 'w') as write_file:
+                    data = json.dump(data, write_file)
+            else:
+                os.remove(self.file_name)
+                with open(self.file_name, 'w+') as write_file:
+                    return
+
+        for idi, i in enumerate(self.tables):
+            if (i.name == name):
+                self.tables.pop(idi)
