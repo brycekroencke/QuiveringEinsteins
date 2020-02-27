@@ -35,13 +35,11 @@ class Book:
     def get_indirection(self, index):
         return self.content[0].read(index)
 
-<<<<<<< Updated upstream
     #returns value at page and index.
-=======
+
     # Returns value at page and index.
     # This read is book read calling the page read.
     # index = row# for each book
->>>>>>> Stashed changes
     def read(self, index, column):
         return self.content[column].read(index)
 
@@ -80,11 +78,8 @@ class Book:
     #returns how many rows available in pages.
     def space_left(self):
         return 512 - self.content[3].num_records
-<<<<<<< Updated upstream
-=======
 
     # Don't delete!! Will's and Draco's function
     # Return the number of record in a specific page in the books
     def page_num_record(self):
         return self.content[1].num_records
->>>>>>> Stashed changes
