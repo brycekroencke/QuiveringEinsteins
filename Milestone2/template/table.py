@@ -8,6 +8,7 @@ from time import time
 from index import *
 from buffer import *
 from book import Book
+import threading
 
 INDIRECTION_COLUMN = 0
 RID_COLUMN = 1
@@ -40,6 +41,8 @@ class Table:
         self.last_written_book = [None, None, None] #[book index #, 0 book is not full or 1 for book is full, -1 book is on disk (any other number book is in buffer pool)]
         self.book_index = 0
         self.merge_queue = []
+        self.close = False
+        self.merge_thread = threading.Thread(target=self.__merge())
 
     def __del__(self):
         print ("%s: has been writen to file and deleted from buffer"%self.name)
@@ -50,6 +53,9 @@ class Table:
 
     def __merge(self):
         while True:
+             if self.close == True:
+                 break
+
              while len(self.merge_queue) != 0:
                  # Get the book to be merged from the merge queue.
                  curr_tailbook_index = self.merge_queue.pop(0)
