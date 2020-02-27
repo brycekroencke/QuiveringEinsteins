@@ -68,7 +68,6 @@ class Table:
 
         # Now slot is ready to be pulled to
         self.buffer_pool.pin(slot)
-        self.buffer_pool.touched(slot)
         self.buffer_pool.buffer[slot] = self.pull_book_json(bookindex)
         return slot
 
@@ -93,7 +92,6 @@ class Table:
 
         # Now slot is ready to be pulled to
         self.buffer_pool.pin(slot)
-        self.buffer_pool.touched(slot)
         return slot
 
     def pull_base_and_tail(self, base_index):
@@ -176,7 +174,6 @@ class Table:
         check = self.book_in_bp(bookid)
         if check != -1: #book is in dp just return its location in dp
             self.buffer_pool.pin(check)
-            self.buffer_pool.touched(check)
             return check
 
         else: #book not in bp put it into bp
