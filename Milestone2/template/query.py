@@ -212,8 +212,6 @@ class Query:
     """
 
     def sum(self, start_range, end_range, aggregate_column_index):
-        for i in self.buffer_pool.buffer:
-            print(i.bookindex)
         sum = 0
 
         # force start_range < end_range
