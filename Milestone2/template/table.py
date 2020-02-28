@@ -40,9 +40,9 @@ class Table:
         self.index[key] = Index()
         self.last_written_book = [None, None, None] #[book index #, 0 book is not full or 1 for book is full, -1 book is on disk (any other number book is in buffer pool)]
         self.book_index = 0
-        self.merge_queue = []
+        # self.merge_queue = []
         self.close = False
-        self.merge_thread = threading.Thread(target=self.__merge,)
+        # self.merge_thread = threading.Thread(target=self.__merge)
         self.lock = threading.Lock()
 
     def __del__(self):
@@ -72,24 +72,21 @@ class Table:
         return [False, -1]
 
 
-    def __merge(self):
+    def _merge(self, index):
+        tailind = self.set_book(index)
+        bid = self.buffer_pool.buffer[tailind].read(1,4)
+        baseindex = self.set_book(self.page_directory[bid][0])
+        self.merge_base_and_tail(baseindex, tailind)
+        # while True:
+        #      if self.close == True:
+        #          return
 
-        while True:
-             if self.close == True:
-                 return
+        # while len(self.merge_queue) != 0:
+        # Get the book to be merged from the merge queue.
+        # curr_tailbook_index = self.merge_queue.pop(0)
+        # Traverse the buffer pool to find the same books
+        # with the same book index. If yes, pin that book.
 
-             while len(self.merge_queue) != 0:
-                 # Get the book to be merged from the merge queue.
-                 curr_tailbook_index = self.merge_queue.pop(0)
-                 # Traverse the buffer pool to find the same books
-                 # with the same book index. If yes, pin that book.
-                 tailind = self.set_book(curr_tailbook_index)
-                 bid = self.buffer_pool.buffer[tailind].read(1,4)
-                 baseindex = self.set_book(self.page_directory[bid][0])
-                 self.merge_base_and_tail(baseindex, tailind)
-
-    # base_bp = base book position in buffer pool.
-    # Similary logic to tail_bp.
     def merge_base_and_tail(self, base_bp, tail_bp):
         # Copy the selected base book and set the book
         # index to be -1.
