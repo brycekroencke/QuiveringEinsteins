@@ -33,7 +33,7 @@ for key in keys:
     #     print('select on', key, ':', record)
 print("Select finished")
 
-for _ in range(10):
+for _ in range(4):
     for key in keys:
         updated_columns = [None, None, None, None, None]
         for i in range(1, grades_table.num_columns):
@@ -55,14 +55,16 @@ for _ in range(10):
             updated_columns[i] = None
 print("Update finished")
 
-for i in range(0, 100):
-    print(i)
-    r = sorted(sample(range(0, len(keys)), 2))
-    column_sum = sum(map(lambda key: records[key][0], keys[r[0]: r[1] + 1]))
-    result = query.sum(keys[r[0]], keys[r[1]], 0)
-    if column_sum != result:
-        print('sum error on [', keys[r[0]], ',', keys[r[1]], ']: ', result, ', correct: ', column_sum)
-    # else:
-    #     print('sum on [', keys[r[0]], ',', keys[r[1]], ']: ', column_sum)
-print("Aggregate finished")
+# for i in range(0, 100):
+#     print(i)
+#     r = sorted(sample(range(0, len(keys)), 2))
+#     column_sum = sum(map(lambda key: records[key][0], keys[r[0]: r[1] + 1]))
+#     result = query.sum(keys[r[0]], keys[r[1]], 0)
+#     if column_sum != result:
+#         print('sum error on [', keys[r[0]], ',', keys[r[1]], ']: ', result, ', correct: ', column_sum)
+#     # else:
+#     #     print('sum on [', keys[r[0]], ',', keys[r[1]], ']: ', column_sum)
+# print("Aggregate finished")
+
+
 db.close()

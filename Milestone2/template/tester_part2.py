@@ -26,12 +26,14 @@ for _ in range(10):
 keys = sorted(list(records.keys()))
 for key in keys:
     print(records[key])
-    print(records[key])
-
+    #print(records[key])
+print("\n")
 for key in keys:
     record = query.select(key, 0, [1, 1, 1, 1, 1])[0]
+    print(record.columns)
     error = False
     for i, column in enumerate(record.columns):
+        print(column, records[key][i])
         if column != records[key][i]:
             error = True
     if error:

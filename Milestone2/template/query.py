@@ -197,7 +197,7 @@ class Query:
                 self.table.buffer_pool.buffer[base_book_bp].set_flag(-1)
 
                 #DOOOOO MERGE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                self.table.merge_queue.append(self.table.buffer_pool.buffer[slot].bookindex)
+                #self.table.merge_queue.append(self.table.buffer_pool.buffer[slot].bookindex)
 
 
 

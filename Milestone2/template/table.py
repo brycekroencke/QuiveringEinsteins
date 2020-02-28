@@ -9,6 +9,7 @@ from index import *
 from buffer import *
 from book import Book
 import threading
+import math
 
 INDIRECTION_COLUMN = 0
 RID_COLUMN = 1
@@ -40,9 +41,9 @@ class Table:
         self.index[key] = Index()
         self.last_written_book = [None, None, None] #[book index #, 0 book is not full or 1 for book is full, -1 book is on disk (any other number book is in buffer pool)]
         self.book_index = 0
-        self.merge_queue = []
+        #self.merge_queue = []
         self.close = False
-        self.merge_thread = threading.Thread(target=self.__merge,)
+        #self.merge_thread = threading.Thread(target=self.__merge,)
         self.lock = threading.Lock()
 
     def __del__(self):
@@ -228,13 +229,30 @@ class Table:
                 rid_page = Page()
                 sid_page = Page()
                 bid_page = Page()
+                ind_page = Page()
+                tbd = Page()
+
                 rid_page.data = eval(data[str(x)]['page'][RID_COLUMN])
                 sid_page.data = eval(data[str(x)]['page'][self.key + 5])
                 bid_page.data = eval(data[str(x)]['page'][BASE_ID_COLUMN])
+                ind_page.data = eval(data[str(x)]['page'][INDIRECTION_COLUMN])
                 for page_index in range(512):
                     rid = rid_page.read_no_index_check(page_index)
                     bid = bid_page.read_no_index_check(page_index)
                     sid = sid_page.read_no_index_check(page_index)
+                    ind = ind_page.read_no_index_check(page_index)
                     if (rid != 0 and bid == rid):
+                        if (ind != 0):
+                            print(ind)
+                            tail_book_to_add = math.floor((2**64 - 2 - ind)/512) + 2
+                            tbd.data = eval(data[str(tail_book_to_add)]['page'][RID_COLUMN])
+                            for page_index2 in range(512):
+                                t = tbd.read_no_index_check(page_index2)
+                                if (t == ind):
+                                    self.page_directory[ind] = [tail_book_to_add, page_index2]
+                                    break
+
+
+                            #self.page_directory[ind] = [book_number, page_index]
                         self.page_directory[rid] = [book_number, page_index]
                         self.index[self.key].index[sid] = [rid]

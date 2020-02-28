@@ -48,7 +48,7 @@ class Database():
                     print("Table exists in file, reconstructing meta data...")
                     self.tables.append(Table(name, num_columns, key, self.file_name))
                     self.tables[-1].construct_pd_and_index()
-                    self.tables[-1].merge_thread.start()
+                    #self.tables[-1].merge_thread.start()
                     return self.tables[-1]
                 else:
                     print("Table does not exist in data file")
@@ -56,14 +56,14 @@ class Database():
                     with open(self.file_name, 'w+') as write_file:
                         data[name] = {}
                         json.dump(data, write_file)
-                    self.tables[-1].merge_thread.start()
+                    #self.tables[-1].merge_thread.start()
 
 
                     return self.tables[-1]
             except ValueError:
                 print("Creating database file for first time")
                 self.tables.append(Table(name, num_columns, key, self.file_name))
-                self.tables[-1].merge_thread.start()
+                #self.tables[-1].merge_thread.start()
                 return self.tables[-1]
             return table
 
