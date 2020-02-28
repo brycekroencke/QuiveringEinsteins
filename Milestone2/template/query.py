@@ -197,9 +197,11 @@ class Query:
                 #DOOOOO MERGE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 self.table.merge_queue.append(self.table.buffer_pool.buffer[slot].bookindex)
 
-
-
         self.table.page_directory[self.table.tidcounter] = location
+        if self.table.tidcounter == 18446744073709551611:
+            print("0000000000000000000000000000")
+            print(location)
+            print(self.table.page_directory[self.table.tidcounter])
         #update base_book indirection with new TID
         self.table.buffer_pool.buffer[base_book_bp].set_meta_zero(self.table.tidcounter, indirection_location[1])
         for i in pin_idx_list:

@@ -94,57 +94,68 @@ class Table:
         # Copy the selected base book and set the book
         # index to be -1.
         copybook = copy.deepcopy(self.buffer_pool.buffer[base_bp])
+        print(copybook.bookindex)
         # for i in range(copybook.page_num_record()):
         #     print(copybook.get_full_record(i))
-
-        print( "merging: " + str(copybook.bookindex))
-        copybook.bookindex = -1
+        #
+        # print( "merging: " + str(copybook.bookindex))
         # Set the TPS of the copy book.
         num_records = self.buffer_pool.buffer[tail_bp].page_num_record()
         #print("Page_num_record" + str(num_records))
         last_rid_tailbook = self.buffer_pool.buffer[tail_bp].read(num_records-1, 1)
-        copybook.tps = last_rid_tailbook
+
 
         # Update the records in the copy book.
         for k in range(copybook.page_num_record()):
             tid = copybook.read(k, 0)
-            # If tps > tid for the current base record,
-            # the base record has been updated. Otherwise,
-            # no need to update it.
-            if tid < copybook.tps and tid != 0 :
-                # Get the single full record with only the user data.
-                tail_record_index = self.page_directory[tid][1]
-                tail_record = self.buffer_pool.buffer[tail_bp].get_full_record(tail_record_index)
+            if tid == 0:
+                continue
+            else:
+                tlocation = self.page_directory[tid]
+                ind = self.set_book(tlocation[0])
+                tail_record = self.buffer_pool.buffer[ind].get_full_record(tlocation[1])
                 for m in range(5, len(copybook.content)):
                     # tail_record[m] is a single tail record cell
                     # k is the current row of the copy book.
                     copybook.content[m].update(tail_record[m], k)
+            # if copybook.tps == 0:
+            #     tail_record_index = self.page_directory[tid][1]
+            #     tail_record = self.buffer_pool.buffer[tail_bp].get_full_record(tail_record_index)
+                # for m in range(5, len(copybook.content)):
+                #     # tail_record[m] is a single tail record cell
+                #     # k is the current row of the copy book.
+                #     copybook.content[m].update(tail_record[m], k)
+            #
+            # elif tid < copybook.tps:
+            #     # Get the single full record with only the user data.
+            #     tail_record_index = self.page_directory[tid][1]
+            #     tail_record = self.buffer_pool.buffer[tail_bp].get_full_record(tail_record_index)
+            #     for m in range(5, len(copybook.content)):
+            #         # tail_record[m] is a single tail record cell
+            #         # k is the current row of the copy book.
+            #         copybook.content[m].update(tail_record[m], k)
 
-
+        copybook.tps = last_rid_tailbook
         # Swap the book index between two books.
         self.lock.acquire()
         copypage = self.buffer_pool.buffer[base_bp].content[0]
 
         temp = self.buffer_pool.buffer[base_bp].bookindex
-        
-        for i in range(copybook.page_num_record()):
-            currentind = temp.content[0].read(i)
-            if copypage.read(i) == currentind:
-                temp.set_meta_zero(0, i)
-
         self.buffer_pool.buffer[base_bp].bookindex = copybook.bookindex
         copybook.bookindex = temp
+        copybook.book_indirection_flag = self.buffer_pool.buffer[base_bp].book_indirection_flag
+        self.buffer_pool.buffer[base_bp] = copybook
+
+        for i in range(copybook.page_num_record()):
+            currentind = self.buffer_pool.buffer[base_bp].content[0].read(i)
+            if copypage.read(i) == currentind:
+                self.buffer_pool.buffer[base_bp].set_meta_zero(0, i)
+            elif copypage.read(i) < currentind:
+                self.buffer_pool.buffer[base_bp].content[0].update(copypage.read(i),i)
+
         self.lock.release()
 
         # print("HELELELELELELLELELELEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
-
-        # Swap the book data in the buffer pool.
-        self.buffer_pool.buffer[base_bp] = copybook
-
-
-
-        # print("HELELELELELELLELELELEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
-        #
         # for i in range(self.buffer_pool.buffer[base_bp].page_num_record()):
         #     print(self.buffer_pool.buffer[base_bp].get_full_record(i))
         #
