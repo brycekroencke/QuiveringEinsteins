@@ -28,8 +28,9 @@ class Database():
         for idi, i in enumerate(self.tables):
             self.tables[idi].close = True
             for idj, j in enumerate(i.buffer_pool.buffer):
-                print(j.bookindex)
-                self.tables[idi].dump_book_json(j)
+                if (j):
+                    print(j.bookindex)
+                    self.tables[idi].dump_book_json(j)
         del self #Rip database
 
 

@@ -11,6 +11,7 @@ db.open('~/ECS165')
 grades_table = db.create_table('Grades', 5, 0)
 query = Query(grades_table)
 
+#print(query.table.page_directory)
 # repopulate with random data
 records = {}
 seed(3562901)
@@ -24,12 +25,16 @@ for _ in range(10):
             value = randint(0, 20)
             records[key][j] = value
 keys = sorted(list(records.keys()))
+print(records)
 for key in keys:
     print(records[key])
-    #print(records[key])
+    print(records[key])
 print("\n")
 for key in keys:
+    # print("KEY %d" %key)
     record = query.select(key, 0, [1, 1, 1, 1, 1])[0]
+    print("\n")
+    print("\n")
     print(record.columns)
     error = False
     for i, column in enumerate(record.columns):
@@ -38,6 +43,17 @@ for key in keys:
             error = True
     if error:
         print('select error on', key, ':', record, ', correct:', records[key])
+        print("\n")
+        print("\n")
+    else:
+        print("CORRECT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("CORRECT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("CORRECT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("CORRECT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("CORRECT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("CORRECT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("CORRECT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("CORRECT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 print("Select finished")
 
 deleted_keys = sample(keys, 100)

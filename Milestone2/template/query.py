@@ -25,7 +25,7 @@ class Query:
     #set rid to rid_to_zero
     #remove from pd and primary indexing
     def delete(self, key):
-        rid = self.table.index.locate(key)
+        rid = self.table.index[0].locate(key)
         location = self.table.page_directory[rid[0]]
 
         buffer_index = self.table.set_book(location[0])
@@ -103,15 +103,23 @@ class Query:
             print("mc-scan")
             return records
 
+        # print(self.table.index[col].index)
         RID_list = self.table.index[col].locate(key)
+        #print(RID_list)
 
         #Taking RIDS->location and extracting records into record list.
         for i in RID_list:
             location = self.table.page_directory[i]
+            # print(location)
             ind = self.table.set_book(location[0])
             booky = self.table.buffer_pool.buffer[ind]
-            check_indirection = booky.get_indirection(location[1])
 
+
+            ##We check the indirection and see that it exists and then
+            ##we try and read it from the pd but its not there because merge?
+            check_indirection = booky.get_indirection(location[1])
+            # print(check_indirection)
+            # print(self.table.page_directory)
             if booky.read(location[1], 1) != 0: #checking to see if there is a delete
                 if check_indirection == 0: #no indirection
                     records.append(booky.record(location[1], self.table.key, query_columns))

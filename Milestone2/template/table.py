@@ -225,6 +225,7 @@ class Table:
             data = data[self.name]
 
             for idx, x in enumerate(data):
+                print(int(x))
                 book_number = idx
                 rid_page = Page()
                 sid_page = Page()
@@ -243,16 +244,18 @@ class Table:
                     ind = ind_page.read_no_index_check(page_index)
                     if (rid != 0 and bid == rid):
                         if (ind != 0):
-                            print(ind)
-                            tail_book_to_add = math.floor((2**64 - 2 - ind)/512) + 2
-                            tbd.data = eval(data[str(tail_book_to_add)]['page'][RID_COLUMN])
-                            for page_index2 in range(512):
-                                t = tbd.read_no_index_check(page_index2)
-                                if (t == ind):
-                                    self.page_directory[ind] = [tail_book_to_add, page_index2]
-                                    break
+                            #tail_book_to_add = math.floor((2**64 - 2 - ind)/512) + 2
+                            for i in data:
+                                tbd.data = eval(data[str(i)]['page'][RID_COLUMN])
+                                for page_index2 in range(512):
+                                    #print("HERE %d" %ind)
+                                    t = tbd.read_no_index_check(page_index2)
+                                    if (t == ind):
+                                        #print("HEREeeee %d" %ind)
+                                        self.page_directory[ind] = [int(i), page_index2]
+                                        break
 
 
                             #self.page_directory[ind] = [book_number, page_index]
-                        self.page_directory[rid] = [book_number, page_index]
+                        self.page_directory[rid] = [int(x), page_index]
                         self.index[self.key].index[sid] = [rid]
