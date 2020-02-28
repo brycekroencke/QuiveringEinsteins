@@ -25,8 +25,8 @@ class Database():
 
 
     def close(self):
-        self.table.close = True
         for idi, i in enumerate(self.tables):
+            self.tables[idi].close = True
             for idj, j in enumerate(i.buffer_pool.buffer):
                 print(j.bookindex)
                 self.tables[idi].dump_book_json(j)

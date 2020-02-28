@@ -48,6 +48,19 @@ class Table:
     def __del__(self):
         print ("%s: has been writen to file and deleted from buffer"%self.name)
 
+    """
+    set book uses book_in_bp and pull book an conbinds them together and returns
+    the location of were the book is stored in the bp
+    """
+    def set_book(self,bookid):
+        check = self.book_in_bp(bookid)
+        if check != -1: #book is in dp just return its location in dp
+            self.buffer_pool.pin(check)
+            return check
+
+        else: #book not in bp put it into bp
+            return self.pull_book(bookid) #book is now in dp return its location in dp
+
     def push_book(self, ind):
         if self.buffer_pool.buffer[ind] != None and self.buffer_pool.buffer[ind].dirty_bit == True:
             self.dump_book_json(self.buffer_pool.buffer[ind])
@@ -65,55 +78,15 @@ class Table:
              if self.close == True:
                  return
 
-            # print ("Running merge")
-
              while len(self.merge_queue) != 0:
                  # Get the book to be merged from the merge queue.
                  curr_tailbook_index = self.merge_queue.pop(0)
                  # Traverse the buffer pool to find the same books
                  # with the same book index. If yes, pin that book.
-
-                 # check if the tail book is in buffer pool.
-                 for i in range(0, len(self.buffer_pool.buffer) - 1):
-                     if self.buffer_pool.buffer[i].bookindex == curr_tailbook_index:
-                          # pin the tail book first before looking base book
-                         # self.buffer_pool.buffer[i].increment_pin()
-                         self.buffer_pool.pin(i)
-                         bid = self.buffer_pool.buffer[i].read(1,4)
-                         basebook_index = self.page_directory[bid][0]
-                         # check if base book exists in buffer right now
-
-                         if self.check_basebook_in_buffer(basebook_index)[0]:
-                            # self.buffer_pool.buffer[check_basebook_in_buffer(basebook_index)[1]].increment_pin()
-                            self.buffer_pool.pin(self.check_basebook_in_buffer(basebook_index)[1])
-                            self.merge_base_and_tail(self.check_basebook_in_buffer(basebook_index)[1], i)
-                            break
-                         else:
-                            basebook_buffer_position = self.pull_book(basebook_index)
-                            # pin the base book
-                            # self.buffer_pool.buffer[basebook_buffer_position].increment_pin()
-                            self.buffer_pool.pin(basebook_buffer_position)
-                            self.merge_base_and_tail(basebook_buffer_position, i)
-                            break
-                 continue
-
-                 # The tail book not in buffer pool.
-                 # pull the tail book from the disk
-                 tailbook_buffer_position = self.pull_book(curr_tailbook_index)
-                 #self.buffer_pool.buffer[tailbook_buffer_position].increment_pin()
-                 self.buffer_pool.pin(tailbook_buffer_position)
-                 bid = self.buffer_pool.buffer[tailbook_buffer_position].read(1,4)
-                 basebook_index = self.page_directory[bid][0]
-
-                 if self.check_basebook_in_buffer(basebook_index)[0]:
-                    #self.buffer_pool.buffer[check_basebook_in_buffer(basebook_index)[1]].increment_pin()
-                    self.buffer_pool.pin(self.check_basebook_in_buffer(basebook_index)[1])
-                    self.merge_base_and_tail(self.check_basebook_in_buffer(basebook_index)[1],tailbook_buffer_position)
-                 else:
-                    basebook_buffer_position = self.pull_book(basebook_index)
-                    #self.buffer_pool.buffer[basebook_buffer_position].increment_pin()
-                    self.buffer_pool.pin(basebook_buffer_position)
-                    self.merge_base_and_tail(basebook_buffer_position,tailbook_buffer_position)
+                 tailind = self.set_book(curr_tailbook_index)
+                 bid = self.buffer_pool.buffer[tailind].read(1,4)
+                 baseindex = self.set_book(self.page_directory[bid][0])
+                 self.merge_base_and_tail(tailind, baseindex)
 
     # base_bp = base book position in buffer pool.
     # Similary logic to tail_bp.
@@ -121,7 +94,7 @@ class Table:
         # Copy the selected base book and set the book
         # index to be -1.
         copybook = copy.deepcopy(self.buffer_pool.buffer[base_bp])
-        print( "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"+ str(copybook.page_num_record()))
+        print( "merging: "+ str(copybook.bookindex))
         copybook.bookindex = -1
         # Set the TPS of the copy book.
         num_records = self.buffer_pool.buffer[tail_bp].page_num_record()
@@ -240,19 +213,6 @@ class Table:
                         data[self.name][str(book_number)]['page'].append(str(j.data))
                     with open(self.file_name, "w") as write_file:
                          json.dump(data, write_file, indent=2)
-
-    """
-    set book uses book_in_bp and pull book an conbinds them together and returns
-    the location of were the book is stored in the bp
-    """
-    def set_book(self,bookid):
-        check = self.book_in_bp(bookid)
-        if check != -1: #book is in dp just return its location in dp
-            self.buffer_pool.pin(check)
-            return check
-
-        else: #book not in bp put it into bp
-            return self.pull_book(bookid) #book is now in dp return its location in dp
 
 
     """
