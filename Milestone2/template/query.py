@@ -195,7 +195,10 @@ class Query:
             pin_idx_list.append(slot)
             if self.table.buffer_pool.buffer[slot].is_full(): # tail book is full set flag to -1
                 self.table.buffer_pool.buffer[base_book_bp].set_flag(-1)
-                #DOOOOO MERGE
+
+                #DOOOOO MERGE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                self.table.merge_queue.append(self.table.buffer_pool.buffer[slot].bookindex)
+                
 
 
         self.table.page_directory[self.table.tidcounter] = location
