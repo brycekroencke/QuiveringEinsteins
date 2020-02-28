@@ -185,8 +185,6 @@ class Table:
 
     def book_in_bp(self, bookid):
         for idx, i in enumerate(self.buffer_pool.buffer):
-            if i == None:
-                return -1
             if (i.bookindex == bookid):
                 return idx
         return -1
