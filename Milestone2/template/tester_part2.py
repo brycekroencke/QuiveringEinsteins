@@ -62,8 +62,10 @@ for key in deleted_keys:
     records.pop(key, None)
 
 for i in range(0, 100):
+    print(i)
     r = sorted(sample(range(0, len(keys)), 2))
     column_sum = sum(map(lambda x: records[x][0] if x in records else 0, keys[r[0]: r[1] + 1]))
+    print(keys[r[0]], keys[r[1]])
     result = query.sum(keys[r[0]], keys[r[1]], 0)
     if column_sum != result:
         print('sum error on [', keys[r[0]], ',', keys[r[1]], ']: ', result, ', correct: ', column_sum)

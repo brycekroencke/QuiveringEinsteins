@@ -1,6 +1,7 @@
 from table import *
 from index import Index
 from book import *
+from record import Record
 
 INDIRECTION_COLUMN = 0
 RID_COLUMN = 1
@@ -103,9 +104,8 @@ class Query:
             print("mc-scan")
             return records
 
-        # print(self.table.index[col].index)
         RID_list = self.table.index[col].locate(key)
-        #print(RID_list)
+        print(RID_list)
 
         #Taking RIDS->location and extracting records into record list.
         for i in RID_list:
@@ -122,9 +122,11 @@ class Query:
             # print(self.table.page_directory)
             if booky.read(location[1], 1) != 0: #checking to see if there is a delete
                 if check_indirection == 0: #no indirection
+                    # print("\nIND == 0\n")
                     records.append(booky.record(location[1], self.table.key, query_columns))
                     self.table.buffer_pool.unpin(ind)
                 else: #there is an indirection
+                    # print("\nELSE\n")
                     self.table.buffer_pool.unpin(ind)
                     temp = self.table.page_directory[check_indirection]
                     tind = self.table.set_book(temp[0])
@@ -132,6 +134,10 @@ class Query:
 
                     records.append(tbooky.record(temp[1], self.table.key, query_columns))
                     self.table.buffer_pool.unpin(tind)
+            else:
+                temp_rec = Record(location[1], self.table.key, ([0] * self.table.num_columns))
+                #temp_rec.columns = ([0] * self.table.num_columns)
+                records.append(temp_rec)
 
         return records
 
@@ -243,6 +249,8 @@ class Query:
                         query_column.append(0)
 
                 # apply select function to find the corresponding value of given SID and column#, adding all found value to sum
+                #print(current_key, 0, query_column)
+                #print(self.select(current_key, 0, query_column))
                 sum += self.select(current_key, 0, query_column)[0].columns[aggregate_column_index]
 
             current_key += 1
