@@ -238,4 +238,4 @@ class Table:
                     sid = sid_page.read_no_index_check(page_index)
                     if (rid != 0 and bid == rid):
                         self.page_directory[rid] = [book_number, page_index]
-                        self.index[self.key].index[rid] = [sid]
+                        self.index[self.key].index[sid] = [rid]
