@@ -21,7 +21,9 @@ class Query:
     # internal Method
     # Read a record with specified RID
     """
-
+    #bring into buffer
+    #set rid to rid_to_zero
+    #remove from pd and primary indexing
     def delete(self, key):
         rid = self.table.index.locate(key)
         location = self.table.page_directory[rid[0]]
