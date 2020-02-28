@@ -187,8 +187,6 @@ class Query:
         else: #there is an availbe book to write to
             slot = self.table.set_book(indir_flag) #bring tail book onto the bp
             location = self.table.buffer_pool.buffer[slot].book_insert(new_record) #add record to book
-            if self.table.buffer_pool.buffer[slot].bookindex == 9:
-                spaceleft= self.table.buffer_pool.buffer[slot].space_left()
 
             pin_idx_list.append(slot)
             if self.table.buffer_pool.buffer[slot].is_full(): # tail book is full set flag to -1
@@ -196,7 +194,7 @@ class Query:
 
                 #DOOOOO MERGE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 self.table.merge_queue.append(self.table.buffer_pool.buffer[slot].bookindex)
-                
+
 
 
         self.table.page_directory[self.table.tidcounter] = location
@@ -212,6 +210,8 @@ class Query:
     """
 
     def sum(self, start_range, end_range, aggregate_column_index):
+        for i in self.buffer_pool.buffer:
+            print(i.bookindex)
         sum = 0
 
         # force start_range < end_range
