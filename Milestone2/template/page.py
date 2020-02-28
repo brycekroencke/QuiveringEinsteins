@@ -11,7 +11,7 @@ class Page:
     #     return self.capacity
 
     def write(self, value):
-        
+
         if self.has_space is False:
             print("ERROR: Page full.")
             exit()
@@ -47,6 +47,7 @@ class Page:
     # index = row #
     def read(self, index):
         if(index >= self.num_records):
+            print("hello:" +str(index))
             print(index)
             print(self.num_records)
             print("ERROR: Index out of range. READ")

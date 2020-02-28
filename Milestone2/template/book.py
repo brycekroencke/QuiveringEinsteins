@@ -40,6 +40,9 @@ class Book:
     # This read is book read calling the page read.
     # index = row# for each book
     def read(self, index, column):
+        if index == 512:
+            print("read index:" +str(index))
+            print("read column:" +str(column))
         return self.content[column].read(index)
 
     def get_full_record(self, index):
