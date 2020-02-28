@@ -3,12 +3,12 @@ import os.path
 from os import path
 import sys
 import copy
-import threading
 from page import *
 from time import time
 from index import *
 from buffer import *
 from book import Book
+import threading
 
 INDIRECTION_COLUMN = 0
 RID_COLUMN = 1
