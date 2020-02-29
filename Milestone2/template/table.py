@@ -160,15 +160,6 @@ class Table:
         return slot
 
     def pull_book_json(self, book_number):
-<<<<<<< HEAD
-            with open(self.file_name, "r") as read_file:
-                data = json.load(read_file)
-                data = data[self.name][str(book_number)]
-                loaded_book = Book(len(data['page']) - 5, book_number)
-                for idi, i in enumerate(data['page']):
-                    loaded_book.content[idi].data = eval(i)
-                loaded_book.book_indirection_flag = data['i_flag']
-=======
         with open(self.file_name, "r") as read_file:
             data = json.load(read_file)
             data = data[self.name][str(book_number)]
@@ -177,7 +168,6 @@ class Table:
                 loaded_book.content[idi].data = eval(i)
             loaded_book.book_indirection_flag = data['i_flag']
             loaded_book.tps = data['tps']
->>>>>>> yep_branch
 
 
             for i in range(512):
