@@ -15,7 +15,7 @@ class Book:
             self.bookindex = -1
             self.content = param
         self.dirty_bit = False
-        self.tps = 0
+        self.tps = (2**64) - 1
 
     def book_insert(self, *columns):
         self.dirty_bit = True

@@ -26,7 +26,8 @@ class Database():
 
     def close(self):
         for idi, i in enumerate(self.tables):
-            self.tables[idi].close = True
+            # self.tables[idi].close = True
+            # self.tables[idi].merge_thread.join()
             for idj, j in enumerate(i.buffer_pool.buffer):
                 print(j.bookindex)
                 self.tables[idi].dump_book_json(j)
@@ -48,7 +49,7 @@ class Database():
                     print("Table exists in file, reconstructing meta data...")
                     self.tables.append(Table(name, num_columns, key, self.file_name))
                     self.tables[-1].construct_pd_and_index()
-                    # self.tables[-1].merge_thread.start()
+                    self.tables[-1].merge_thread.start()
                     return self.tables[-1]
                 else:
                     print("Table does not exist in data file")
@@ -56,14 +57,14 @@ class Database():
                     with open(self.file_name, 'w+') as write_file:
                         data[name] = {}
                         json.dump(data, write_file)
-                    # self.tables[-1].merge_thread.start()
+                    self.tables[-1].merge_thread.start()
 
 
                     return self.tables[-1]
             except ValueError:
                 print("Creating database file for first time")
                 self.tables.append(Table(name, num_columns, key, self.file_name))
-                # self.tables[-1].merge_thread.start()
+                self.tables[-1].merge_thread.start()
                 return self.tables[-1]
             return table
 
@@ -75,6 +76,7 @@ class Database():
     def drop_table(self, name):
         #remove table from disk
         self.table.close = True
+        self.table.merge_thread.join()
         with open(self.file_name, 'r') as read_file:
             data = json.load(read_file)
 

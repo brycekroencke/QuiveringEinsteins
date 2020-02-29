@@ -40,9 +40,9 @@ class Table:
         self.index[key] = Index()
         self.last_written_book = [None, None, None] #[book index #, 0 book is not full or 1 for book is full, -1 book is on disk (any other number book is in buffer pool)]
         self.book_index = 0
-        # self.merge_queue = []
+        self.merge_queue = []
         self.close = False
-        # self.merge_thread = threading.Thread(target=self.__merge)
+        self.merge_thread = threading.Thread(target=self.merge)
         self.lock = threading.Lock()
 
     def __del__(self):
@@ -72,95 +72,61 @@ class Table:
         return [False, -1]
 
 
-    def _merge(self, index):
-        tailind = self.set_book(index)
-        bid = self.buffer_pool.buffer[tailind].read(1,4)
-        baseindex = self.set_book(self.page_directory[bid][0])
-        self.merge_base_and_tail(baseindex, tailind)
-        # while True:
-        #      if self.close == True:
-        #          return
+    def merge(self):
 
-        # while len(self.merge_queue) != 0:
-        # Get the book to be merged from the merge queue.
-        # curr_tailbook_index = self.merge_queue.pop(0)
-        # Traverse the buffer pool to find the same books
-        # with the same book index. If yes, pin that book.
+        while True:
+
+            if self.close == True:
+                return
+
+            if len(self.merge_queue) != 0:
+                index = self.merge_queue.pop(0)
+                tailind = self.set_book(index)
+                bid = self.buffer_pool.buffer[tailind].read(1,4)
+                baseindex = self.set_book(self.page_directory[bid][0])
+                self.merge_base_and_tail(baseindex, tailind)
 
     def merge_base_and_tail(self, base_bp, tail_bp):
         # Copy the selected base book and set the book
         # index to be -1.
         copybook = copy.deepcopy(self.buffer_pool.buffer[base_bp])
-        print(copybook.bookindex)
-        # for i in range(copybook.page_num_record()):
-        #     print(copybook.get_full_record(i))
-        #
-        # print( "merging: " + str(copybook.bookindex))
-        # Set the TPS of the copy book.
-        num_records = self.buffer_pool.buffer[tail_bp].page_num_record()
-        #print("Page_num_record" + str(num_records))
-        last_rid_tailbook = self.buffer_pool.buffer[tail_bp].read(num_records-1, 1)
 
+        # find the last row# of this full tail book
+        tail_num_records = self.buffer_pool.buffer[tail_bp].page_num_record()
 
-        # Update the records in the copy book.
-        for k in range(copybook.page_num_record()):
-            tid = copybook.read(k, 0)
-            if tid == 0:
-                continue
-            else:
-                tlocation = self.page_directory[tid]
-                ind = self.set_book(tlocation[0])
-                tail_record = self.buffer_pool.buffer[ind].get_full_record(tlocation[1])
+        # update the record in base book based on what we have in tail book
+        for index in reversed(range(tail_num_records)):
+            cur_bid = self.buffer_pool.buffer[tail_bp].read(index, 4)   # current row's bid
+            cur_tid = self.buffer_pool.buffer[tail_bp].read(index, 1)   # current row's tid
+            base_record_index = self.page_directory[cur_bid][1]   # get the base record index in its book
+            base_ind = self.buffer_pool.buffer[base_bp].read(base_record_index, 0)   # get the inderection value for this base record
+
+            # only replace the base record when indirection value = tid, which means this tail record store the newest information of this base record
+            if base_ind == cur_tid:
+                # get the full record of this line
+                tail_record = self.buffer_pool.buffer[tail_bp].get_full_record(index)
                 for m in range(5, len(copybook.content)):
-                    # tail_record[m] is a single tail record cell
-                    # k is the current row of the copy book.
-                    copybook.content[m].update(tail_record[m], k)
-            # if copybook.tps == 0:
-            #     tail_record_index = self.page_directory[tid][1]
-            #     tail_record = self.buffer_pool.buffer[tail_bp].get_full_record(tail_record_index)
-                # for m in range(5, len(copybook.content)):
-                #     # tail_record[m] is a single tail record cell
-                #     # k is the current row of the copy book.
-                #     copybook.content[m].update(tail_record[m], k)
-            #
-            # elif tid < copybook.tps:
-            #     # Get the single full record with only the user data.
-            #     tail_record_index = self.page_directory[tid][1]
-            #     tail_record = self.buffer_pool.buffer[tail_bp].get_full_record(tail_record_index)
-            #     for m in range(5, len(copybook.content)):
-            #         # tail_record[m] is a single tail record cell
-            #         # k is the current row of the copy book.
-            #         copybook.content[m].update(tail_record[m], k)
+                    # change the single line of copybook
+                    copybook.content[m].update(tail_record[m], base_record_index)
 
-        copybook.tps = last_rid_tailbook
-        # Swap the book index between two books.
+
+        # assign the TPS to the copybook
+        copybook.tps = self.buffer_pool.buffer[tail_bp].read(tail_num_records-1, 1)
+
+        # Overwrite the indirection column from old book
+        # to the copy book in case an update happended
+        # during the merge process.
+        copybook.content[0] = self.buffer_pool.buffer[base_bp].content[0]
+
+        # Swap the book index change the copybook index to the old basebook
         self.lock.acquire()
-        copypage = self.buffer_pool.buffer[base_bp].content[0]
 
-        temp = self.buffer_pool.buffer[base_bp].bookindex
-        self.buffer_pool.buffer[base_bp].bookindex = copybook.bookindex
-        copybook.bookindex = temp
-        copybook.book_indirection_flag = self.buffer_pool.buffer[base_bp].book_indirection_flag
+        # push copy book to the buffer
         self.buffer_pool.buffer[base_bp] = copybook
-
-        for i in range(copybook.page_num_record()):
-            currentind = self.buffer_pool.buffer[base_bp].content[0].read(i)
-            if copypage.read(i) == currentind:
-                self.buffer_pool.buffer[base_bp].set_meta_zero(0, i)
-            elif copypage.read(i) < currentind:
-                self.buffer_pool.buffer[base_bp].content[0].update(copypage.read(i),i)
 
         self.lock.release()
 
-        # print("HELELELELELELLELELELEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
-        # for i in range(self.buffer_pool.buffer[base_bp].page_num_record()):
-        #     print(self.buffer_pool.buffer[base_bp].get_full_record(i))
-        #
-        # exit()
-
         # Unpin the books.
-        #self.buffer_pool.buffer[base_bp].decrement_pin()
-        #self.buffer_pool.buffer[tail_bp].decrement_pin()
         self.buffer_pool.unpin(base_bp)
         self.buffer_pool.unpin(tail_bp)
 
