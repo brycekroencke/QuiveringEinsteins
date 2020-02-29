@@ -41,21 +41,6 @@ class Query:
     # Insert a record with specified columns
     """
 
-    def create_index(self, col):
-        if (col >= self.table.num_columns):
-            print("No can do, pal. Column outta range.")
-        elif (self.table.index[col] != None):
-            print("No can do, pal. Index already created.")
-        else:
-            self.table.index[col] = Index()
-            #Now scan database here and fill in index
-
-    def drop_index(self, col):
-        if (col >= self.table.num_columns):
-            print("No can do, pal. Column outta range.")
-        elif (self.table.index[col] != None):
-            self.table.index[col] = None
-
     def insert(self, *columns):
         #putting metta data into a list and adding user
         #data to the list
@@ -149,6 +134,7 @@ class Query:
             return records
 
         RID_list = self.table.index[col].locate(key)
+        # print(RID_list)
 
         #Taking RIDS->location and extracting records into record list.
         for i in RID_list:

@@ -46,6 +46,21 @@ class Table:
         self.merge_thread = threading.Thread(target=self.merge)
         self.lock = threading.Lock()
 
+    def create_index(self, col):
+        if (col >= self.num_columns):
+            print("No can do, pal. Column outta range.")
+        elif (self.index[col] != None):
+            print("No can do, pal. Index already created.")
+        else:
+            self.index[col] = Index()
+            self.construct_index_by_col(col)
+
+    def drop_index(self, col):
+        if (col >= self.table.num_columns):
+            print("No can do, pal. Column outta range.")
+        elif (self.table.index[col] != None):
+            self.table.index[col] = None
+
     def __del__(self):
         print ("%s: has been writen to file and deleted from buffer"%self.name)
 
@@ -77,7 +92,7 @@ class Table:
 
         while True:
 
-            if self.close == True:
+            if self.close == True and len(self.merge_queue) == 0:
                 return
 
             if len(self.merge_queue) != 0:
@@ -252,3 +267,29 @@ class Table:
                             #self.page_directory[ind] = [book_number, page_index]
                         self.page_directory[rid] = [int(x), page_index]
                         self.index[self.key].index[sid] = [rid]
+
+    def construct_index_by_col(self, col):
+        print(col)
+        for i in range(len(self.buffer_pool.buffer)):
+            self.push_book(i)
+
+        with open(self.file_name, "r") as read_file:
+            data = json.load(read_file)
+            data = data[self.name]
+
+            # Going through each book. x is bookid
+            for idx, x in enumerate(data):
+                rid_page = Page()
+                col_page = Page()
+                bid_page = Page()
+
+                # Saving the data into the pages from database
+                rid_page.data = eval(data[str(x)]['page'][RID_COLUMN])
+                col_page.data = eval(data[str(x)]['page'][col + 5])
+                bid_page.data = eval(data[str(x)]['page'][BASE_ID_COLUMN])
+                for page_index in range(512):
+                    rid = rid_page.read_no_index_check(page_index)
+                    bid = bid_page.read_no_index_check(page_index)
+                    cvl = col_page.read_no_index_check(page_index)
+                    if (rid != 0 and bid == rid):
+                        self.index[col].add_to_index(cvl, rid)
