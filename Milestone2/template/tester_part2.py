@@ -31,7 +31,7 @@ for key in keys:
     record = query.select(key, 0, [1, 1, 1, 1, 1])[0]
     error = False
     for i, column in enumerate(record.columns):
-        print(column, records[key][i])
+        #print(column, records[key][i])
         if column != records[key][i]:
             error = True
     if error:
@@ -45,6 +45,7 @@ for key in deleted_keys:
     query.delete(key)
     records.pop(key, None)
 
+count = 0
 for i in range(0, 100):
     # print(i)
     r = sorted(sample(range(0, len(keys)), 2))
@@ -52,6 +53,10 @@ for i in range(0, 100):
     result = query.sum(keys[r[0]], keys[r[1]], 0)
     if column_sum != result:
         print('sum error on [', keys[r[0]], ',', keys[r[1]], ']: ', result, ', correct: ', column_sum)
+    else:
+        print("CORRECT")
+        count += 1
 print("Aggregate finished")
+print("%d Correct out of 100" %count)
 
 db.close()

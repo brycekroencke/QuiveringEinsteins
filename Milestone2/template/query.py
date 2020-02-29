@@ -2,6 +2,8 @@ from table import *
 from index import Index
 from book import *
 from record import Record
+import sys
+
 
 INDIRECTION_COLUMN = 0
 RID_COLUMN = 1
@@ -116,18 +118,23 @@ class Query:
             ##We check the indirection and see that it exists and then
             ##we try and read it from the pd but its not there because merge?
             check_indirection = booky.get_indirection(location[1])
-            if booky.read(location[1], 1) != 0: #checking to see if there is a delete
-                if check_indirection == 0 or check_indirection >= booky.tps: #no indirection or old update
-                    records.append(booky.record(location[1], self.table.key, query_columns))
-                    self.table.buffer_pool.unpin(ind)
-                else: #there is an indirection that is valid
-                    self.table.buffer_pool.unpin(ind)
-                    temp = self.table.page_directory[check_indirection]
-                    tind = self.table.set_book(temp[0])
-                    tbooky = self.table.buffer_pool.buffer[tind]
+            print("loc: %d num_rec: %d rid: %d check_ind: %d"%(location[1], booky.content[1].num_records, i, check_indirection))
+            if (check_indirection != 0):
+                if booky.read(location[1], 1) != 0: #checking to see if there is a delete
+                    if check_indirection == 0 or check_indirection >= booky.tps: #no indirection or old update
+                        records.append(booky.record(location[1], self.table.key, query_columns))
+                        self.table.buffer_pool.unpin(ind)
+                    else: #there is an indirection that is valid
+                        self.table.buffer_pool.unpin(ind)
+                        temp = self.table.page_directory[check_indirection]
+                        tind = self.table.set_book(temp[0])
+                        tbooky = self.table.buffer_pool.buffer[tind]
 
-                    records.append(tbooky.record(temp[1], self.table.key, query_columns))
-                    self.table.buffer_pool.unpin(tind)
+                        records.append(tbooky.record(temp[1], self.table.key, query_columns))
+                        self.table.buffer_pool.unpin(tind)
+                else:
+                    temp_rec = Record(location[1], self.table.key, ([0] * self.table.num_columns))
+                    records.append(temp_rec)
             else:
                 temp_rec = Record(location[1], self.table.key, ([0] * self.table.num_columns))
                 records.append(temp_rec)
@@ -247,7 +254,6 @@ class Query:
                 # apply select function to find the corresponding value of given SID and column#, adding all found value to sum
 
                 sum += self.select(current_key, 0, query_column)[0].columns[aggregate_column_index]
-
             current_key += 1
 
         return sum

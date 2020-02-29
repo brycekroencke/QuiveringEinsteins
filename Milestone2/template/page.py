@@ -47,9 +47,10 @@ class Page:
     # index = row #
     def read(self, index):
         if(index >= self.num_records):
-            print("hello:" +str(index))
-            print(index)
-            print(self.num_records)
+            # print("hello:" +str(index))
+            # print(index)
+            # print(self.num_records)
+            print("index: %d num_records: %d" % (index, self.num_records))
             print("ERROR: Index out of range. READ")
             return 0
             #exit()
