@@ -165,6 +165,7 @@ class Table:
             for idi, i in enumerate(data['page']):
                 loaded_book.content[idi].data = eval(i)
             loaded_book.book_indirection_flag = data['i_flag']
+            loaded_book.tps = data['tps']
 
 
             for i in range(512):
@@ -189,7 +190,7 @@ class Table:
                     data = json.load(read_file)
 
                     book_data = {str(book_number): []}
-                    page_data = {'page': [], 'i_flag': actualBook.book_indirection_flag}
+                    page_data = {'page': [], 'i_flag': actualBook.book_indirection_flag, 'tps': actualBook.tps}
                     for idj, j in enumerate(actualBook.content):
                         page_data['page'].append( str(j.data))
                     data[self.name][str(book_number)] = page_data
@@ -198,7 +199,7 @@ class Table:
 
                 except ValueError:
                     book_data = {str(book_number): []}
-                    data = {self.name: {str(book_number) :{'page': [], 'i_flag': actualBook.book_indirection_flag}}}
+                    data = {self.name: {str(book_number) :{'page': [], 'i_flag': actualBook.book_indirection_flag, 'tps': actualBook.tps}}}
                     for idj, j in enumerate(actualBook.content):
                         data[self.name][str(book_number)]['page'].append(str(j.data))
                     with open(self.file_name, "w") as write_file:
