@@ -117,10 +117,10 @@ class Query:
             ##we try and read it from the pd but its not there because merge?
             check_indirection = booky.get_indirection(location[1])
             if booky.read(location[1], 1) != 0: #checking to see if there is a delete
-                if check_indirection == 0: #no indirection
+                if check_indirection == 0 or check_indirection >= booky.tps: #no indirection or old update
                     records.append(booky.record(location[1], self.table.key, query_columns))
                     self.table.buffer_pool.unpin(ind)
-                else: #there is an indirection
+                else: #there is an indirection that is valid
                     self.table.buffer_pool.unpin(ind)
                     temp = self.table.page_directory[check_indirection]
                     tind = self.table.set_book(temp[0])
@@ -189,14 +189,16 @@ class Query:
             new_slot = self.table.make_room()   #make room
             self.table.buffer_pool.buffer[new_slot] = Book(len(columns), self.table.book_index) #add book
             location = self.table.buffer_pool.buffer[new_slot].book_insert(new_record)#add record to book
-
             self.table.buffer_pool.buffer[base_book_bp].set_flag(self.table.book_index) #set indirection flag in base book
+
+
             self.table.book_index += 1
             pin_idx_list.append(new_slot)
 
-        else: #there is an availbe book to write to
+        else: #there is an availabe book to write to
             slot = self.table.set_book(indir_flag) #bring tail book onto the bp
             location = self.table.buffer_pool.buffer[slot].book_insert(new_record) #add record to book
+
 
             pin_idx_list.append(slot)
             if self.table.buffer_pool.buffer[slot].is_full(): # tail book is full set flag to -1
@@ -206,10 +208,12 @@ class Query:
                 #self.table.merge_queue.append(self.table.buffer_pool.buffer[slot].bookindex)
 
 
-
         self.table.page_directory[self.table.tidcounter] = location
         #update base_book indirection with new TID
+        # This is to avoid updating while books are being swapped.
+        # Although this should rarely happen since merge waits for the book to be unused to swap books.
         self.table.buffer_pool.buffer[base_book_bp].set_meta_zero(self.table.tidcounter, indirection_location[1])
+
         for i in pin_idx_list:
             self.table.buffer_pool.unpin(i)
 

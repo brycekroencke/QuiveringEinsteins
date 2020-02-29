@@ -26,11 +26,17 @@ class Database():
 
     def close(self):
         for idi, i in enumerate(self.tables):
-            self.tables[idi].close = True
+            # self.tables[idi].close = True
+            # self.tables[idi].merge_thread.join()
             for idj, j in enumerate(i.buffer_pool.buffer):
+<<<<<<< HEAD
                 if (j):
                     print(j.bookindex)
                     self.tables[idi].dump_book_json(j)
+=======
+                if j != None:
+                self.tables[idi].dump_book_json(j)
+>>>>>>> yep_branch
         del self #Rip database
 
 
@@ -76,6 +82,7 @@ class Database():
     def drop_table(self, name):
         #remove table from disk
         self.table.close = True
+        self.table.merge_thread.join()
         with open(self.file_name, 'r') as read_file:
             data = json.load(read_file)
 
