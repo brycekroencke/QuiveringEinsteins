@@ -41,21 +41,6 @@ class Query:
     # Insert a record with specified columns
     """
 
-    def create_index(self, col):
-        if (col >= self.table.num_columns):
-            print("No can do, pal. Column outta range.")
-        elif (self.table.index[col] != None):
-            print("No can do, pal. Index already created.")
-        else:
-            self.table.index[col] = Index()
-            #Now scan database here and fill in index
-
-    def drop_index(self, col):
-        if (col >= self.table.num_columns):
-            print("No can do, pal. Column outta range.")
-        elif (self.table.index[col] != None):
-            self.table.index[col] = None
-
     def insert(self, *columns):
         #putting metta data into a list and adding user
         #data to the list
@@ -107,6 +92,7 @@ class Query:
             return records
 
         RID_list = self.table.index[col].locate(key)
+        # print(RID_list)
 
         #Taking RIDS->location and extracting records into record list.
         for i in RID_list:
@@ -118,23 +104,18 @@ class Query:
             ##We check the indirection and see that it exists and then
             ##we try and read it from the pd but its not there because merge?
             check_indirection = booky.get_indirection(location[1])
-            print("loc: %d num_rec: %d rid: %d check_ind: %d"%(location[1], booky.content[1].num_records, i, check_indirection))
-            if (check_indirection != 0):
-                if booky.read(location[1], 1) != 0: #checking to see if there is a delete
-                    if check_indirection == 0 or check_indirection >= booky.tps: #no indirection or old update
-                        records.append(booky.record(location[1], self.table.key, query_columns))
-                        self.table.buffer_pool.unpin(ind)
-                    else: #there is an indirection that is valid
-                        self.table.buffer_pool.unpin(ind)
-                        temp = self.table.page_directory[check_indirection]
-                        tind = self.table.set_book(temp[0])
-                        tbooky = self.table.buffer_pool.buffer[tind]
+            if booky.read(location[1], 1) != 0: #checking to see if there is a delete
+                if check_indirection == 0 or check_indirection >= booky.tps: #no indirection or old update
+                    records.append(booky.record(location[1], self.table.key, query_columns))
+                    self.table.buffer_pool.unpin(ind)
+                else: #there is an indirection that is valid
+                    self.table.buffer_pool.unpin(ind)
+                    temp = self.table.page_directory[check_indirection]
+                    tind = self.table.set_book(temp[0])
+                    tbooky = self.table.buffer_pool.buffer[tind]
 
-                        records.append(tbooky.record(temp[1], self.table.key, query_columns))
-                        self.table.buffer_pool.unpin(tind)
-                else:
-                    temp_rec = Record(location[1], self.table.key, ([0] * self.table.num_columns))
-                    records.append(temp_rec)
+                    records.append(tbooky.record(temp[1], self.table.key, query_columns))
+                    self.table.buffer_pool.unpin(tind)
             else:
                 temp_rec = Record(location[1], self.table.key, ([0] * self.table.num_columns))
                 records.append(temp_rec)

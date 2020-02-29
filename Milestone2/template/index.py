@@ -25,6 +25,9 @@ class Index:
         if not sid in self.index:
             self.index[sid] = [rid]
         else:
+            for i in self.index[sid]:
+                if i == rid:
+                    return
             self.index[sid].append(rid)
 
         # make a dictionary that maps sid as key to rid as value.
