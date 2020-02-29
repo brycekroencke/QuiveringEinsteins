@@ -41,13 +41,9 @@ class Table:
         self.index[key] = Index()
         self.last_written_book = [None, None, None] #[book index #, 0 book is not full or 1 for book is full, -1 book is on disk (any other number book is in buffer pool)]
         self.book_index = 0
-        #self.merge_queue = []
+        self.merge_queue = []
         self.close = False
-<<<<<<< HEAD
-        #self.merge_thread = threading.Thread(target=self.__merge,)
-=======
         self.merge_thread = threading.Thread(target=self.merge)
->>>>>>> yep_branch
         self.lock = threading.Lock()
 
     def __del__(self):
