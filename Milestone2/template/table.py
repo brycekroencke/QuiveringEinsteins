@@ -92,7 +92,7 @@ class Table:
 
         while True:
 
-            if self.close == True:
+            if self.close == True and len(self.merge_queue) == 0:
                 return
 
             if len(self.merge_queue) != 0:
