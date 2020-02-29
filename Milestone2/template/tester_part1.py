@@ -58,7 +58,7 @@ for _ in range(10):
 print("Update finished")
 
 for i in range(0, 100):
-    print(i)
+    #print(i)
     r = sorted(sample(range(0, len(keys)), 2))
     column_sum = sum(map(lambda key: records[key][0], keys[r[0]: r[1] + 1]))
     result = query.sum(keys[r[0]], keys[r[1]], 0)

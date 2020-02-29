@@ -51,7 +51,8 @@ class Page:
             print(index)
             print(self.num_records)
             print("ERROR: Index out of range. READ")
-            exit()
+            return 0
+            #exit()
 
         rindex = index * 8
         bytevalue = bytearray(8)

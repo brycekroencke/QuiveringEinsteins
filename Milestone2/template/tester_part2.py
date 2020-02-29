@@ -7,7 +7,7 @@ from random import choice, randint, sample, seed
 # Student Id and 4 grades
 init()
 db = Database()
-db.open('~/ECS165')
+db.open('~/ECS1652')
 grades_table = db.create_table('Grades', 5, 0)
 query = Query(grades_table)
 
@@ -62,7 +62,7 @@ for key in deleted_keys:
     records.pop(key, None)
 
 for i in range(0, 100):
-    print(i)
+    # print(i)
     r = sorted(sample(range(0, len(keys)), 2))
     column_sum = sum(map(lambda x: records[x][0] if x in records else 0, keys[r[0]: r[1] + 1]))
     print(keys[r[0]], keys[r[1]])

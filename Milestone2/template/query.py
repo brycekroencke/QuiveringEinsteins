@@ -31,7 +31,7 @@ class Query:
 
         buffer_index = self.table.set_book(location[0])
         self.table.buffer_pool.buffer[buffer_index].rid_to_zero(location[1])
-
+        self.table.index[0].drop_index(key)
         self.table.buffer_pool.unpin(buffer_index)
 
 
@@ -105,12 +105,10 @@ class Query:
             return records
 
         RID_list = self.table.index[col].locate(key)
-        print(RID_list)
 
         #Taking RIDS->location and extracting records into record list.
         for i in RID_list:
             location = self.table.page_directory[i]
-            # print(location)
             ind = self.table.set_book(location[0])
             booky = self.table.buffer_pool.buffer[ind]
 
@@ -118,15 +116,11 @@ class Query:
             ##We check the indirection and see that it exists and then
             ##we try and read it from the pd but its not there because merge?
             check_indirection = booky.get_indirection(location[1])
-            # print(check_indirection)
-            # print(self.table.page_directory)
             if booky.read(location[1], 1) != 0: #checking to see if there is a delete
                 if check_indirection == 0: #no indirection
-                    # print("\nIND == 0\n")
                     records.append(booky.record(location[1], self.table.key, query_columns))
                     self.table.buffer_pool.unpin(ind)
                 else: #there is an indirection
-                    # print("\nELSE\n")
                     self.table.buffer_pool.unpin(ind)
                     temp = self.table.page_directory[check_indirection]
                     tind = self.table.set_book(temp[0])
@@ -136,7 +130,6 @@ class Query:
                     self.table.buffer_pool.unpin(tind)
             else:
                 temp_rec = Record(location[1], self.table.key, ([0] * self.table.num_columns))
-                #temp_rec.columns = ([0] * self.table.num_columns)
                 records.append(temp_rec)
 
         return records
@@ -149,7 +142,6 @@ class Query:
         #columns will be stored in weird tuples need to fix
         #UPDATE needs to change read in books to handle inderection
         #ONLY EDIT TAIL PAGES (tail_list)
-        #print(columns) #this gives me (none,#,none,none,none)
         RID = self.table.index[self.table.key].locate(key)
         location = self.table.page_directory[RID[0]] # returns [book num, row]
         indirection_location = location
@@ -158,10 +150,10 @@ class Query:
 
         self.table.tidcounter = self.table.tidcounter - 1
 
-        pin_idx_list = [] #holds a list of idx that asosetate to  what has been pinned during update
-        tail_location = [-1, -1] #for later use
-        tail_book_R_bp = -1#for later use
-        new_record =[]#for later use
+        pin_idx_list = []           #holds a list of idx that asosetate to  what has been pinned during update
+        tail_location = [-1, -1]    #for later use
+        tail_book_R_bp = -1         #for later use
+        new_record =[]              #for later use
 
         """
         step 1) were is the book located eather on disk or in buffer_pool? do a search
@@ -249,8 +241,7 @@ class Query:
                         query_column.append(0)
 
                 # apply select function to find the corresponding value of given SID and column#, adding all found value to sum
-                #print(current_key, 0, query_column)
-                #print(self.select(current_key, 0, query_column))
+
                 sum += self.select(current_key, 0, query_column)[0].columns[aggregate_column_index]
 
             current_key += 1
