@@ -237,15 +237,14 @@ class Table:
                     ind = ind_page.read_no_index_check(page_index)
                     if (rid != 0 and bid == rid):
                         if (ind != 0):
-                            tail_book_to_add = math.floor((2**64 - 2 - ind)/512.0) + 2
-                            high = min(len(data), tail_book_to_add +4)
-                            low = max(0, tail_book_to_add -4)
-                            #for i in list(data)[::-1]:
-                            for i in range(low, high):
+                            #tail_book_to_add = math.floor((2**64 - 2 - ind)/512) + 2
+                            for i in data:
                                 tbd.data = eval(data[str(i)]['page'][RID_COLUMN])
                                 for page_index2 in range(512):
+                                    #print("HERE %d" %ind)
                                     t = tbd.read_no_index_check(page_index2)
                                     if (t == ind):
+                                        #print("HEREeeee %d" %ind)
                                         self.page_directory[ind] = [int(i), page_index2]
                                         break
 
