@@ -245,7 +245,6 @@ class Table:
                                 for page_index2 in range(512):
                                     t = tbd.read_no_index_check(page_index2)
                                     if (t == ind):
-                                        print(tail_book_to_add, i)
                                         self.page_directory[ind] = [int(i), page_index2]
                                         break
 

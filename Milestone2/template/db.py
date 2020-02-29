@@ -26,8 +26,8 @@ class Database():
 
     def close(self):
         for idi, i in enumerate(self.tables):
-            # self.tables[idi].close = True
-            # self.tables[idi].merge_thread.join()
+            self.tables[idi].close = True
+            self.tables[idi].merge_thread.join()
             for idj, j in enumerate(i.buffer_pool.buffer):
                 if (j):
                     print(j.bookindex)
