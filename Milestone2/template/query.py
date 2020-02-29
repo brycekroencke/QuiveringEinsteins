@@ -99,6 +99,48 @@ class Query:
     # Read a record with specified key
     """
 
+    # def select(self, key, col, query_columns):
+    #     records = []
+    #     if(self.table.index[col] == None):
+    #         # do scan
+    #         print("mc-scan")
+    #         return records
+    #
+    #     RID_list = self.table.index[col].locate(key)
+    #
+    #     #Taking RIDS->location and extracting records into record list.
+    #     for i in RID_list:
+    #         location = self.table.page_directory[i]
+    #         ind = self.table.set_book(location[0])
+    #         booky = self.table.buffer_pool.buffer[ind]
+    #
+    #
+    #         ##We check the indirection and see that it exists and then
+    #         ##we try and read it from the pd but its not there because merge?
+    #         check_indirection = booky.get_indirection(location[1])
+    #         #print("loc: %d num_rec: %d rid: %d check_ind: %d"%(location[1], booky.content[1].num_records, i, check_indirection))
+    #         if (check_indirection != 0):
+    #             if booky.read(location[1], 1) != 0: #checking to see if there is a delete
+    #                 if check_indirection == 0 or check_indirection >= booky.tps: #no indirection or old update
+    #                     records.append(booky.record(location[1], self.table.key, query_columns))
+    #                     self.table.buffer_pool.unpin(ind)
+    #                 else: #there is an indirection that is valid
+    #                     self.table.buffer_pool.unpin(ind)
+    #                     temp = self.table.page_directory[check_indirection]
+    #                     tind = self.table.set_book(temp[0])
+    #                     tbooky = self.table.buffer_pool.buffer[tind]
+    #
+    #                     records.append(tbooky.record(temp[1], self.table.key, query_columns))
+    #                     self.table.buffer_pool.unpin(tind)
+    #             else:
+    #                 temp_rec = Record(location[1], self.table.key, ([0] * self.table.num_columns))
+    #                 records.append(temp_rec)
+    #         else:
+    #             temp_rec = Record(location[1], self.table.key, ([0] * self.table.num_columns))
+    #             records.append(temp_rec)
+    #
+    #     return records
+
     def select(self, key, col, query_columns):
         records = []
         if(self.table.index[col] == None):
@@ -118,29 +160,23 @@ class Query:
             ##We check the indirection and see that it exists and then
             ##we try and read it from the pd but its not there because merge?
             check_indirection = booky.get_indirection(location[1])
-            print("loc: %d num_rec: %d rid: %d check_ind: %d"%(location[1], booky.content[1].num_records, i, check_indirection))
-            if (check_indirection != 0):
-                if booky.read(location[1], 1) != 0: #checking to see if there is a delete
-                    if check_indirection == 0 or check_indirection >= booky.tps: #no indirection or old update
-                        records.append(booky.record(location[1], self.table.key, query_columns))
-                        self.table.buffer_pool.unpin(ind)
-                    else: #there is an indirection that is valid
-                        self.table.buffer_pool.unpin(ind)
-                        temp = self.table.page_directory[check_indirection]
-                        tind = self.table.set_book(temp[0])
-                        tbooky = self.table.buffer_pool.buffer[tind]
+            if booky.read(location[1], 1) != 0: #checking to see if there is a delete
+                if check_indirection == 0 or check_indirection >= booky.tps: #no indirection or old update
+                    records.append(booky.record(location[1], self.table.key, query_columns))
+                    self.table.buffer_pool.unpin(ind)
+                else: #there is an indirection that is valid
+                    self.table.buffer_pool.unpin(ind)
+                    temp = self.table.page_directory[check_indirection]
+                    tind = self.table.set_book(temp[0])
+                    tbooky = self.table.buffer_pool.buffer[tind]
 
-                        records.append(tbooky.record(temp[1], self.table.key, query_columns))
-                        self.table.buffer_pool.unpin(tind)
-                else:
-                    temp_rec = Record(location[1], self.table.key, ([0] * self.table.num_columns))
-                    records.append(temp_rec)
+                    records.append(tbooky.record(temp[1], self.table.key, query_columns))
+                    self.table.buffer_pool.unpin(tind)
             else:
                 temp_rec = Record(location[1], self.table.key, ([0] * self.table.num_columns))
                 records.append(temp_rec)
 
         return records
-
 
     """
     # Update a record with specified key and columns

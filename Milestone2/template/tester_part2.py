@@ -7,7 +7,7 @@ from random import choice, randint, sample, seed
 # Student Id and 4 grades
 init()
 db = Database()
-db.open('~/ECS1652')
+db.open('~/ECS165')
 grades_table = db.create_table('Grades', 5, 0)
 query = Query(grades_table)
 
@@ -45,7 +45,6 @@ for key in deleted_keys:
     query.delete(key)
     records.pop(key, None)
 
-count = 0
 for i in range(0, 100):
     # print(i)
     r = sorted(sample(range(0, len(keys)), 2))
@@ -53,10 +52,7 @@ for i in range(0, 100):
     result = query.sum(keys[r[0]], keys[r[1]], 0)
     if column_sum != result:
         print('sum error on [', keys[r[0]], ',', keys[r[1]], ']: ', result, ', correct: ', column_sum)
-    else:
-        print("CORRECT")
-        count += 1
+
 print("Aggregate finished")
-print("%d Correct out of 100" %count)
 
 db.close()
