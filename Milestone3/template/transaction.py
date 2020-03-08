@@ -23,12 +23,9 @@ class Transaction:
     def add_query(self, query, *args):
         self.queries.append((query, args))
 
-<<<<<<< HEAD
+    # If you choose to implement this differently this method must still return True if transaction commits or False on abort
 
     # This MUST return 0 if transaction is sucessful, else it must return 0
-=======
-    # If you choose to implement this differently this method must still return True if transaction commits or False on abort
->>>>>>> 4637297d6d76b2dfec90dc73297d6ab98b0d9d69
     def run(self):
         for query, args in self.queries:
             result = query(*args)
