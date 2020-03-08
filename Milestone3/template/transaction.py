@@ -9,7 +9,8 @@ class Transaction:
     """
     # Creates a transaction object.
     """
-    def __init__(self):
+    def __init__(self, table):
+        self.table = table
         self.queries = []
         self.transaction_id = inc_global_counter()
 
