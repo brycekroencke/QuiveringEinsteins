@@ -1,5 +1,8 @@
-from template.table import Table, Record
-from template.index import Index
+from table import Table
+from record import Record
+from index import Index
+from __init__ import *
+
 
 class Transaction:
 
@@ -8,7 +11,7 @@ class Transaction:
     """
     def __init__(self):
         self.queries = []
-        pass
+        self.transaction_id = inc_global_counter()
 
     """
     # Adds the given query to this transaction
@@ -21,6 +24,8 @@ class Transaction:
         self.queries.append((query, args))
 
     # If you choose to implement this differently this method must still return True if transaction commits or False on abort
+
+    # This MUST return 0 if transaction is sucessful, else it must return 0
     def run(self):
         for query, args in self.queries:
             result = query(*args)

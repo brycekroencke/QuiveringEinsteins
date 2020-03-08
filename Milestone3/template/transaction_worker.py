@@ -1,5 +1,6 @@
-from template.table import Table, Record
-from template.index import Index
+from table import Table
+from record import Record
+from index import Index
 
 class TransactionWorker:
 
