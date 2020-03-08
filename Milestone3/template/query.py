@@ -172,6 +172,10 @@ class Query:
         #UPDATE needs to change read in books to handle inderection
         #ONLY EDIT TAIL PAGES (tail_list)
         RID = self.table.index[self.table.key].locate(key)
+
+        if RID == None:
+            return False
+            
         location = self.table.page_directory[RID[0]] # returns [book num, row]
         indirection_location = location
 
@@ -246,6 +250,8 @@ class Query:
 
         for i in pin_idx_list:
             self.table.buffer_pool.unpin(i)
+
+        return True
 
     """
     :param start_range: int         # Start of the key range to aggregate

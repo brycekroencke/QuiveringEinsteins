@@ -10,6 +10,7 @@ from buffer import *
 from book import Book
 import threading
 import math
+from lock import Lock_List, Lock
 
 INDIRECTION_COLUMN = 0
 RID_COLUMN = 1
@@ -293,3 +294,51 @@ class Table:
                     cvl = col_page.read_no_index_check(page_index)
                     if (rid != 0 and bid == rid):
                         self.index[col].add_to_index(cvl, rid)
+
+    def acquire_lock(self, sid, lock_type, tran_id):
+        # Find the corresponding rid given the sid.
+        if self.index[self.key].contains_key(sid):
+            rid = self.index[self.key].locate(sid)[0]
+        else:
+            print("Acquire_Lock_Error: Provided SID is not valid!!!!!!!")
+            return False
+
+        # If the record already has a lock list. Check if it contains a exclusive
+        # lock and check if the exclusive lock belongs to the same transaction.
+        if len(self.page_directory[rid]) == 3:
+            # Shallow copy the lock list
+            lock_list = self.page_directory[rid][2]
+            # The lock list might be empty when we release all locks.
+            # Doesn't mean there were no lock appended before.
+            if lock_list.head is not None:
+                if lock_list.has_exlock():
+                    if not lock_list.same_exlock_tranID(tran_id):
+                        print("Adding lock after an exclusive lock. Lock failed, returning.")
+                        return False
+                else:
+                    new_lock = Lock(lock_type, tran_id)
+                    lock_list.append_list(new_lock)
+            else:
+                new_lock = Lock(lock_type, tran_id)
+                lock_list.append_list(new_lock)
+
+        # If the record doesn't have a lock list, make a lock list and append the lock.
+        else:
+            self.page_directory[rid].append(Lock_List())
+            new_lock = Lock(lock_type, tran_id)
+            self.page_directory[rid][2].append_list(new_lock)
+
+        return True
+
+    def release_lock(self, sid, tran_id):
+        # Find the corresponding rid given the sid.
+        if self.index[self.key].contains_key(sid):
+            rid = self.index[self.key].locate(sid)[0]
+        else:
+            print("Release_Lock_Error: Provided SID is not valid!!!!!!!")
+            return False
+
+        # Shallow copy the lock list and remove the
+        # locks in the same transaction.
+        lock_list = self.page_directory[rid][2]
+        lock_list.remove_lock(tran_id)

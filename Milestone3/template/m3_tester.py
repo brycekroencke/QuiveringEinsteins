@@ -13,7 +13,7 @@ grades_table = db.create_table('Grades', 5, 0)
 keys = []
 records = {}
 seed(3562901)
-num_threads = 8
+num_threads = 1
 
 # Generate random records
 for i in range(0, 10000):
@@ -33,8 +33,8 @@ for i in range(10000):
     key = random.choice(keys)
     record = records[key]
     c = record[1]
-    transaction = Transaction(grades_table)
-    for i in range(5):
+    transaction = Transaction(grades_table, i)
+    for _ in range(5):
         c += 1
         q = Query(grades_table)
         transaction.add_query(q.select, key, 0, [1, 1, 1, 1, 1])
