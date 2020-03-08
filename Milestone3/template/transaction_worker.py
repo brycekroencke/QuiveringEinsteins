@@ -22,10 +22,11 @@ class TransactionWorker:
     # q = Query(grades_table)
     # t = Transaction()
     # t.add_query(q.update, 0, *[None, 1, None, 2, None])
-    # txn_worker = TransactionWorker([t])
-    # th1 = threading.Thread(target=txn_worker.run)
+    # transaction_worker = TransactionWorker([t])
     """
     def run(self):
         for transaction in self.transactions:
+            # each transaction returns True if committed or False if aborted
             self.stats.append(transaction.run())
-        self.result = sum(self.stats)
+        # stores the number of transactions that committed
+        self.result = len(list(filter(lambda x: x, self.stats)))

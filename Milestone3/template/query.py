@@ -207,7 +207,8 @@ class Query:
             for idx, i in enumerate(data):
                 if i != None:
                     new_record[idx + 5] = i
-            new_record[1] = self.table.tidcounter #note that the rid of the base record is already in the BASE_ID_COLUMN thanks to insert
+            new_record[INDIRECTION_COLUMN] = new_record[RID_COLUMN] # new record now points to the second newest record almost like a linked list
+            new_record[RID_COLUMN] = self.table.tidcounter #note that the rid of the base record is already in the BASE_ID_COLUMN thanks to insert
             pin_idx_list.append(tail_book_R_bp)
 
         """
@@ -279,3 +280,20 @@ class Query:
             current_key += 1
 
         return sum
+
+    """
+    incremenets one column of the record
+    this implementation should work if your select and update queries already work
+    :param key: the primary of key of the record to increment
+    :param column: the column to increment
+    # Returns True is increment is successful
+    # Returns False if no record matches key or if target record is locked by 2PL.
+    """
+    def increment(self, key, column):
+        r = self.select(key, self.table.key, [1] * self.table.num_columns)[0]
+        if r is not False:
+            updated_columns = [None] * self.table.num_columns
+            updated_columns[column] = r[column] + 1
+            u = self.update(key, *updated_columns)
+            return u
+        return False
