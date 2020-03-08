@@ -297,3 +297,41 @@ class Query:
             u = self.update(key, *updated_columns)
             return u
         return False
+
+    def change_link(self, key):
+        #PINS AND UNPINS and Dirty bit
+        #i am assuming that we get the primary key but if we don't we will have to make small changes to the code to handle it
+
+        rid = self.table.index[0].locate(key) #get the rid of the key
+        base_book_id, base_row = self.table.page_directory[rid] #get base book id and row of the base book record we wish to change the inderection
+        base_book_bp = self.table.set_book(base_book_id)
+
+        record_to_be_deleted_tid = self.table.buffer_pool.buffer[base_book_bp].get_indirection(base_row) #get the tid of the record we wish to get rid of
+        tail_book_id, tail_row = self.table.page_directory(record_to_be_deleted_tid) #get tail book info
+        tail_book_bp = self.table.set_book(tail_book_id)
+        record = self.table.buffer_pool.buffer[tail_book_bp].get_full_record(tail_row)
+
+        previous_updated_record = record[INDIRECTION_COLUMN]  #get the prevous updated record
+        self.table.buffer_pool.buffer[tail_book_bp].rid_to_zero(tail_row)
+        self.table.buffer_pool.buffer[base_book_bp].set_meta_zero(previous_updated_record, base_row)# change the inderection collumn of the base record
+
+        self.table.buffer_pool.unpin(tail_book_bp)
+        self.table.buffer_pool.unpin(base_book_bp)
+        #############################################################
+
+        # tail_book_id,row = self.table.page_directory[tid] #get book id and row of the record we wish to remove
+        # tail_book_bp = self.table.set_book(tail_book_id) #make sure tail book is in bp
+        #
+        # record = self.table.buffer_pool.buffer[tail_book_bp].get_full_record(row) #get the full record
+        # self.table.buffer_pool.buffer[tail_book_bp].rid_to_zero(row) #set the delete veriable in the record we wish to get rid of
+        #
+        # previous_updated_record = record[INDIRECTION_COLUMN] # this is the prevous updated record that will now become the most current updated record
+        # base_record_rid = record[BASE_ID_COLUMN] # get the rid of the base record
+        #
+        # BRR_book_id, BRR_row = self.table.page_directory[base_record_rid] #get base book id and row of the base book record we wish to change the inderection
+        # base_book_bp = self.table.set_book(BRR_book_id) # make sure the base book is in the bp
+        #
+        # self.table.buffer_pool.buffer[base_book_bp].set_meta_zero(previous_updated_record, BRR_row)# change the inderection collumn of the base record
+        #
+        # self.table.buffer_pool.unpin(tail_book_bp)
+        # self.table.buffer_pool.unpin(base_book_bp)
