@@ -296,6 +296,11 @@ class Table:
                         self.index[col].add_to_index(cvl, rid)
 
     def acquire_lock(self, sid, lock_type, tran_id):
+        # The internal lock that lock the lock manager to prevent
+        # multiple transactions from adding the exclusive lock to
+        # the same record. Will call lock.release() when release the lock.
+        self.lock.acquire()
+
         # Find the corresponding rid given the sid.
         if self.index[self.key].contains_key(sid):
             rid = self.index[self.key].locate(sid)
@@ -313,6 +318,11 @@ class Table:
             if lock_list.head is not None:
                 if lock_list.has_exlock():
                     if not lock_list.same_exlock_tranID(tran_id):
+
+                        # Should release the internal lock here because the
+                        # transaction won't release the lock if it will be aborted.
+                        self.lock.release()
+
                         print("Adding lock after an exclusive lock. Lock appending failed and abort the transaction.")
                         return False
                     return True
@@ -338,6 +348,9 @@ class Table:
     # This release function will release all locks with the same transaction id
     # within a record, no need to call this function to release one single lock.
     def release_lock(self, sid, tran_id):
+        # Release the internal lock
+        self.lock.release()
+
         # Find the corresponding rid given the sid.
         if self.index[self.key].contains_key(sid):
             rid = self.index[self.key].locate(sid)
