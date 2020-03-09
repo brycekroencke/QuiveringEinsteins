@@ -18,16 +18,22 @@ class Lock_List:
     def same_exlock_tranID(self, tran_id):
         return self.tail.tran_id == tran_id
 
+    def has_lock(self, tran_id):
+        head_lock = self.head
+        while head_lock is not None:
+            if head_lock.tran_id == tran_id:
+                return True
+            head_lock = head_lock.next
+
+        return False
+
     def append_list(self, new_lock):
         if self.head is None:
             self.head = new_lock
             self.tail = new_lock
             return
 
-        last_lock = self.head
-        while last_lock.next:
-            last_lock = last_lock.next
-        last_lock.next = new_lock
+        self.tail.next =new_lock
         self.tail = new_lock
         return
 
@@ -48,6 +54,9 @@ class Lock_List:
 
         if head_lock is None:
             return
+
+        if head_lock.next is None:
+            self.tail = prev
 
         prev.next = head_lock.next
         head_lock = None

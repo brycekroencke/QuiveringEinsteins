@@ -315,22 +315,28 @@ class Table:
                     if not lock_list.same_exlock_tranID(tran_id):
                         print("Adding lock after an exclusive lock. Lock appending failed and abort the transaction.")
                         return False
+                    return True
+                else:
+                    if lock_list.has_lock(tran_id):
+                        return True
                     else:
                         new_lock = Lock(lock_type, tran_id)
                         lock_list.append_list(new_lock)
-                else:
-                    new_lock = Lock(lock_type, tran_id)
-                    lock_list.append_list(new_lock)
+                        return True
             else:
                 new_lock = Lock(lock_type, tran_id)
                 lock_list.append_list(new_lock)
+                return True
 
         # If the record doesn't have a lock list, make a lock list and append the lock.
         else:
             self.page_directory[rid].append(Lock_List())
             new_lock = Lock(lock_type, tran_id)
             self.page_directory[rid][2].append_list(new_lock)
+            return True
 
+    # This release function will release all locks with the same transaction id
+    # within a record, no need to call this function to release one single lock.
     def release_lock(self, sid, tran_id):
         # Find the corresponding rid given the sid.
         if self.index[self.key].contains_key(sid):
@@ -343,5 +349,4 @@ class Table:
         # locks in the same transaction.
         lock_list = self.page_directory[rid][2]
         lock_list.remove_lock(tran_id)
-
-
+        return True
