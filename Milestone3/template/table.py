@@ -25,7 +25,8 @@ class Table:
     :param num_columns: int     #Number of Columns: all columns are integer
     :param key: int             #Index of table key in columns
     """
-    def __init__(self, name, num_columns, key, file_name = None):
+
+    def __init__(self, name, num_columns, key, file_name=None):
         if (file_name):
             self.file_name = file_name
         else:
@@ -37,10 +38,11 @@ class Table:
         self.num_columns = num_columns
         self.page_directory = {}
         self.ridcounter = 0
-        self.tidcounter = (2**64) - 1
+        self.tidcounter = (2 ** 64) - 1
         self.index = [None] * num_columns
         self.index[key] = Index()
-        self.last_written_book = [None, None, None] #[book index #, 0 book is not full or 1 for book is full, -1 book is on disk (any other number book is in buffer pool)]
+        self.last_written_book = [None, None,
+                                  None]  # [book index #, 0 book is not full or 1 for book is full, -1 book is on disk (any other number book is in buffer pool)]
         self.book_index = 0
         self.merge_queue = []
         self.close = False
@@ -63,20 +65,21 @@ class Table:
             self.table.index[col] = None
 
     def __del__(self):
-        print ("%s: has been writen to file and deleted from buffer"%self.name)
+        print("%s: has been writen to file and deleted from buffer" % self.name)
 
     """
     set book uses book_in_bp and pull book an conbinds them together and returns
     the location of were the book is stored in the bp
     """
-    def set_book(self,bookid):
+
+    def set_book(self, bookid):
         check = self.book_in_bp(bookid)
-        if check != -1: #book is in dp just return its location in dp
+        if check != -1:  # book is in dp just return its location in dp
             self.buffer_pool.pin(check)
             return check
 
-        else: #book not in bp put it into bp
-            return self.pull_book(bookid) #book is now in dp return its location in dp
+        else:  # book not in bp put it into bp
+            return self.pull_book(bookid)  # book is now in dp return its location in dp
 
     def push_book(self, ind):
         if self.buffer_pool.buffer[ind] != None and self.buffer_pool.buffer[ind].dirty_bit == True:
@@ -88,7 +91,6 @@ class Table:
                 return [True, i]
         return [False, -1]
 
-
     def merge(self):
 
         while True:
@@ -99,7 +101,7 @@ class Table:
             if len(self.merge_queue) != 0:
                 index = self.merge_queue.pop(0)
                 tailind = self.set_book(index)
-                bid = self.buffer_pool.buffer[tailind].read(1,4)
+                bid = self.buffer_pool.buffer[tailind].read(1, 4)
                 baseindex = self.set_book(self.page_directory[bid][0])
                 self.merge_base_and_tail(baseindex, tailind)
 
@@ -113,10 +115,11 @@ class Table:
 
         # update the record in base book based on what we have in tail book
         for index in reversed(range(tail_num_records)):
-            cur_bid = self.buffer_pool.buffer[tail_bp].read(index, 4)   # current row's bid
-            cur_tid = self.buffer_pool.buffer[tail_bp].read(index, 1)   # current row's tid
-            base_record_index = self.page_directory[cur_bid][1]   # get the base record index in its book
-            base_ind = self.buffer_pool.buffer[base_bp].read(base_record_index, 0)   # get the inderection value for this base record
+            cur_bid = self.buffer_pool.buffer[tail_bp].read(index, 4)  # current row's bid
+            cur_tid = self.buffer_pool.buffer[tail_bp].read(index, 1)  # current row's tid
+            base_record_index = self.page_directory[cur_bid][1]  # get the base record index in its book
+            base_ind = self.buffer_pool.buffer[base_bp].read(base_record_index,
+                                                             0)  # get the inderection value for this base record
 
             # only replace the base record when indirection value = tid, which means this tail record store the newest information of this base record
             if base_ind == cur_tid:
@@ -126,9 +129,8 @@ class Table:
                     # change the single line of copybook
                     copybook.content[m].update(tail_record[m], base_record_index)
 
-
         # assign the TPS to the copybook
-        copybook.tps = self.buffer_pool.buffer[tail_bp].read(tail_num_records-1, 1)
+        copybook.tps = self.buffer_pool.buffer[tail_bp].read(tail_num_records - 1, 1)
 
         # Overwrite the indirection column from old book
         # to the copy book in case an update happended
@@ -152,8 +154,7 @@ class Table:
         self.buffer_pool.buffer[slot] = self.pull_book_json(bookindex)
         return slot
 
-
-    #Makes room for a new book to be inserted into bp
+    # Makes room for a new book to be inserted into bp
     def make_room(self):
         # Check if any empty slots
         slot = -1
@@ -171,7 +172,7 @@ class Table:
             # if the book is dirty
             self.push_book(slot)
 
-        # Now slot is ready to be pulled to
+            # Now slot is ready to be pulled to
             self.buffer_pool.pin(slot)
         return slot
 
@@ -184,7 +185,6 @@ class Table:
                 loaded_book.content[idi].data = eval(i)
             loaded_book.book_indirection_flag = data['i_flag']
             loaded_book.tps = data['tps']
-
 
             for i in range(512):
                 if loaded_book.content[1].read_no_index_check(i) != 0:
@@ -204,37 +204,38 @@ class Table:
         book_number = actualBook.bookindex
         if (path.exists(self.file_name)):
             with open(self.file_name, "r") as read_file:
-                try: #file exists and is not empty
+                try:  # file exists and is not empty
                     data = json.load(read_file)
 
                     book_data = {str(book_number): []}
                     page_data = {'page': [], 'i_flag': actualBook.book_indirection_flag, 'tps': actualBook.tps}
                     for idj, j in enumerate(actualBook.content):
-                        page_data['page'].append( str(j.data))
+                        page_data['page'].append(str(j.data))
                     data[self.name][str(book_number)] = page_data
                     with open(self.file_name, "w") as write_file:
                         json.dump(data, write_file, indent=2)
 
                 except ValueError:
                     book_data = {str(book_number): []}
-                    data = {self.name: {str(book_number) :{'page': [], 'i_flag': actualBook.book_indirection_flag, 'tps': actualBook.tps}}}
+                    data = {self.name: {str(book_number): {'page': [], 'i_flag': actualBook.book_indirection_flag,
+                                                           'tps': actualBook.tps}}}
                     for idj, j in enumerate(actualBook.content):
                         data[self.name][str(book_number)]['page'].append(str(j.data))
                     with open(self.file_name, "w") as write_file:
-                         json.dump(data, write_file, indent=2)
-
+                        json.dump(data, write_file, indent=2)
 
     """
     reads all data in file and uses rid and key to reconstruct entire page page_directory
     and reconstructs primary index
     """
+
     def construct_pd_and_index(self):
         with open(self.file_name, "r") as read_file:
             data = json.load(read_file)
             data = data[self.name]
 
             for idx, x in enumerate(data):
-                #print(int(x))
+                # print(int(x))
                 book_number = idx
                 rid_page = Page()
                 sid_page = Page()
@@ -253,19 +254,18 @@ class Table:
                     ind = ind_page.read_no_index_check(page_index)
                     if (rid != 0 and bid == rid):
                         if (ind != 0):
-                            #tail_book_to_add = math.floor((2**64 - 2 - ind)/512) + 2
+                            # tail_book_to_add = math.floor((2**64 - 2 - ind)/512) + 2
                             for i in data:
                                 tbd.data = eval(data[str(i)]['page'][RID_COLUMN])
                                 for page_index2 in range(512):
-                                    #print("HERE %d" %ind)
+                                    # print("HERE %d" %ind)
                                     t = tbd.read_no_index_check(page_index2)
                                     if (t == ind):
-                                        #print("HEREeeee %d" %ind)
+                                        # print("HEREeeee %d" %ind)
                                         self.page_directory[ind] = [int(i), page_index2]
                                         break
 
-
-                            #self.page_directory[ind] = [book_number, page_index]
+                            # self.page_directory[ind] = [book_number, page_index]
                         self.page_directory[rid] = [int(x), page_index]
                         self.index[self.key].index[sid] = [rid]
 
@@ -296,17 +296,18 @@ class Table:
                         self.index[col].add_to_index(cvl, rid)
 
     def acquire_lock(self, sid, lock_type, tran_id):
-        # The internal lock that lock the lock manager to prevent
-        # multiple transactions from adding the exclusive lock to
-        # the same record. Will call lock.release() when release the lock.
-        self.lock.acquire()
-
         # Find the corresponding rid given the sid.
         if self.index[self.key].contains_key(sid):
             rid = self.index[self.key].locate(sid)
         else:
             print("Acquire_Lock_Error: Provided SID is not valid!!!!!!!")
             return False
+
+        # The internal lock that lock the lock manager to prevent
+        # multiple transactions from adding the exclusive lock to
+        # the same record. Will call lock.release() when release the lock.
+        # Will release the internal lock when this function is done.
+        self.lock.acquire()
 
         # If the record already has a lock list. Check if it contains a exclusive
         # lock and check if the exclusive lock belongs to the same transaction.
@@ -318,24 +319,28 @@ class Table:
             if lock_list.head is not None:
                 if lock_list.has_exlock():
                     if not lock_list.same_exlock_tranID(tran_id):
-
                         # Should release the internal lock here because the
                         # transaction won't release the lock if it will be aborted.
                         self.lock.release()
 
                         print("Adding lock after an exclusive lock. Lock appending failed and abort the transaction.")
                         return False
+
+                    self.lock.release()
                     return True
                 else:
                     if lock_list.has_lock(tran_id):
+                        self.lock.release()
                         return True
                     else:
                         new_lock = Lock(lock_type, tran_id)
                         lock_list.append_list(new_lock)
+                        self.lock.release()
                         return True
             else:
                 new_lock = Lock(lock_type, tran_id)
                 lock_list.append_list(new_lock)
+                self.lock.release()
                 return True
 
         # If the record doesn't have a lock list, make a lock list and append the lock.
@@ -343,14 +348,12 @@ class Table:
             self.page_directory[rid].append(Lock_List())
             new_lock = Lock(lock_type, tran_id)
             self.page_directory[rid][2].append_list(new_lock)
+            self.lock.release()
             return True
 
     # This release function will release all locks with the same transaction id
     # within a record, no need to call this function to release one single lock.
     def release_lock(self, sid, tran_id):
-        # Release the internal lock
-        self.lock.release()
-
         # Find the corresponding rid given the sid.
         if self.index[self.key].contains_key(sid):
             rid = self.index[self.key].locate(sid)
@@ -358,8 +361,14 @@ class Table:
             print("Release_Lock_Error: Provided SID is not valid!!!!!!!")
             return False
 
+        # Also need to lock the internal lock when we access the
+        # lock manager for the release_lock().
+        self.lock.acquire()
+
         # Shallow copy the lock list and remove the
         # locks in the same transaction.
         lock_list = self.page_directory[rid][2]
         lock_list.remove_lock(tran_id)
+
+        self.lock.release()
         return True
