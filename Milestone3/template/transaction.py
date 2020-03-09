@@ -36,8 +36,9 @@ class Transaction:
         print("~Transaction # " + str(self.transaction_id))
         for query, args in self.queries:
             key = args[0]
+            #print(key)
             exclusive = False
-            if query.__name__ == "update":
+            if query.__name__ == "increment":
                 exclusive = True
             elif key in self.reads:
                 result = self.reads[key]
@@ -82,6 +83,7 @@ class Transaction:
 
     def commit(self):
         # TODO: commit to database
+
         self.release_locks()
         return True
 

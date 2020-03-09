@@ -303,6 +303,8 @@ class Table:
             print("Acquire_Lock_Error: Provided SID is not valid!!!!!!!")
             return False
 
+        self.lock.acquire()
+
         # If the record already has a lock list. Check if it contains a exclusive
         # lock and check if the exclusive lock belongs to the same transaction.
         if len(self.page_directory[rid]) == 3:
@@ -312,11 +314,13 @@ class Table:
             # Doesn't mean there were no lock appended before.
             if lock_list.head is not None:
                 if lock_list.has_exlock():
+                    print("A:LKJF:LKAJFA")
                     if not lock_list.same_exlock_tranID(tran_id):
                         print("Adding lock after an exclusive lock. Lock appending failed and abort the transaction.")
+                        self.lock.release()
                         return False
                 else:
-                    if not lock_list.has_lock(tran_id):
+                    if not lock_list.has_lock(tran_id, lock_type):
                         new_lock = Lock(lock_type, tran_id)
                         lock_list.append_list(new_lock)
             else:
@@ -329,6 +333,7 @@ class Table:
             new_lock = Lock(lock_type, tran_id)
             self.page_directory[rid][2].append_list(new_lock)
 
+        self.lock.release()
         return True
 
     # This release function will release the first lock with the transaction id.
@@ -340,8 +345,12 @@ class Table:
             print("Release_Lock_Error: Provided SID is not valid!!!!!!!")
             return False
 
+        self.lock.acquire()
+
         # Shallow copy the lock list and remove the
         # locks in the same transaction.
         lock_list = self.page_directory[rid][2]
         lock_list.remove_lock(tran_id)
+
+        self.lock.release()
         return True

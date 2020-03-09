@@ -18,10 +18,10 @@ class Lock_List:
     def same_exlock_tranID(self, tran_id):
         return self.tail.tran_id == tran_id
 
-    def has_lock(self, tran_id):
+    def has_lock(self, tran_id, type):
         head_lock = self.head
         while head_lock is not None:
-            if head_lock.tran_id == tran_id:
+            if head_lock.tran_id == tran_id and (head_lock.lock_type == type or head_lock.lock_type == 1):
                 return True
             head_lock = head_lock.next
 
