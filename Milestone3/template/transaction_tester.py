@@ -32,7 +32,7 @@ for i in range(num_threads):
 # each transaction will increment the first column of a record 5 times
 for i in range(1000):
     k = randint(0, 2000 - 1)
-    transaction = Transaction()
+    transaction = Transaction(grades_table)
     for j in range(5):
         key = keys[k * 5 + j]
         q = Query(grades_table)

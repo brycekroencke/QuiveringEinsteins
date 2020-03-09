@@ -11,13 +11,13 @@ class Transaction:
     """
     # Creates a transaction object.
     """
-    def __init__(self, table, id):
+    def __init__(self, table):
         self.table = table
         self.locks = []
         self.updates = []
         self.reads = {}
         self.queries = []
-        self.transaction_id = id
+        self.transaction_id = inc_global_counter()
 
     """
     # Adds the given query to this transaction
@@ -33,7 +33,7 @@ class Transaction:
 
     # This MUST return 0 if transaction is sucessful, else it must return 0
     def run(self):
-        print(self.transaction_id)
+        print("~Transaction # " + str(self.transaction_id))
         for query, args in self.queries:
             key = args[0]
             exclusive = False
