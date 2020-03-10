@@ -46,6 +46,7 @@ class Table:
         self.close = False
         self.merge_thread = threading.Thread(target=self.merge)
         self.lock = threading.Lock()
+        self.acquire_counter = 0
 
     def create_index(self, col):
         if (col >= self.num_columns):
@@ -305,6 +306,8 @@ class Table:
 
         self.lock.acquire()
 
+        self.acquire_counter += 1
+       # print("\nAcquire Lock #:" + str(self.acquire_counter) + "               Transaction_ID:" + str(tran_id) + "\n")
         # If the record already has a lock list. Check if it contains a exclusive
         # lock and check if the exclusive lock belongs to the same transaction.
         if len(self.page_directory[rid]) == 3:
@@ -314,7 +317,7 @@ class Table:
             # Doesn't mean there were no lock appended before.
             if lock_list.head is not None:
                 if lock_list.has_exlock():
-                    print("A:LKJF:LKAJFA")
+                   # print("A:LKJF:LKAJFA")
                     if not lock_list.same_exlock_tranID(tran_id):
                         print("Adding lock after an exclusive lock. Lock appending failed and abort the transaction.")
                         self.lock.release()

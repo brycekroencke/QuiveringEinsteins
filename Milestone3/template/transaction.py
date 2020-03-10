@@ -34,41 +34,45 @@ class Transaction:
     # This MUST return 0 if transaction is sucessful, else it must return 0
     def run(self):
         print("~Transaction # " + str(self.transaction_id))
+
         for query, args in self.queries:
             key = args[0]
             #print(key)
             exclusive = False
-            if query.__name__ == "increment":
+            if query.__name__ == "increment":    # check if its write query
                 exclusive = True
-            elif key in self.reads:
-                result = self.reads[key]
-                continue
+            # elif key in self.reads:          # if its read query just read without adding lock to lock manager
+            #     result = self.reads[key]
+            #     continue
 
             if self.secure_lock(key, exclusive) == False:
                 print("Aborting transaciton #" + str(self.transaction_id))
                 return self.abort()
 
-            result = query(*args)
+            #result = query(*args)
 
             if exclusive:
                 self.updates.append(key)
+            #    query = Query(self.table)
 
-                query = Query(self.table)
-                self.reads[key] = query.select(key, self.table.key, [1]*self.table.num_columns)
-            else:
-                self.reads[key] = result
+            #     self.reads[key] = query.select(key, self.table.key, [1]*self.table.num_columns)
+            # else:
+            #     self.reads[key] = result
 
         return self.commit()
 
+    # exclusive = lock_type    lock_type = false is shared   true = exlcusive
     def secure_lock(self, key, exclusive):
         locky = (key, exclusive)
         if self.locks.__contains__(locky) or self.locks.__contains__((key, True)):
             return True
 
+        #print("Checking point!!!!!!!!!!!!!!!!!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
         if self.table.acquire_lock(key, exclusive, self.transaction_id):
             self.locks.append(locky)
             return True
 
+        print("Checking point!!!!!!!!!!!!!!!!!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
         return False
 
     def abort(self):
