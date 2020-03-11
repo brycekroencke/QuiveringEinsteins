@@ -3,6 +3,7 @@ from record import Record
 from index import Index
 from query import Query
 import threading
+from time import process_time
 from __init__ import *
 
 
@@ -18,6 +19,7 @@ class Transaction:
         self.reads = {}
         self.queries = []
         self.transaction_id = inc_global_counter()
+
 
     """
     # Adds the given query to this transaction
@@ -37,27 +39,17 @@ class Transaction:
 
         for query, args in self.queries:
             key = args[0]
-            #print(key)
+
             exclusive = False
             if query.__name__ == "increment":    # check if its write query
                 exclusive = True
-            # elif key in self.reads:          # if its read query just read without adding lock to lock manager
-            #     result = self.reads[key]
-            #     continue
 
             if self.secure_lock(key, exclusive) == False:
                 print("Aborting transaciton #" + str(self.transaction_id))
                 return self.abort()
 
-            #result = query(*args)
-
             if exclusive:
                 self.updates.append(key)
-            #    query = Query(self.table)
-
-            #     self.reads[key] = query.select(key, self.table.key, [1]*self.table.num_columns)
-            # else:
-            #     self.reads[key] = result
 
         return self.commit()
 
@@ -67,12 +59,10 @@ class Transaction:
         if self.locks.__contains__(locky) or self.locks.__contains__((key, True)):
             return True
 
-        #print("Checking point!!!!!!!!!!!!!!!!!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
         if self.table.acquire_lock(key, exclusive, self.transaction_id):
             self.locks.append(locky)
             return True
 
-        print("Checking point!!!!!!!!!!!!!!!!!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
         return False
 
     def abort(self):

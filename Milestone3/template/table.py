@@ -46,7 +46,8 @@ class Table:
         self.close = False
         self.merge_thread = threading.Thread(target=self.merge)
         self.lock = threading.Lock()
-        self.acquire_counter = 0
+        self.latch_book = {}
+
 
     def create_index(self, col):
         if (col >= self.num_columns):
@@ -306,7 +307,9 @@ class Table:
 
         self.lock.acquire()
 
-        self.acquire_counter += 1
+        for i in range(30000):
+            j = i
+
        # print("\nAcquire Lock #:" + str(self.acquire_counter) + "               Transaction_ID:" + str(tran_id) + "\n")
         # If the record already has a lock list. Check if it contains a exclusive
         # lock and check if the exclusive lock belongs to the same transaction.
