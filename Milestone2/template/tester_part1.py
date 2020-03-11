@@ -1,11 +1,8 @@
 from db import Database
 from query import Query
-from config import init
-import sys
 
 from random import choice, randint, sample, seed
 
-init()
 db = Database()
 db.open('~/ECS165')
 # Student Id and 4 grades
@@ -19,24 +16,37 @@ for i in range(0, 1000):
     records[key] = [key, randint(0, 20), randint(0, 20), randint(0, 20), randint(0, 20)]
     query.insert(*records[key])
 keys = sorted(list(records.keys()))
-
-
 print("Insert finished")
-#
-for key in keys:
-    record = query.select(key, 0, [1, 1, 1, 1, 1])[0]
-    error = False
-    for i, column in enumerate(record.columns):
-        if column != records[key][i]:
+
+query.table.create_index(1)
+query.table.create_index(2)
+query.table.create_index(3)
+query.table.create_index(4)
+
+for c in range(grades_table.num_columns):
+    _keys = list(set(records[record][c] for record in records))
+    index = {v: [records[record] for record in records if records[record][c] == v] for v in _keys}
+    #print(_keys)
+    #print(index)
+    results2 = []
+    for key in _keys:
+        results = query.select(key, c, [1, 1, 1, 1, 1])
+        for i in results:
+            results2.append(i.columns)
+        error = False
+        if len(results) != len(index[key]):
             error = True
-    if error:
-        print('select error on', key, ':', record, ', correct:', records[key])
-    # else:
-    #     print('select on', key, ':', record)
+        if not error:
+            for record in index[key]:
+                if record not in results2:
+                    error = True
+                    break
+        if error:
+            print('select error on', key, ', column', c, ':', results2, ', correct:', index[key])
 print("Select finished")
 
-for i in range(10):
-    print(i)
+for c in range(10):
+    print(c)
     for key in keys:
         updated_columns = [None, None, None, None, None]
         for i in range(1, grades_table.num_columns):
@@ -51,21 +61,19 @@ for i in range(10):
                 if column != records[key][j]:
                     error = True
             if error:
-                print('update error on', original, 'and', updated_columns, ':', record.columns, ', correct:', records[key])
-                exit()
+                print('update error on', original, 'and', updated_columns, ':', record, ', correct:', records[key])
             # else:
             #     print('update on', original, 'and', updated_columns, ':', record)
             updated_columns[i] = None
 print("Update finished")
 
 for i in range(0, 100):
-    #print(i)
     r = sorted(sample(range(0, len(keys)), 2))
     column_sum = sum(map(lambda key: records[key][0], keys[r[0]: r[1] + 1]))
     result = query.sum(keys[r[0]], keys[r[1]], 0)
     if column_sum != result:
         print('sum error on [', keys[r[0]], ',', keys[r[1]], ']: ', result, ', correct: ', column_sum)
+    # else:
+    #     print('sum on [', keys[r[0]], ',', keys[r[1]], ']: ', column_sum)
 print("Aggregate finished")
-
-
 db.close()
