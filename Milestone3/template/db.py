@@ -1,4 +1,5 @@
 from table import Table
+from __init__ import *
 import os.path
 from os import path
 import json
@@ -51,6 +52,7 @@ class Database():
                     self.tables.append(Table(name, num_columns, key, self.file_name))
                     self.tables[-1].construct_pd_and_index()
                     self.tables[-1].merge_thread.start()
+                    set_last_table( self.tables[-1])
                     return self.tables[-1]
                 else:
                     print("Table does not exist in data file")
@@ -66,6 +68,7 @@ class Database():
                 print("Creating database file for first time")
                 self.tables.append(Table(name, num_columns, key, self.file_name))
                 self.tables[-1].merge_thread.start()
+                set_last_table(self.tables[-1])
                 return self.tables[-1]
             return table
 

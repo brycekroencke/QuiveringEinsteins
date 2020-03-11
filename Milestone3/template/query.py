@@ -162,8 +162,6 @@ class Query:
 
         data = list(columns)
 
-
-
         ######################## Latch process to ensure the tid counter only able to touch by one transaction at a time #####################################################
         waittime = 0
         while self.table.latch_tid == True:    # break the loop when not other thread using tid_counter
@@ -178,9 +176,6 @@ class Query:
         if waittime > 0:
             print("#####################Wait time:" + str(waittime))
         ######################## Latch process to ensure the tid counter only able to touch by one transaction at a time #####################################################
-
-
-
 
         pin_idx_list = []           #holds a list of idx that asosetate to  what has been pinned during update
         tail_location = [-1, -1]    #for later use

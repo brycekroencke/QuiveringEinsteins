@@ -12,13 +12,13 @@ class Transaction:
     """
     # Creates a transaction object.
     """
-    def __init__(self, table):
-        self.table = table
+    def __init__(self):
         self.locks = []
         self.updates = []
         self.reads = {}
         self.queries = []
         self.transaction_id = inc_global_counter()
+        self.table = last_table()
 
 
     """
