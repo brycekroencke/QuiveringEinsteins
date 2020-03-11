@@ -164,17 +164,20 @@ class Query:
 
 
 
-        # ######################## Latch process to ensure the tid counter only able to touch by one transaction at a time #####################################################
-        # waittime = 0
-        # while self.table.latch_tid == True:    # break the loop when not other thread using tid_counter
-        #     waittime += 1
-        #     #continue
-        #
-        # self.table.latch_tid = True                 # lock the tid_counter to prevent other transaction touch it
+        ######################## Latch process to ensure the tid counter only able to touch by one transaction at a time #####################################################
+        waittime = 0
+        while self.table.latch_tid == True:    # break the loop when not other thread using tid_counter
+            waittime += 1
+            #continue
+
+        self.table.latch_tid = True                 # lock the tid_counter to prevent other transaction touch it
         self.table.tidcounter = self.table.tidcounter - 1
         tid_count = self.table.tidcounter           # assign current tid-counter to a temp variable so that we can release the tid_counter's lock right after that
-        # self.table.latch_tid = False                # finish using tid_counter for current transaction and release the lock
-        # ######################## Latch process to ensure the tid counter only able to touch by one transaction at a time #####################################################
+        self.table.latch_tid = False                # finish using tid_counter for current transaction and release the lock
+
+        if waittime > 0:
+            print("#####################Wait time:" + str(waittime))
+        ######################## Latch process to ensure the tid counter only able to touch by one transaction at a time #####################################################
 
 
 

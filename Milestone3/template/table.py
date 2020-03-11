@@ -308,9 +308,6 @@ class Table:
 
         self.lock.acquire()
 
-        for i in range(30000):
-            j = i
-
        # print("\nAcquire Lock #:" + str(self.acquire_counter) + "               Transaction_ID:" + str(tran_id) + "\n")
         # If the record already has a lock list. Check if it contains a exclusive
         # lock and check if the exclusive lock belongs to the same transaction.
@@ -323,7 +320,7 @@ class Table:
                 if lock_list.has_exlock():
                    # print("A:LKJF:LKAJFA")
                     if not lock_list.same_exlock_tranID(tran_id):
-                        print("Adding lock after an exclusive lock. Lock appending failed and abort the transaction.")
+                        #print("Adding lock after an exclusive lock. Lock appending failed and abort the transaction.")
                         self.lock.release()
                         return False
                 else:

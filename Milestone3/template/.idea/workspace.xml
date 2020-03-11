@@ -2,15 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4f92a0a6-94fc-4a60-940e-d4bf83e692f9" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/../../Milestone2/template/.idea/template.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Milestone2/template/ECS165.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Milestone2/template/ECS1652.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../Milestone2/template/buffer.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../Milestone2/template/buffer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lock.py" beforeDir="false" afterPath="$PROJECT_DIR$/lock.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ECS165.json" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/query.py" beforeDir="false" afterPath="$PROJECT_DIR$/query.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/table.py" beforeDir="false" afterPath="$PROJECT_DIR$/table.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/transaction.py" beforeDir="false" afterPath="$PROJECT_DIR$/transaction.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/transaction_tester.py" beforeDir="false" afterPath="$PROJECT_DIR$/transaction_tester.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -106,25 +101,25 @@
     </state>
     <state x="532" y="244" key="FileChooserDialogImpl/0.0.1500.960/3000.0.1920.1040@0.0.1500.960" timestamp="1583865059952" />
     <state x="532" y="244" key="FileChooserDialogImpl/0.0.1500.960@0.0.1500.960" timestamp="1583940503467" />
-    <state width="1480" height="301" key="GridCell.Tab.0.bottom" timestamp="1583950741698">
+    <state width="1480" height="336" key="GridCell.Tab.0.bottom" timestamp="1583957011011">
       <screen x="0" y="0" width="1500" height="960" />
     </state>
-    <state width="1480" height="301" key="GridCell.Tab.0.bottom/0.0.1500.960/3000.0.1920.1040@0.0.1500.960" timestamp="1583950741698" />
+    <state width="1480" height="336" key="GridCell.Tab.0.bottom/0.0.1500.960/3000.0.1920.1040@0.0.1500.960" timestamp="1583957011011" />
     <state width="1179" height="140" key="GridCell.Tab.0.bottom/0.0.1500.960/3000.0.1920.1040@3000.0.1920.1040" timestamp="1583945570028" />
-    <state width="1480" height="301" key="GridCell.Tab.0.center" timestamp="1583950741698">
+    <state width="1480" height="336" key="GridCell.Tab.0.center" timestamp="1583957011011">
       <screen x="0" y="0" width="1500" height="960" />
     </state>
-    <state width="1480" height="301" key="GridCell.Tab.0.center/0.0.1500.960/3000.0.1920.1040@0.0.1500.960" timestamp="1583950741698" />
+    <state width="1480" height="336" key="GridCell.Tab.0.center/0.0.1500.960/3000.0.1920.1040@0.0.1500.960" timestamp="1583957011011" />
     <state width="1179" height="140" key="GridCell.Tab.0.center/0.0.1500.960/3000.0.1920.1040@3000.0.1920.1040" timestamp="1583945570028" />
-    <state width="1480" height="301" key="GridCell.Tab.0.left" timestamp="1583950741698">
+    <state width="1480" height="336" key="GridCell.Tab.0.left" timestamp="1583957011011">
       <screen x="0" y="0" width="1500" height="960" />
     </state>
-    <state width="1480" height="301" key="GridCell.Tab.0.left/0.0.1500.960/3000.0.1920.1040@0.0.1500.960" timestamp="1583950741698" />
+    <state width="1480" height="336" key="GridCell.Tab.0.left/0.0.1500.960/3000.0.1920.1040@0.0.1500.960" timestamp="1583957011011" />
     <state width="1179" height="140" key="GridCell.Tab.0.left/0.0.1500.960/3000.0.1920.1040@3000.0.1920.1040" timestamp="1583945570028" />
-    <state width="1480" height="301" key="GridCell.Tab.0.right" timestamp="1583950741698">
+    <state width="1480" height="336" key="GridCell.Tab.0.right" timestamp="1583957011011">
       <screen x="0" y="0" width="1500" height="960" />
     </state>
-    <state width="1480" height="301" key="GridCell.Tab.0.right/0.0.1500.960/3000.0.1920.1040@0.0.1500.960" timestamp="1583950741698" />
+    <state width="1480" height="336" key="GridCell.Tab.0.right/0.0.1500.960/3000.0.1920.1040@0.0.1500.960" timestamp="1583957011011" />
     <state width="1179" height="140" key="GridCell.Tab.0.right/0.0.1500.960/3000.0.1920.1040@3000.0.1920.1040" timestamp="1583945570028" />
     <state x="252" y="123" key="SettingsEditor" timestamp="1583945749209">
       <screen x="0" y="0" width="1500" height="960" />
@@ -145,5 +140,9 @@
       <screen x="3000" y="0" width="1920" height="1040" />
     </state>
     <state x="3510" y="337" width="707" height="307" key="org.intellij.images.editor.actions.BackgroundImageDialog/0.0.1500.960/3000.0.1920.1040@3000.0.1920.1040" timestamp="1583871558863" />
+    <state x="413" y="206" width="672" height="678" key="search.everywhere.popup" timestamp="1583951787143">
+      <screen x="0" y="0" width="1500" height="960" />
+    </state>
+    <state x="413" y="206" width="672" height="678" key="search.everywhere.popup/0.0.1500.960/3000.0.1920.1040@0.0.1500.960" timestamp="1583951787143" />
   </component>
 </project>
