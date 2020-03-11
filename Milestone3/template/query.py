@@ -84,53 +84,33 @@ class Query:
     # Read a record with specified key
     """
 
-    # def select(self, key, col, query_columns):
-    #     records = []
-    #     if(self.table.index[col] == None):
-    #         # do scan
-    #         print("mc-scan")
-    #         return records
-    #
-    #     RID_list = self.table.index[col].locate(key)
-    #
-    #     #Taking RIDS->location and extracting records into record list.
-    #     for i in RID_list:
-    #         location = self.table.page_directory[i]
-    #         ind = self.table.set_book(location[0])
-    #         booky = self.table.buffer_pool.buffer[ind]
-    #
-    #
-    #         ##We check the indirection and see that it exists and then
-    #         ##we try and read it from the pd but its not there because merge?
-    #         check_indirection = booky.get_indirection(location[1])
-    #         #print("loc: %d num_rec: %d rid: %d check_ind: %d"%(location[1], booky.content[1].num_records, i, check_indirection))
-    #         if (check_indirection != 0):
-    #             if booky.read(location[1], 1) != 0: #checking to see if there is a delete
-    #                 if check_indirection == 0 or check_indirection >= booky.tps: #no indirection or old update
-    #                     records.append(booky.record(location[1], self.table.key, query_columns))
-    #                     self.table.buffer_pool.unpin(ind)
-    #                 else: #there is an indirection that is valid
-    #                     self.table.buffer_pool.unpin(ind)
-    #                     temp = self.table.page_directory[check_indirection]
-    #                     tind = self.table.set_book(temp[0])
-    #                     tbooky = self.table.buffer_pool.buffer[tind]
-    #
-    #                     records.append(tbooky.record(temp[1], self.table.key, query_columns))
-    #                     self.table.buffer_pool.unpin(tind)
-    #             else:
-    #                 temp_rec = Record(location[1], self.table.key, ([0] * self.table.num_columns))
-    #                 records.append(temp_rec)
-    #         else:
-    #             temp_rec = Record(location[1], self.table.key, ([0] * self.table.num_columns))
-    #             records.append(temp_rec)
-    #
-    #     return records
 
     def select(self, key, col, query_columns):
+
+        # ###### latch a page in Book####################################################
+        # #checking if book is locked or not
+        # rid = self.table.index[self.table.key].locate(key)
+        # book_index = self.table.page_directory[rid][0]
+        # search_key = str(book_index) + "$" + str(query_columns)
+        #
+        # #not in the latch dictionary
+        # if search_key not in self.table.latch_book:
+        #     self.table.latch_book[search_key] = True
+        # else:   # inside the dict
+        #     while self.table.latch_book[search_key] == True :    # when it's locked wait until the lock be released
+        #         continue
+        #
+        #     self.table.latch_book[search_key] = True    # set to true and release it when this select finish
+        #
+        # ########## finish latch checking process ######################################
+
+
+
         records = []
         if(self.table.index[col] == None):
             # do scan
             print("mc-scan")
+            #self.table.latch_book[search_key] = False   # set the book to unlock
             return records
 
         RID_list = self.table.index[col].locate(key)
@@ -162,6 +142,7 @@ class Query:
                 temp_rec = Record(location[1], self.table.key, ([0] * self.table.num_columns))
                 records.append(temp_rec)
 
+       # self.table.latch_book[search_key] = False  # set the book to unlock
         return records
 
     """
@@ -181,7 +162,22 @@ class Query:
 
         data = list(columns)
 
+
+
+        # ######################## Latch process to ensure the tid counter only able to touch by one transaction at a time #####################################################
+        # waittime = 0
+        # while self.table.latch_tid == True:    # break the loop when not other thread using tid_counter
+        #     waittime += 1
+        #     #continue
+        #
+        # self.table.latch_tid = True                 # lock the tid_counter to prevent other transaction touch it
         self.table.tidcounter = self.table.tidcounter - 1
+        tid_count = self.table.tidcounter           # assign current tid-counter to a temp variable so that we can release the tid_counter's lock right after that
+        # self.table.latch_tid = False                # finish using tid_counter for current transaction and release the lock
+        # ######################## Latch process to ensure the tid counter only able to touch by one transaction at a time #####################################################
+
+
+
 
         pin_idx_list = []           #holds a list of idx that asosetate to  what has been pinned during update
         tail_location = [-1, -1]    #for later use
@@ -195,13 +191,17 @@ class Query:
         check_indirection =  self.table.buffer_pool.buffer[base_book_bp].get_indirection(location[1])
         pin_idx_list.append(base_book_bp)
 
+
+
+
         if check_indirection == 0:
         #constructing the full new record
             new_record = self.table.buffer_pool.buffer[base_book_bp].get_full_record(location[1])
             for idx, i in enumerate(data):
                 if i != None:
                     new_record[idx + 5] = i
-            new_record[1] = self.table.tidcounter #note that the rid of the base record is already in the BASE_ID_COLUMN thanks to insert
+            new_record[1] = tid_count #note that the rid of the base record is already in the BASE_ID_COLUMN thanks to insert
+
 
         else: # there is indirection
             tail_location = self.table.page_directory[check_indirection] #[Book num, row num]
@@ -212,8 +212,25 @@ class Query:
                 if i != None:
                     new_record[idx + 5] = i
             new_record[INDIRECTION_COLUMN] = new_record[RID_COLUMN] # new record now points to the second newest record almost like a linked list
-            new_record[RID_COLUMN] = self.table.tidcounter #note that the rid of the base record is already in the BASE_ID_COLUMN thanks to insert
+            new_record[RID_COLUMN] = tid_count #note that the rid of the base record is already in the BASE_ID_COLUMN thanks to insert
             pin_idx_list.append(tail_book_R_bp)
+
+        # ###### latch a page in Book####################################################
+        # # checking if book is locked or not
+        # rid = self.table.index[self.table.key].locate(key)
+        # book_index = self.table.page_directory[rid][0]
+        # search_key = str(book_index) + "$" + str(query_columns)
+        #
+        # # not in the latch dictionary
+        # if search_key not in self.table.latch_book:
+        #     self.table.latch_book[search_key] = True
+        # else:  # inside the dict
+        #     while self.table.latch_book[search_key] == True:  # when it's locked wait until the lock be released
+        #         continue
+        #
+        #     self.table.latch_book[search_key] = True  # set to true and release it when this select finish
+        #
+        # ########## finish latch checking process ######################################
 
         """
         NOW New_record holds the value that i wish to append to a tail book
@@ -242,11 +259,11 @@ class Query:
                 self.table.merge_queue.append(self.table.buffer_pool.buffer[slot].bookindex)
 
 
-        self.table.page_directory[self.table.tidcounter] = location
+        self.table.page_directory[tid_count] = location
         #update base_book indirection with new TID
         # This is to avoid updating while books are being swapped.
         # Although this should rarely happen since merge waits for the book to be unused to swap books.
-        self.table.buffer_pool.buffer[base_book_bp].set_meta_zero(self.table.tidcounter, indirection_location[1])
+        self.table.buffer_pool.buffer[base_book_bp].set_meta_zero(tid_count, indirection_location[1])
 
         for i in pin_idx_list:
             self.table.buffer_pool.unpin(i)

@@ -47,6 +47,7 @@ class Table:
         self.merge_thread = threading.Thread(target=self.merge)
         self.lock = threading.Lock()
         self.latch_book = {}
+        self.latch_tid = False
 
 
     def create_index(self, col):

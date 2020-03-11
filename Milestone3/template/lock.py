@@ -1,3 +1,6 @@
+
+
+
 class Lock:
     def __init__(self, lock_type, tran_id):
         self.lock_type = lock_type
@@ -60,3 +63,4 @@ class Lock_List:
 
         prev.next = head_lock.next
         head_lock = None
+

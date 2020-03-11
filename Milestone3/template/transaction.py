@@ -44,12 +44,21 @@ class Transaction:
             if query.__name__ == "increment":    # check if its write query
                 exclusive = True
 
+
+
             if self.secure_lock(key, exclusive) == False:
                 print("Aborting transaciton #" + str(self.transaction_id))
                 return self.abort()
 
+            result = query(*args)      # calling the query and execute this query
+
             if exclusive:
                 self.updates.append(key)
+
+                query = Query(self.table)
+                self.reads[key] = query.select(key, self.table.key, [1] * self.table.num_columns)
+            else:
+                self.reads[key] = result
 
         return self.commit()
 
@@ -64,6 +73,7 @@ class Transaction:
             return True
 
         return False
+
 
     def abort(self):
         #TODO: do roll-back and any other necessary operations

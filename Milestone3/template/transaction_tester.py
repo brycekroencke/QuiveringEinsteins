@@ -30,18 +30,21 @@ for i in range(num_threads):
 
 # generates 10k random transactions
 # each transaction will increment the first column of a record 5 times
-for i in range(20):
-    # k = randint(0, 2000 - 1)
-   # k = 3
+
+for i in range(100):
+    k = randint(0, 2000 - 1)
+    # k = 3
     transaction = Transaction(grades_table)
     for j in range(5):
-       # key = keys[k * 5 + j]        # keys is the list of key value
-        key = keys[1]
-        q = Query(grades_table)      # query is a class object
-        transaction.add_query(q.select, key, 0, [1, 1, 1, 1, 1])      # append query to transaction's query list
+        key = keys[k * 5 + j]
+        q = Query(grades_table)
+        transaction.add_query(q.select, key, 0, [1, 1, 1, 1, 1])
         q = Query(grades_table)
         transaction.add_query(q.increment, key, 1)
     transaction_workers[i % num_threads].add_transaction(transaction)
+
+
+
 
 threads = []
 for transaction_worker in transaction_workers:
