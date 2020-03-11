@@ -17,6 +17,7 @@ class Transaction:
         self.updates = []
         self.reads = {}
         self.queries = []
+        self.pins = []
         self.transaction_id = inc_global_counter()
         self.table = last_table()
 
@@ -44,11 +45,14 @@ class Transaction:
             if query.__name__ == "increment":    # check if its write query
                 exclusive = True
 
-
-
             if self.secure_lock(key, exclusive) == False:
                 print("Aborting transaciton #" + str(self.transaction_id))
                 return self.abort()
+
+            if exclusive: # if we have secured a lock, pull the base and tail book and pin them
+                new_pins = self.table.pull_base_and_tail(key)
+                for pin in new_pins:
+                    self.pins.append(pin)
 
             result = query(*args)      # calling the query and execute this query
 
@@ -83,13 +87,19 @@ class Transaction:
             query.change_link(key)
 
         self.release_locks()
+        self.release_pins()
         return False
 
     def commit(self):
         # TODO: commit to database
 
         self.release_locks()
+        self.release_pins()
         return True
+
+    def release_pins(self):
+        for pin in self.pins:
+            self.table.buffer_pool.unpin(pin)
 
     def release_locks(self):
         for locky in self.locks:

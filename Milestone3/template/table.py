@@ -49,6 +49,26 @@ class Table:
         self.latch_book = {}
         self.latch_tid = False
 
+    def pull_base_and_tail(self, key):
+        result = []
+
+        base_rid = self.index[self.key].locate(key)[0]
+        base_location = self.page_directory[base_rid]
+
+        # pull base book into BP, base_bp is the buffer_pool index
+        base_bp = self.set_book(base_location[0])
+        result.append(base_bp)
+
+        tail_rid = self.buffer_pool.buffer[base_bp].get_indirection(base_location[1])
+
+        if tail_rid != 0: # Then also pull tail book into BP
+            tail_location = self.page_directory[tail_rid]
+
+            # pull tail book into BP, tail_bp is the buffer_pool index
+            tail_bp = self.set_book(tail_location[0])
+            result.append(tail_bp)
+
+        return result
 
     def create_index(self, col):
         if (col >= self.num_columns):

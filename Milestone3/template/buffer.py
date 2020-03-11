@@ -25,12 +25,12 @@ class Buffer:
         self.pins[index] -= 1
         self.touched(index)
 
-    def find_LRU(self):  #returns the postion of book that is the last least resently used
+    def find_LRU(self):  #returns the postion of book that is the last least recently used
         result = -1
 
         for i in range(self.buffer_size, 0, -1):
             for j in range(self.buffer_size):
-                if i == self.LRU_tracker[j]:
+                if i == self.LRU_tracker[j] and self.pins[j] == 0:
                     return j
 
         if result == -1:
