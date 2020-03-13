@@ -46,29 +46,18 @@ class Table:
         self.close = False
         self.merge_thread = threading.Thread(target=self.merge)
         self.lock = threading.Lock()
+        self.lock2 = threading.Lock()
         self.latch_book = {}
         self.latch_tid = False
 
-    def pull_base_and_tail(self, key):
+    def pull_base_of_key(self, key):
         result = []
 
         base_rid = self.index[self.key].locate(key)[0]
         base_location = self.page_directory[base_rid]
 
-        # pull base book into BP, base_bp is the buffer_pool index
-        base_bp = self.set_book(base_location[0])
-        result.append(base_bp)
-
-        tail_rid = self.buffer_pool.buffer[base_bp].get_indirection(base_location[1])
-
-        if tail_rid != 0: # Then also pull tail book into BP
-            tail_location = self.page_directory[tail_rid]
-
-            # pull tail book into BP, tail_bp is the buffer_pool index
-            tail_bp = self.set_book(tail_location[0])
-            result.append(tail_bp)
-
-        return result
+        # pull base book into BP, return the buffer_pool index
+        return self.set_book(base_location[0])
 
     def create_index(self, col):
         if (col >= self.num_columns):
@@ -93,17 +82,22 @@ class Table:
     the location of were the book is stored in the bp
     """
     def set_book(self,bookid):
-        check = self.book_in_bp(bookid)
-        if check != -1: #book is in dp just return its location in dp
-            self.buffer_pool.pin(check)
-            return check
+        with self.lock2:
+            check = self.book_in_bp(bookid)
+            if check != -1: #book is in dp just return its location in dp
+                self.buffer_pool.pin(check)
+                return check
 
-        else: #book not in bp put it into bp
-            return self.pull_book(bookid) #book is now in dp return its location in dp
+            else: #book not in bp put it into bp
+                return self.pull_book(bookid) #book is now in dp return its location in dp
 
     def push_book(self, ind):
         if self.buffer_pool.buffer[ind] != None and self.buffer_pool.buffer[ind].dirty_bit == True:
-            self.dump_book_json(self.buffer_pool.buffer[ind])
+            temp = self.buffer_pool.buffer[ind]
+            print("PUSHING BOOK: " + str(temp.bookindex))
+            print("FROM INDEX: " + str(ind))
+            self.buffer_pool.buffer[ind] = None
+            self.dump_book_json(temp)
 
     def check_basebook_in_buffer(self, basebook_index):
         for i in range(0, len(self.buffer_pool.buffer) - 1):
@@ -172,6 +166,8 @@ class Table:
 
     def pull_book(self, bookindex):
         slot = self.make_room()
+        print("PULLING BOOK: " + str(bookindex))
+        print("INTO INDEX" + str(slot))
         self.buffer_pool.buffer[slot] = self.pull_book_json(bookindex)
         return slot
 
@@ -179,23 +175,22 @@ class Table:
     #Makes room for a new book to be inserted into bp
     def make_room(self):
         # Check if any empty slots
-        slot = -1
         for idx, i in enumerate(self.buffer_pool.buffer):
             if i == None:
-                slot = idx
-                self.buffer_pool.pin(slot)
-                return slot
+                self.buffer_pool.pin(idx)
+                return idx
 
         # if no empty slots
-        if slot == -1:
-            # replacement time
-            slot = self.buffer_pool.find_LRU()
-
-            # if the book is dirty
-            self.push_book(slot)
+        # replacement time, find LRU
+        slot = self.buffer_pool.find_LRU()
 
         # Now slot is ready to be pulled to
-            self.buffer_pool.pin(slot)
+        self.buffer_pool.pin(slot)
+
+        # if the book is dirty
+        self.push_book(slot)
+
+
         return slot
 
     def pull_book_json(self, book_number):

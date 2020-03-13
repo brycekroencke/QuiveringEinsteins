@@ -208,8 +208,7 @@ class Query:
                 if i != None:
                     new_record[idx + 5] = i
             new_record[1] = self.table.tidcounter #note that the rid of the base record is already in the BASE_ID_COLUMN thanks to insert
-            pin_idx_list.append(tail_book_R_bp)
-
+            self.table.buffer_pool.unpin(tail_book_R_bp)
         """
         NOW New_record holds the value that i wish to append to a tail book
         """

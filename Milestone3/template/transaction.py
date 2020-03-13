@@ -15,7 +15,6 @@ class Transaction:
     def __init__(self):
         self.locks = []
         self.updates = []
-        self.reads = {}
         self.queries = []
         self.pins = []
         self.transaction_id = inc_global_counter()
@@ -36,7 +35,7 @@ class Transaction:
 
     # This MUST return 0 if transaction is sucessful, else it must return 0
     def run(self):
-        print("~Transaction # " + str(self.transaction_id))
+        # print("~Transaction # " + str(self.transaction_id))
 
         for query, args in self.queries:
             key = args[0]
@@ -50,9 +49,7 @@ class Transaction:
                 return self.abort()
 
             if exclusive: # if we have secured a lock, pull the base and tail book and pin them
-                new_pins = self.table.pull_base_and_tail(key)
-                for pin in new_pins:
-                    self.pins.append(pin)
+                self.pins.append(self.table.pull_base_of_key(key))
 
             result = query(*args)      # calling the query and execute this query
 
@@ -60,9 +57,6 @@ class Transaction:
                 self.updates.append(key)
 
                 query = Query(self.table)
-                self.reads[key] = query.select(key, self.table.key, [1] * self.table.num_columns)
-            else:
-                self.reads[key] = result
 
         return self.commit()
 

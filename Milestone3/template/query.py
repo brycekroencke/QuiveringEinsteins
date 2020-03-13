@@ -211,7 +211,7 @@ class Query:
                     new_record[idx + 5] = i
             new_record[INDIRECTION_COLUMN] = new_record[RID_COLUMN] # new record now points to the second newest record almost like a linked list
             new_record[RID_COLUMN] = tid_count #note that the rid of the base record is already in the BASE_ID_COLUMN thanks to insert
-            pin_idx_list.append(tail_book_R_bp)
+            self.table.buffer_pool.unpin(tail_book_R_bp)
 
         # ###### latch a page in Book####################################################
         # # checking if book is locked or not
