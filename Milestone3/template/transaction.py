@@ -49,7 +49,9 @@ class Transaction:
                 return self.abort()
 
             if exclusive: # if we have secured a lock, pull the base and tail book and pin them
-                self.pins.append(self.table.pull_base_of_key(key))
+                pin_list = self.table.pull_base_and_tail(key)
+                for pin in pin_list:
+                    self.pins.append(pin)
 
             result = query(*args)      # calling the query and execute this query
 

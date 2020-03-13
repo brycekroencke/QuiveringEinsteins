@@ -50,14 +50,30 @@ class Table:
         self.latch_book = {}
         self.latch_tid = False
 
-    def pull_base_of_key(self, key):
+    def pull_base_and_tail(self, key):
         result = []
 
         base_rid = self.index[self.key].locate(key)[0]
         base_location = self.page_directory[base_rid]
 
         # pull base book into BP, return the buffer_pool index
-        return self.set_book(base_location[0])
+        result.append(self.set_book(base_location[0]))
+
+        # now get most recent tail book to append to.
+        indir = self.buffer_pool.buffer[result[0]].book_indirection_flag
+
+        # if we need to create a new tail book.
+        if indir == -1:
+            result.append(self.make_room())   #make room
+            self.buffer_pool.buffer[result[1]] = Book(self.num_columns, self.book_index) #add book
+            self.buffer_pool.buffer[result[0]].set_flag(self.book_index) #set indirection flag in base book
+
+            self.book_index += 1
+        # otherwise just pull the tail book and return the pinned slot.
+        else:
+            result.append(self.set_book(indir))
+
+        return result
 
     def create_index(self, col):
         if (col >= self.num_columns):

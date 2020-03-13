@@ -174,7 +174,7 @@ class Query:
         self.table.latch_tid = False                # finish using tid_counter for current transaction and release the lock
 
         if waittime > 0:
-            print("#####################Wait time:" + str(waittime))
+            print("Latching. Wait time:" + str(waittime))
         ######################## Latch process to ensure the tid counter only able to touch by one transaction at a time #####################################################
 
         pin_idx_list = []           #holds a list of idx that asosetate to  what has been pinned during update
@@ -212,23 +212,6 @@ class Query:
             new_record[INDIRECTION_COLUMN] = new_record[RID_COLUMN] # new record now points to the second newest record almost like a linked list
             new_record[RID_COLUMN] = tid_count #note that the rid of the base record is already in the BASE_ID_COLUMN thanks to insert
             self.table.buffer_pool.unpin(tail_book_R_bp)
-
-        # ###### latch a page in Book####################################################
-        # # checking if book is locked or not
-        # rid = self.table.index[self.table.key].locate(key)
-        # book_index = self.table.page_directory[rid][0]
-        # search_key = str(book_index) + "$" + str(query_columns)
-        #
-        # # not in the latch dictionary
-        # if search_key not in self.table.latch_book:
-        #     self.table.latch_book[search_key] = True
-        # else:  # inside the dict
-        #     while self.table.latch_book[search_key] == True:  # when it's locked wait until the lock be released
-        #         continue
-        #
-        #     self.table.latch_book[search_key] = True  # set to true and release it when this select finish
-        #
-        # ########## finish latch checking process ######################################
 
         """
         NOW New_record holds the value that i wish to append to a tail book
