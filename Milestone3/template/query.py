@@ -3,6 +3,7 @@ from index import Index
 from book import *
 from record import Record
 import sys
+from  __init__ import writeLock
 
 
 INDIRECTION_COLUMN = 0
@@ -58,7 +59,9 @@ class Query:
             self.table.buffer_pool.buffer[idx] = Book(len(columns), self.table.book_index)
 
             lastw = [self.table.book_index, 0, idx]
-            self.table.book_index += 1
+            global writeLock
+            with writeLock:
+                self.table.book_index += 1
 
         # there is an available book.
         else:
@@ -223,8 +226,8 @@ class Query:
             location = self.table.buffer_pool.buffer[new_slot].book_insert(new_record)#add record to book
             self.table.buffer_pool.buffer[base_book_bp].set_flag(self.table.book_index) #set indirection flag in base book
 
-
-            self.table.book_index += 1
+            with writeLock:
+                self.table.book_index += 1
             pin_idx_list.append(new_slot)
 
         else: #there is an availabe book to write to

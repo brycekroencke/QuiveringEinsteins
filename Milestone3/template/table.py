@@ -10,6 +10,7 @@ from buffer import *
 from book import Book
 import threading
 import math
+from __init__ import writeLock
 from lock import Lock_List, Lock
 
 INDIRECTION_COLUMN = 0
@@ -67,8 +68,9 @@ class Table:
             result.append(self.make_room())   #make room
             self.buffer_pool.buffer[result[1]] = Book(self.num_columns, self.book_index) #add book
             self.buffer_pool.buffer[result[0]].set_flag(self.book_index) #set indirection flag in base book
-
-            self.book_index += 1
+            global writeLock
+            with writeLock:
+                self.book_index += 1
         # otherwise just pull the tail book and return the pinned slot.
         else:
             result.append(self.set_book(indir))
@@ -210,22 +212,23 @@ class Table:
         return slot
 
     def pull_book_json(self, book_number):
+        #with writeLock:
         with open(self.file_name, "r") as read_file:
             data = json.load(read_file)
-            data = data[self.name][str(book_number)]
-            loaded_book = Book(len(data['page']) - 5, book_number)
-            for idi, i in enumerate(data['page']):
-                loaded_book.content[idi].data = eval(i)
-            loaded_book.book_indirection_flag = data['i_flag']
-            loaded_book.tps = data['tps']
+        data = data[self.name][str(book_number)]
+        loaded_book = Book(len(data['page']) - 5, book_number)
+        for idi, i in enumerate(data['page']):
+            loaded_book.content[idi].data = eval(i)
+        loaded_book.book_indirection_flag = data['i_flag']
+        loaded_book.tps = data['tps']
 
 
-            for i in range(512):
-                if loaded_book.content[1].read_no_index_check(i) != 0:
-                    for page in loaded_book.content:
-                        page.num_records += 1
+        for i in range(512):
+            if loaded_book.content[1].read_no_index_check(i) != 0:
+                for page in loaded_book.content:
+                    page.num_records += 1
 
-            return loaded_book
+        return loaded_book
 
     def book_in_bp(self, bookid):
         for idx, i in enumerate(self.buffer_pool.buffer):
@@ -237,6 +240,7 @@ class Table:
     def dump_book_json(self, actualBook):
         book_number = actualBook.bookindex
         if (path.exists(self.file_name)):
+            #with writeLock:
             with open(self.file_name, "r") as read_file:
                 try: #file exists and is not empty
                     data = json.load(read_file)
@@ -246,6 +250,9 @@ class Table:
                     for idj, j in enumerate(actualBook.content):
                         page_data['page'].append( str(j.data))
                     data[self.name][str(book_number)] = page_data
+
+
+
                     with open(self.file_name, "w") as write_file:
                         json.dump(data, write_file, indent=2)
 
@@ -254,6 +261,7 @@ class Table:
                     data = {self.name: {str(book_number) :{'page': [], 'i_flag': actualBook.book_indirection_flag, 'tps': actualBook.tps}}}
                     for idj, j in enumerate(actualBook.content):
                         data[self.name][str(book_number)]['page'].append(str(j.data))
+
                     with open(self.file_name, "w") as write_file:
                          json.dump(data, write_file, indent=2)
 
